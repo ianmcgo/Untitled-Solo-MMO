@@ -853,11 +853,18 @@ function gameConfirm(title, text, onYes, opts) {
   box.classList.toggle("narrow", !!opts.narrow);
   box.style.bottom = opts.center ? "" : "calc(" + ((ch && !ch.classList.contains("gone") ? ch.offsetHeight : 0) + 16) + "px + var(--sab))";
   box.querySelector(".cbB").textContent = text || title;
+  let inp = box.querySelector(".cbIn");
+  if (!inp) { inp = document.createElement("input"); inp.className = "cbIn"; inp.autocomplete = "off"; inp.spellcheck = false; box.querySelector(".cbA").before(inp); }
+  const need = opts.typeName ? String(opts.typeName).trim().toLowerCase() : null;
+  inp.style.display = need ? "" : "none"; inp.value = ""; inp.placeholder = need ? "Type " + opts.typeName + " to confirm" : "";
+  yes.disabled = !!need;
+  inp.oninput = () => { yes.disabled = !!need && inp.value.trim().toLowerCase() !== need; };
   box.classList.add("on");
+  if (need) setTimeout(() => inp.focus(), 50);
   S.keys = {};
   const close = () => { box.classList.remove("on"); yes.onclick = no.onclick = null; UI.confirmOpen = false; UI.confirmTag = null; UI.confirmClose = null; };
   UI.confirmOpen = true; UI.confirmTag = opts.tag || null; UI.confirmClose = close;
-  yes.onclick = () => { close(); if (typeof sfx === "function") sfx("select"); onYes(); };
+  yes.onclick = () => { if (yes.disabled) return; close(); if (typeof sfx === "function") sfx("select"); onYes(); };
   no.onclick = () => { close(); if (typeof sfx === "function") sfx("close"); if (opts.onNo) opts.onNo(); };
   if (typeof sfx === "function") sfx("open");
 }
@@ -1556,7 +1563,7 @@ function mainCmdDo(i) {
   UI.mm.sel = i; renderMainCmd();
   if (k === "@logout") mainCmdClose();
   if (k === "@time") { openTimeBox(); return; }
-  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out", center: true }); return; }
+  if (k === "@logout") { gameConfirm("Log out", "Return to the character selection screen?", () => { saveGame(); logoutToSelect(); }, { yes: "Log out", center: true, narrow: true }); return; }
   openMenu(k);
 }
 function mainCmdKey(k) {

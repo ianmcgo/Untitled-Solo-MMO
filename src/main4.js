@@ -5,6 +5,7 @@ function guardKeys(e) {
 
 function onKey(e) {
   const k = e.key.toLowerCase();
+  if (UI.confirmOpen && e.target && e.target.classList && e.target.classList.contains("cbIn") && k !== "enter" && k !== "escape") return;
   if (UI.confirmOpen) { const cb = $("confirmBox"); if (k === "escape") cb.querySelector(".no").click(); else if (k === "arrowup" || k === "arrowdown") { cb.querySelectorAll(".cbA button").forEach(b => b.classList.toggle("sel")); } else if (k === "enter" || k === " ") (cb.querySelector(".cbA button.sel") || cb.querySelector(".yes")).click(); e.preventDefault(); return; }
   if (!UI.started) return;
   if ((e.ctrlKey || e.metaKey) && !/^(Digit|Numpad)[0-9]$/.test(e.code || "")) return;
@@ -424,7 +425,7 @@ function showCharSelect() {
     if (b && b.dataset.play) { enterWorld(b.dataset.play); return; }
     if (b && b.dataset.del) {
       const c = r.chars.find(x => x.id === b.dataset.del);
-      if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good.", async () => { try { await netDeleteChar(c.id); deleteChar(c.id); showCharSelect(); } catch (err) { acctBusy("Couldn't delete: " + netErr(err)); setTimeout(showCharSelect, 2500); } }, { yes: "Delete", danger: true });
+      if (c) gameConfirm("Delete " + c.name + "?", "This character and everything they own will be gone for good. Type the character's name to confirm.", async () => { try { await netDeleteChar(c.id); deleteChar(c.id); showCharSelect(); } catch (err) { acctBusy("Couldn't delete: " + netErr(err)); setTimeout(showCharSelect, 2500); } }, { yes: "Delete", danger: true, typeName: c.name });
       return;
     }
     if (b && b.dataset.mode) { PLAY.offline = false; showModeChoice(); return; }

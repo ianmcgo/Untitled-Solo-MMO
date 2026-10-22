@@ -1268,6 +1268,10 @@
   #mBody .foldB { background: rgba(0,0,0,.28); border-radius: 4px; padding: 6px 9px; margin: 0 0 6px; }
   #mBody .foldB, #mBody .foldB .sub, #mBody .foldB .d, #mBody .foldB li { color: #fff !important; text-shadow: 1px 1px 0 rgba(0,0,0,.85); }
   #mBody .foldB .sub { opacity: .92; }
+  #confirmBox .cbIn { display: block; width: 100%; box-sizing: border-box; margin: 10px 0 2px; padding: 7px 10px; border-radius: 6px; border: 2px solid #c0504a; background: rgba(0,0,0,.5); color: #fff; font: 700 14px var(--uiFont); }
+  #confirmBox .yes:disabled { opacity: .4; filter: grayscale(.8); cursor: not-allowed; }
+  #confirmBox.narrow .cb { width: min(260px, calc(100vw - 32px)) !important; }
+  @media (max-width: 600px) { #confirmBox .cb { width: min(340px, calc(100vw - 24px)) !important; } #confirmBox.narrow .cb { width: min(260px, calc(100vw - 40px)) !important; } }
 </style>
 </head>
 <body>

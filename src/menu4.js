@@ -1794,6 +1794,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.42.1", date: "2026-10-22", title: "Safer character deletion", items: [
+    "<b>Type the name to delete.</b> Deleting a character now asks you to type that character's name. The Delete button stays greyed out until the name matches (capitals don't matter), so one stray tap can't delete anyone.",
+    "<b>Smaller pop-ups.</b> The Log out box is narrow instead of stretching across the screen, and on phones the other confirmation boxes are a little narrower too."
+  ] },
   { v: "19.42.0", date: "2026-10-22", title: "Readable menus and roadside hedges", items: [
     "<b>Readable folding sections.</b> Folding section headers in Config, Admin, Social, Pets and the guild window now sit on a dark bar with a gold edge and bold outlined white text, and the open section's contents sit on a darker panel with white text, so nothing gets lost against the striped background.",
     "<b>Searchable Updates.</b> The Updates window has a search box. Type a word or a version number (moon, auction, 19.40) to show only the matching updates, each opened, with a count of how many were found. Every version is now a foldable entry; only the newest starts open.",
@@ -4432,6 +4436,7 @@ function tabHelp() {
     "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild (ringed) drift through them at different speeds, and a different coloured comet crosses the sky each game month. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Updates window:</b> type in the search box to find any change by word or version number. Tap a version to open or fold it.",
+    "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",

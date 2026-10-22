@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.42.0",
-  "releaseTitle": "Readable menus and roadside hedges",
+  "version": "19.42.1",
+  "releaseTitle": "Safer character deletion",
   "description": "",
   "main": "index.js",
   "scripts": {
