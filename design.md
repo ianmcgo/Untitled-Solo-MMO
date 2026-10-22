@@ -2899,3 +2899,12 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - `addSeason(mat, kind)` wraps any existing onBeforeCompile (wind, terrain detail). Vertex: `transformed.y *= uSGrow` and a world-position varying `vSWP` (instanced or not) injected before `project_vertex`. Fragment: a hash of floor(vSWP·5) discards below uSDrop (after `map_fragment`); before `lights_physical_fragment` the colour is multiplied by uSCol and blended toward luminance × uSHue by uSHueK (with per-0.5 m variation), and blossom speckles come from a second hash. Ground kind masks the tint by greenness so dirt, rock and roads stay put. The program cache key appends `|season:kind` (the own customProgramCacheKey is kept when present; `THREE.Material` isn't exported in our bundle, so use hasOwnProperty).
 - Applied to: field leaf trees (leafMat), city tree dressing (M.leaf), hedges and bushes (shrub), flowers, grass tufts and ferns/reeds (grass), terrain (ground, outdoors only). Pines are untouched.
 - Shadows use the standard depth material, so dropped leaves still cast canopy shadows.
+
+## 19.44.1 Clearer skies, better 3D viewer
+- `holdForShow(inst)` (models3d) puts the weapon in the right hand via `snapWeapon(..., true)`, scaled with `weaponBodyK`. Used by `renderThumb` and `examineOpen`.
+- Outside-click handlers (hud4) ignore `#exam` and `#updPop`, so the viewer closes without closing the Database. main4 `onKey`: Escape closes the viewer (or the updates pop-up) first; other keys are swallowed while they are open.
+- Sky render order (all transparent, all before world transparents): constellation lines −11, stars −10, planet halos −8, planets −7, comet tail −6, comet head −5, moon glow −4, moon disc −3, clouds2 −2, clouds −1.
+- Constellation line opacity is star opacity × (0.13 ± 0.03) and points × 0.85. Town zones scale star opacity by 0.32, which also dims constellations.
+- Cloud cover `W3.cloudCover`: each quarter game day hashes a value, smoothstepped between neighbours and mapped through sstep(0.25, 0.75). It is 1 whenever weather gloom > 0. Both cloud layers' opacities are multiplied by it.
+- Fog: the wisp texture is masked by an elliptical radial gradient (no hard edges); sprites are 16–30 m × 4–6.5 m and drift at most 0.125 m/s, with 8 s fades and invisibility within 3 m of the player (fading in to 9 m). Opacity 0.45 × amount.
+- Roof fix: three `bt.add(..., ConeGeometry(.., 4), B, x, y, z, 0, Math.PI / 4)` calls passed the 45° as rx instead of ry, tipping the roofs. Now ry (belltower dressing, skyline belltower and cityhall).

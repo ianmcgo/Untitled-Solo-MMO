@@ -1885,7 +1885,7 @@ function buildCityBuildings(field, root) {
       bt.add(M.trim, box(3.8, 0.35, 3.8), B, 0, 17.3, 0);
       bt.add(M.gold, new THREE.CylinderGeometry(0.35, 0.85, 1.2, 12, 1, true), B, 0, 15.6, 0);
       bt.add(M.iron, box(0.12, 0.6, 0.12), B, 0, 16.4, 0);
-      bt.add(M.roof[0], new THREE.ConeGeometry(2.9, 4.2, 4), B, 0, 19.6, 0, 0, Math.PI / 4);
+      bt.add(M.roof[0], new THREE.ConeGeometry(2.9, 4.2, 4), B, 0, 19.6, 0, Math.PI / 4);
       bt.add(M.gold, new THREE.OctahedronGeometry(0.35, 0), B, 0, 22.0, 0);
       bt.add(M.door, box(1.2, 2.2, 0.1), B, 0, 1.9, 1.75);
     } else if (o.t === "spire") {
@@ -2214,14 +2214,14 @@ function buildSkyline(field, root) {
   for (const m of G.marks || []) {
     const onT = m.x > field.x0 + field.cs * 2 && m.y > field.y0 + field.cs * 2 && m.x < field.x0 + field.w - field.cs * 2 && m.y < field.y0 + field.h - field.cs * 2, sink = 24, gy = (onT ? field.heightAt(m.x, m.y) : 0) - sink;
     const B = new THREE.Matrix4().makeTranslation(m.x * U, gy, m.y * U), sh = (h) => h + sink;
-    if (m.t === "belltower") { bt.add(stoneM, box(3.4, sh(17.5), 3.4), B, 0, sh(17.5) / 2, 0); bt.add(roofM[0], new THREE.ConeGeometry(2.9, 4.2, 4), B, 0, sh(19.6), 0, 0, Math.PI / 4); }
+    if (m.t === "belltower") { bt.add(stoneM, box(3.4, sh(17.5), 3.4), B, 0, sh(17.5) / 2, 0); bt.add(roofM[0], new THREE.ConeGeometry(2.9, 4.2, 4), B, 0, sh(19.6), 0, Math.PI / 4); }
     else if (m.t === "spire") { bt.add(stoneM, box(2.6, sh(10.7), 2.6), B, 0, sh(10.7) / 2, 0); bt.add(roofM[2], new THREE.ConeGeometry(1.75, 9.5, 8), B, 0, sh(15.5), 0); }
     else if (m.t === "chimney") { bt.add(stoneM, new THREE.CylinderGeometry(0.95, 1.35, sh(17.6), 10), B, 0, sh(17.6) / 2, 0); }
     else if (m.t === "crane") { bt.add(woodM, box(2.2, sh(11.4), 2.2), B, 0, sh(11.4) / 2, 0); bt.add(woodM, box(10.5, 0.42, 0.42), B, 3.4, sh(12.0), 0, 0, 0, 0.16); }
     else if (m.t === "beacon") { bt.add(stoneM, box(1.7, sh(7.9), 1.7), B, 0, sh(7.9) / 2, 0); bt.add(fireM, new THREE.ConeGeometry(0.7, 1.8, 7), B, 0, sh(9.4), 0); }
     else if (m.t === "lighthouse") { bt.add(stoneM, new THREE.CylinderGeometry(1.8, 2.6, sh(14.2), 14), B, 0, sh(14.2) / 2, 0); bt.add(redM, new THREE.ConeGeometry(1.4, 1.6, 12), B, 0, sh(16.8), 0); bt.add(fireM, new THREE.CylinderGeometry(1.0, 1.0, 1.8, 10), B, 0, sh(15.1), 0); }
     else if (m.t === "keep") { bt.add(stoneM, box(14, sh(13), 14), B, 0, sh(13) / 2, 0); for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(stoneM, box(3.4, sh(17), 3.4), B, sx * 6.6, sh(17) / 2, sz * 6.6); }
-    else if (m.t === "cityhall") { bt.add(stoneM, box(3.2, sh(16), 3.2), B, 0, sh(16) / 2, 0); bt.add(roofM[1], new THREE.ConeGeometry(2.6, 3.6, 4), B, 0, sh(17.8), 0, 0, Math.PI / 4); }
+    else if (m.t === "cityhall") { bt.add(stoneM, box(3.2, sh(16), 3.2), B, 0, sh(16) / 2, 0); bt.add(roofM[1], new THREE.ConeGeometry(2.6, 3.6, 4), B, 0, sh(17.8), 0, Math.PI / 4); }
   }
   bt.flush(root);
 }
@@ -2913,17 +2913,19 @@ function makeConstellations() {
   const pm = new THREE.PointsMaterial({ size: 2.6, sizeAttenuation: false, color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, map: texGlow() });
   const glowL = [];
   for (const sc of [1.0012, 0.9988]) { const l2 = new THREE.LineSegments(lg, lm); l2.scale.setScalar(sc); glowL.push(l2); }
-  grp.add(new THREE.LineSegments(lg, lm), ...glowL, new THREE.Points(pg, pm));
+  const mainL = new THREE.LineSegments(lg, lm);
+  for (const o of [mainL, ...glowL]) o.renderOrder = -11;
+  grp.add(mainL, ...glowL, new THREE.Points(pg, pm));
   grp.userData.mats = [lm, pm];
   W3.planets = PLANETS.map((P, i) => {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: planetTex(P, i), transparent: true, opacity: 0, depthWrite: false, fog: false }));
-    sp.scale.setScalar(P.size * (P.ring ? 9 : 6)); sp.userData.p = P;
+    sp.scale.setScalar(P.size * (P.ring ? 9 : 6)); sp.userData.p = P; sp.renderOrder = -7;
     const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: P.col, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }));
-    halo.scale.setScalar(P.size * 10); sp.userData.halo = halo; grp.add(halo, sp); return sp;
+    halo.scale.setScalar(P.size * 10); halo.renderOrder = -8; sp.userData.halo = halo; grp.add(halo, sp); return sp;
   });
   W3.comet = { head: new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })), tail: [] };
-  W3.comet.head.scale.setScalar(18); grp.add(W3.comet.head);
-  for (let k = 0; k < 16; k++) { const t = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })); grp.add(t); W3.comet.tail.push(t); }
+  W3.comet.head.scale.setScalar(18); W3.comet.head.renderOrder = -5; grp.add(W3.comet.head);
+  for (let k = 0; k < 16; k++) { const t = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending })); t.renderOrder = -6; grp.add(t); W3.comet.tail.push(t); }
   return grp;
 }
 const COMET_COLS = [0x8ae0ff, 0xff9ad8, 0xa8ff9a, 0xffd27a, 0xc8a8ff, 0xff8a6a, 0x7affe0, 0xf8f8ff, 0xffb0ff, 0x9ac8ff, 0xfff08a, 0x8affb8];
@@ -3017,24 +3019,24 @@ function initRenderer() {
   W3.skyEnv.scale.setScalar(1000);
   Object.assign(W3.skyEnv.material.uniforms.turbidity, { value: 4.5 });
   W3.skyScene.add(W3.skyEnv);
-  W3.stars = makeStars();
+  W3.stars = makeStars(); W3.stars.renderOrder = -10;
   W3.scene.add(W3.stars);
   W3.constel = makeConstellations();
   W3.stars.add(W3.constel);
   const moon = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xdfe8ff, transparent: true, depthWrite: false, fog: false }));
   moon.scale.setScalar(110);
-  W3.moon = moon;
+  W3.moon = moon; moon.renderOrder = -4;
   W3.scene.add(moon);
   const cloudGeo = new THREE.PlaneGeometry(2600, 2600);
   cloudGeo.rotateX(Math.PI / 2);
   const ct = texClouds();
   ct.repeat.set(3, 3);
-  W3.clouds = new THREE.Mesh(cloudGeo, new THREE.MeshBasicMaterial({ map: ct, transparent: true, opacity: 0.8, depthWrite: false, fog: false, side: THREE.DoubleSide }));
+  W3.clouds = new THREE.Mesh(cloudGeo, new THREE.MeshBasicMaterial({ map: ct, transparent: true, opacity: 0.8, depthWrite: false, fog: false, side: THREE.DoubleSide })); W3.clouds.renderOrder = -1;
   W3.clouds.position.y = 260;
   W3.scene.add(W3.clouds);
   const ct2 = texClouds();
   ct2.repeat.set(1.6, 1.6);
-  W3.clouds2 = new THREE.Mesh(cloudGeo.clone(), new THREE.MeshBasicMaterial({ map: ct2, transparent: true, opacity: 0.45, depthWrite: false, fog: false, side: THREE.DoubleSide }));
+  W3.clouds2 = new THREE.Mesh(cloudGeo.clone(), new THREE.MeshBasicMaterial({ map: ct2, transparent: true, opacity: 0.45, depthWrite: false, fog: false, side: THREE.DoubleSide })); W3.clouds2.renderOrder = -2;
   W3.clouds2.position.y = 360;
   W3.clouds2.scale.setScalar(1.3);
   W3.scene.add(W3.clouds2);
@@ -3044,7 +3046,7 @@ function initRenderer() {
   W3.sunDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: sunTex(), color: 0xfff4d8, transparent: true, depthWrite: false, fog: false }));
   W3.sunDisc.scale.setScalar(48);
   W3.scene.add(W3.sunDisc);
-  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(moonPhaseNow()), transparent: true, depthWrite: false, fog: false }));
+  W3.moonDisc = new THREE.Sprite(new THREE.SpriteMaterial({ map: moonTex(moonPhaseNow()), transparent: true, depthWrite: false, fog: false })); W3.moonDisc.renderOrder = -3;
   W3.moonDisc.scale.setScalar(66);
   W3.scene.add(W3.moonDisc);
   const hz = new THREE.CylinderGeometry(1150, 1150, 400, 48, 1, true);
@@ -3549,7 +3551,7 @@ function updateSky(force) {
   W3.sky.material.uniforms.rayleigh.value = mix(0.4, 1.6, dayAmt);
   W3.skyEnv.material.uniforms.sunPosition.value.copy(dir);
   W3.skyEnv.material.uniforms.rayleigh.value = mix(0.4, 1.6, dayAmt);
-  W3.stars.material.opacity = 1 - sstep(-0.15, 0.05, sunY);
+  W3.stars.material.opacity = (1 - sstep(-0.15, 0.05, sunY)) * (themeOf(S.zone) === "town" ? 0.32 : 1);
   W3.stars.position.copy(W3.camera.position);
   const moonDir = dir.clone().multiplyScalar(-1);
   const moonSky = moonDir.clone().normalize(), moonUp = sstep(-0.04, 0.08, moonSky.y);
@@ -3567,7 +3569,7 @@ function updateSky(force) {
   W3.stars.rotation.y = v.frac * Math.PI * 2 - yrA;
   if (W3.constel) {
     const so = W3.stars.material.opacity;
-    W3.constel.userData.mats[0].opacity = so * (0.3 + 0.06 * Math.sin(S.time * 1.3)); W3.constel.userData.mats[1].opacity = so;
+    W3.constel.userData.mats[0].opacity = so * (0.13 + 0.03 * Math.sin(S.time * 1.3)); W3.constel.userData.mats[1].opacity = so * 0.85;
     for (const sp of W3.planets || []) { const P = sp.userData.p, az = planetAz(P, sday); sp.position.copy(skyPoint(az, eclipticEl(az) - 0.05, 870)); sp.material.opacity = so; sp.userData.halo.position.copy(sp.position); sp.userData.halo.material.opacity = so * 0.35; }
     if (W3.comet) {
       const cm = cometNow(sday), hp = skyPoint(cm.az, cm.el, 860), bp = skyPoint(cm.az2, cm.el2, 860), dv = hp.clone().sub(bp).normalize();
@@ -3590,8 +3592,10 @@ function updateSky(force) {
   const cloudC = new THREE.Color(0xffffff).lerp(fogC, 0.35).lerp(new THREE.Color(0xffa070), golden * 0.55).multiplyScalar(mix(0.18, 1, dayAmt));
   W3.clouds.material.color.copy(cloudC);
   gradeTick(dayAmt, golden, gloom, cave || indoor);
-  W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25);
-  if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = 0.42 * (atm ? atm.clouds : 1) + gloom * 0.3; }
+  const cday = Math.floor(skyDayAbs() * 4), cr1 = (hashStr("cl" + cday) % 1000) / 1000, cr2 = (hashStr("cl" + (cday + 1)) % 1000) / 1000, cf = (skyDayAbs() * 4) % 1, cov = gloom > 0 ? 1 : sstep(0.25, 0.75, cr1 + (cr2 - cr1) * cf * cf * (3 - 2 * cf));
+  W3.cloudCover = cov;
+  W3.clouds.material.opacity = 0.8 * (atm ? atm.clouds : 1) * (1 + gloom * 0.25) * cov;
+  if (W3.clouds2) { W3.clouds2.material.color.copy(cloudC).lerp(new THREE.Color(0xffc8a0), golden * 0.3); W3.clouds2.material.opacity = (0.42 * (atm ? atm.clouds : 1)) * W3.cloudCover + gloom * 0.3; }
   if (W3.sunGlow) { W3.sunGlow.position.copy(W3.camera.position).addScaledVector(dir, 900); W3.sunGlow.material.opacity = sstep(-0.08, 0.05, sunY) * (1 - gloom * 0.85) * 0.9; W3.sunGlow.material.color.setRGB(1, mix(0.94, 0.62, golden), mix(0.82, 0.4, golden)); W3.sunGlow.scale.setScalar(mix(200, 320, golden)); }
   if (W3.sunDisc) { W3.sunDisc.position.copy(W3.camera.position).addScaledVector(dir, 880); W3.sunDisc.material.opacity = sstep(-0.06, 0.04, sunY) * (1 - gloom * 0.9); W3.sunDisc.material.color.setRGB(1, mix(0.97, 0.62, golden), mix(0.88, 0.35, golden)); W3.sunDisc.scale.setScalar(mix(46, 64, golden)); }
   if (W3.moonDisc) {

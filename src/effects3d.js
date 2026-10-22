@@ -909,14 +909,17 @@ function updateSkyLife(dt) {
 }
 
 function fogWispTex(seed) {
-  const c = document.createElement("canvas"); c.width = 256; c.height = 96;
+  const c = document.createElement("canvas"); c.width = 256; c.height = 128;
   const x = c.getContext("2d"); let r = seed * 9301 + 49297;
   const R = () => (r = (r * 9301 + 49297) % 233280) / 233280;
-  for (let i = 0; i < 70; i++) {
-    const px = 30 + R() * 196, py = 30 + R() * 36, rad = 14 + R() * 26, ex = Math.min(1, Math.min(px, 256 - px) / 60), a = 0.07 * ex * (1 - Math.abs(py - 48) / 48);
-    const gr = x.createRadialGradient(px, py, 0, px, py, rad); gr.addColorStop(0, "rgba(255,255,255," + a.toFixed(3) + ")"); gr.addColorStop(1, "rgba(255,255,255,0)");
+  for (let i = 0; i < 90; i++) {
+    const px = 50 + R() * 156, py = 50 + R() * 28, rad = 14 + R() * 22, a = 0.05 * (1 - Math.abs(px - 128) / 100) * (1 - Math.abs(py - 64) / 40);
+    const gr = x.createRadialGradient(px, py, 0, px, py, rad); gr.addColorStop(0, "rgba(255,255,255," + Math.max(0, a).toFixed(3) + ")"); gr.addColorStop(1, "rgba(255,255,255,0)");
     x.fillStyle = gr; x.fillRect(px - rad, py - rad, rad * 2, rad * 2);
   }
+  x.globalCompositeOperation = "destination-in";
+  const m = x.createRadialGradient(128, 64, 10, 128, 64, 120); m.addColorStop(0, "rgba(0,0,0,1)"); m.addColorStop(0.6, "rgba(0,0,0,.6)"); m.addColorStop(1, "rgba(0,0,0,0)");
+  x.setTransform(1, 0, 0, 0.5, 0, 32); x.fillStyle = m; x.fillRect(0, 0, 256, 256);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 function fogBanks(dt, amt, g, low) {
@@ -929,7 +932,7 @@ function fogBanks(dt, amt, g, low) {
     const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: F.tex[F.list.length % 4], color: 0xe4eaee, transparent: true, opacity: 0, depthWrite: false }));
     const a = Math.random() * Math.PI * 2, d = 4 + Math.random() * 26;
     sp.position.set(g.x + Math.cos(a) * d, 0, g.z + Math.sin(a) * d);
-    sp.userData = { w: 12 + Math.random() * 12, h: 2.6 + Math.random() * 2, y: 0.3 + Math.random() * 1.4, v: (Math.random() - 0.5) * 0.6, life: 0, max: 18 + Math.random() * 20 };
+    sp.userData = { w: 16 + Math.random() * 14, h: 4 + Math.random() * 2.5, y: 0.6 + Math.random() * 1.6, v: (Math.random() - 0.5) * 0.25, life: 0, max: 30 + Math.random() * 30 };
     sp.scale.set(sp.userData.w, sp.userData.h, 1); sp.renderOrder = 2;
     W3.scene.add(sp); F.list.push(sp);
   }
@@ -937,8 +940,8 @@ function fogBanks(dt, amt, g, low) {
     const sp = F.list[i], u = sp.userData;
     u.life += dt; sp.position.x += u.v * dt; sp.position.z += u.v * 0.4 * dt;
     sp.position.y = groundY(sp.position.x / U, sp.position.z / U) + u.y;
-    const far = Math.hypot(sp.position.x - g.x, sp.position.z - g.z), edge = Math.min(1, u.life / 4, (u.max - u.life) / 4, (34 - far) / 6);
-    sp.material.opacity = Math.max(0, edge) * 0.85 * F.k;
+    const far = Math.hypot(sp.position.x - g.x, sp.position.z - g.z), edge = Math.min(1, u.life / 8, (u.max - u.life) / 8, (34 - far) / 10, Math.max(0, far - 3) / 6);
+    sp.material.opacity = Math.max(0, edge) * 0.45 * F.k;
     if (u.life > u.max || far > 36 || (F.k < 0.01)) { if (F.list.length > want || u.life > u.max || far > 36) { W3.scene.remove(sp); sp.material.dispose(); F.list.splice(i, 1); } }
   }
 }

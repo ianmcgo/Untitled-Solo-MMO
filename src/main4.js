@@ -5,6 +5,8 @@ function guardKeys(e) {
 
 function onKey(e) {
   const k = e.key.toLowerCase();
+  if (VIEW.exam) { if (k === "escape") { examineClose(); e.preventDefault(); } return; }
+  if (document.querySelector("#updPop.on")) { if (k === "escape") { $("updPop").classList.remove("on"); e.preventDefault(); } if (!(e.target && e.target.tagName === "INPUT")) e.preventDefault(); return; }
   if (UI.confirmOpen && e.target && e.target.classList && e.target.classList.contains("cbIn") && k !== "enter" && k !== "escape") return;
   if (UI.confirmOpen) { const cb = $("confirmBox"); if (k === "escape") cb.querySelector(".no").click(); else if (k === "arrowup" || k === "arrowdown") { cb.querySelectorAll(".cbA button").forEach(b => b.classList.toggle("sel")); } else if (k === "enter" || k === " ") (cb.querySelector(".cbA button.sel") || cb.querySelector(".yes")).click(); e.preventDefault(); return; }
   if (!UI.started) return;

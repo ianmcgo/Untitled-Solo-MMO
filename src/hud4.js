@@ -1283,9 +1283,9 @@ function initHud() {
     if (UI.cmd && !t.closest("#tCmd, #mobBar, #dialog, #confirmBox, #uiSide, #mpBox")) tgtCmdClose();
     if (UI.logClick && UI.chatPin && !UI.chatTyping && !t.closest("#chat, #btnChat, #logTap")) chatToggle(false);
     else if (isTouchUI() && UI.chatPin && !t.closest("#chat, #btnChat, #logTap")) { UI.chatTyping = false; chatToggle(false); }
-    if (S.modal && S.dialog && !UI.confirmOpen && !t.closest("#dialog, #confirmBox, #menu .win, #mCard, #mCmd, #verPop")) { closeDialog(); const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
-    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #uiTop, #uiNetBox, #logTap, #verPop")) return;
-    if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
+    if (S.modal && S.dialog && !UI.confirmOpen && !t.closest("#dialog, #confirmBox, #menu .win, #mCard, #mCmd, #verPop, #exam, #updPop")) { closeDialog(); const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
+    if (UI.confirmOpen || S.dialog || t.closest("#mobBar, #dialog, #confirmBox, #chat, #uiTop, #uiNetBox, #logTap, #verPop, #exam, #updPop")) return;
+    if (S.modal && !t.closest("#menu .win, #mCard, #mCmd, #timeBox, #exam, #updPop")) { const back = UI.menuFromMain; closeModal(); if (back && !matchMedia("(max-width: 1020px)").matches) mainCmdOpen(); else if (back) mainCmdClose(); return; }
     if (!S.modal && UI.mm && !t.closest("#mCmd, #stOv, #timeBox")) mainCmdClose();
   }, true);
   let sw = null;

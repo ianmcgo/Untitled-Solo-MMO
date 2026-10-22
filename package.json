@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.44.0",
-  "releaseTitle": "Four seasons",
+  "version": "19.44.1",
+  "releaseTitle": "Clearer skies and a better 3D viewer",
   "description": "",
   "main": "index.js",
   "scripts": {

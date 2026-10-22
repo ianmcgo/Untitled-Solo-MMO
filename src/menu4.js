@@ -1829,6 +1829,16 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.44.1", date: "2026-10-22", title: "Clearer skies and a better 3D viewer", items: [
+    "<b>The 3D viewer keeps the Database open.</b> Closing it (✕, tapping outside it or Escape) returns you to the same Database page so you can examine the next one.",
+    "<b>Weapons in hand.</b> People and creatures in the 3D viewer and in Database pictures now hold their weapon in their hand instead of having it stuck through their body.",
+    "<b>Sky layering.</b> The moon is drawn in front of comets, planets, constellations and stars, and only clouds can cover it. Comets pass in front of planets, and planets in front of constellations.",
+    "<b>Dimmer constellation lines</b>, about half as bright as before.",
+    "<b>Town light.</b> Stars and constellations are much fainter over towns, where lamplight washes out the night sky.",
+    "<b>Clear skies.</b> Cloud cover now changes through the day: some days and nights are completely clear, others patchy or overcast. Rain, storms and fog still bring full cloud.",
+    "<b>Gentler fog.</b> Fog banks are larger, softer, slower and more see-through, fade in gently and never pop up right in front of you, so they no longer look like sheets of paper blowing past.",
+    "<b>Fixed tower roofs.</b> The bell tower in the Market District and the far-off bell and clock towers on the town skyline had their pointed roofs tipped over at an angle. They now sit straight."
+  ] },
   { v: "19.44.0", date: "2026-10-22", title: "Four seasons", items: [
     "<b>The world follows the seasons.</b> A game year is 360 game days (about two weeks of real time): Spring, Summer, Autumn and Winter, 90 days each. System → Time shows the season and the day.",
     "<b>Spring:</b> bare trees slowly leaf out over the first half of spring, then blossom in pink and white; hedges and bushes fill back in and flower; grass grows from short tufts back to full height and turns fresh green; wildflowers come up.",

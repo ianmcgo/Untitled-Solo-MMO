@@ -155,6 +155,11 @@ function weaponPose(v, drawn) {
   return { pos, quat: new THREE.Quaternion().setFromEuler(rot), rot };
 }
 
+function holdForShow(inst) {
+  if (!inst.weapon) return;
+  if (inst.bones && inst.bones.handR) { const pv = { weapon: inst.weapon, bones: inst.bones, meta: inst.meta }; inst.weapon.scale.setScalar(weaponBodyK(pv)); snapWeapon(pv, true); }
+  else inst.mesh.add(inst.weapon);
+}
 function snapWeapon(v, drawn) {
   const w = v.weapon, t = weaponPose(v, drawn);
   (drawn ? v.bones.handR : carryBone(v)).add(w);
@@ -723,7 +728,7 @@ function renderThumb(famKey, ent) {
   if (!inst) return null;
   const g = new THREE.Group();
   g.add(inst.mesh);
-  if (inst.weapon) inst.mesh.add(inst.weapon);
+  holdForShow(inst);
   g.rotation.y = 0.55;
   st.sc.add(g);
   g.updateMatrixWorld(true);
@@ -763,7 +768,7 @@ function examineOpen(famKey, ent, title) {
   const floor = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35 })); floor.rotation.x = -Math.PI / 2; sc.add(floor);
   const m = ent || buildMob(famKey, 5, 0, 0, null), inst = buildEntityRig(m);
   if (!inst) { ov.remove(); R2.dispose(); return; }
-  const g = new THREE.Group(); g.add(inst.mesh); if (inst.weapon) inst.mesh.add(inst.weapon); sc.add(g);
+  const g = new THREE.Group(); g.add(inst.mesh); holdForShow(inst); sc.add(g);
   g.updateMatrixWorld(true);
   const box = new THREE.Box3().setFromObject(inst.mesh, true), c = box.getCenter(new THREE.Vector3()), sz = box.getSize(new THREE.Vector3());
   const rad = Math.max(sz.x, sz.y, sz.z) * 0.6 + 0.05;
