@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.47.0", date: "2026-10-22", title: "Gatehouses, hills and livelier houses", items: [
+    "<b>Covered gateways.</b> Every town gate now has a proper gatehouse: a vaulted stone tunnel with ribbed arches, solid stonework filling the space around the arch, a half-raised iron portcullis, heavy wooden doors swung open against the walls, and lanterns inside that light up at night. Gates between city districts also get a pitched roof with battlements.",
+    "<b>Terrace stairs.</b> The raised terrace in the Government District has stairs on every side, including the left and right, so you can walk down any way. A road that runs right along an edge no longer turns the whole edge into one long ramp: it gets a wall with a proper flight of stairs in the middle.",
+    "<b>Rolling towns.</b> Towns now sit on gentle hills instead of dead-flat ground (plazas stay level, roads follow the slopes), and there's more grass growing between the streets.",
+    "<b>More varied houses.</b> About a third of houses have hipped roofs that slope down on all four sides. Others have dormer windows poking out of the roof, and some have a small wooden balcony with railings and a door on the upper floor."
+  ] },
   { v: "19.46.1", date: "2026-10-22", title: "Quick keys and a shallower portico", items: [
     "<b>New keys:</b> \\ (backslash) switches first-person view on and off, like V. + or = turns full screen on and off. Neither works while you're typing in chat.",
     "<b>Auction house porch:</b> grand porches (auction houses and other columned halls) are shallower, with the columns set back and the steps starting at the porch's front edge, so the auction clerk stands on the open steps instead of half-buried in the porch."

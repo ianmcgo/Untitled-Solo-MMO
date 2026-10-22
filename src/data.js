@@ -3717,6 +3717,15 @@ function depthTerrace(z, lift) {
       }
       flush(); flushGap();
     }
+    const W = 60, split = (w, t) => { const L = Math.hypot(w.x2 - w.x1, w.y2 - w.y1), ux = (w.x2 - w.x1) / (L || 1), uy = (w.y2 - w.y1) / (L || 1), mx = w.x1 + (w.x2 - w.x1) * t, my = w.y1 + (w.y2 - w.y1) * t; return { a: Object.assign({}, w, { x2: mx - ux * W / 2, y2: my - uy * W / 2 }), b: Object.assign({}, w, { x1: mx + ux * W / 2, y1: my + uy * W / 2 }), st: { x: mx, y: my, len: W + 12, nx: w.nx, ny: w.ny } }; };
+    const clearOut = q => { const ox = q.x + q.nx * (ramp + 30), oy = q.y + q.ny * (ramp + 30); return !hard.some(o => o.x - 10 < ox && ox < o.x + o.w + 10 && o.y - 10 < oy && oy < o.y + o.h + 10); };
+    for (let i = steps.length - 1; i >= 0; i--) if (steps[i].len > 100) { const g = steps[i], L2 = g.len - 12, ux = Math.abs(g.ny), uy = Math.abs(g.nx); steps.splice(i, 1); const w = { x1: g.x - ux * L2 / 2, y1: g.y - uy * L2 / 2, x2: g.x + ux * L2 / 2, y2: g.y + uy * L2 / 2, nx: g.nx, ny: g.ny }; const sp = split(w, 0.5); walls.push(sp.a, sp.b); steps.push(sp.st); }
+    for (const [, , n] of sides) {
+      if (steps.some(q => q.nx === n[0] && q.ny === n[1])) continue;
+      const ws = walls.filter(w => w.nx === n[0] && w.ny === n[1] && Math.hypot(w.x2 - w.x1, w.y2 - w.y1) > W + 40).sort((p, q) => Math.hypot(q.x2 - q.x1, q.y2 - q.y1) - Math.hypot(p.x2 - p.x1, p.y2 - p.y1));
+      let done = false;
+      for (const w of ws) { for (const t of [0.5, 0.33, 0.67]) { const sp = split(w, t); if (!clearOut(sp.st)) continue; walls.splice(walls.indexOf(w), 1, sp.a, sp.b); steps.push(sp.st); done = true; break; } if (done) break; }
+    }
     z.terraceWalls = walls.filter(w => Math.hypot(w.x2 - w.x1, w.y2 - w.y1) > 6).map(w => ({ x1: Math.round(w.x1), y1: Math.round(w.y1), x2: Math.round(w.x2), y2: Math.round(w.y2), nx: w.nx, ny: w.ny }));
     z.terraceSteps = steps.map(q => ({ x: Math.round(q.x), y: Math.round(q.y), len: Math.round(q.len), nx: q.nx, ny: q.ny }));
     return;
