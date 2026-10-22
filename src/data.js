@@ -1207,11 +1207,12 @@ function gateDistrict(o) {
   return {
     off: o.off, w: vert ? H : W, h: vert ? W : H, name: o.name, color: o.color || "#a8a8a0", icon: "🛡️", noFill: true,
     streets: [{ w: 60, pts: [T(0, H / 2), T(W + 100, H / 2)] }],
-    houses: [Object.assign({ key: "guard", type: "guard", flag: o.flag || "#9aa0a8" }, R(560, 200, 170, 110)), Object.assign({ key: "stables", type: "home", sign: "Stables" }, R(380, 610, 200, 110))],
+    houses: [Object.assign({ key: "guard", type: "guard", flag: o.flag || "#9aa0a8" }, R(560, 200, 170, 110)), Object.assign({ key: "stables", type: "barn", sign: "Stables", floors: 1, fixed: true, rot: { e: 1, w: 3, s: 0, n: 2 }[sd] }, R(380, 610, 200, 110))],
+    pens: [Object.assign({ kind: "raptor" }, R(670, 630, 300, 200))],
     exits: [Object.assign({ x: ex.x - ex.w / 2, y: ex.y - ex.h / 2, w: ex.w, h: ex.h }, o.exit)],
     npcs: [Object.assign({ id: o.guard }, P(720, 320)), Object.assign({ id: o.stable, home: "stables", sleep: [19.5, 5.5] }, P(520, 500))].concat(o.quest ? [Object.assign({ id: o.quest, home: "guard", sleep: [22, 6] }, P(340, 300))] : []),
     stable: Object.assign(P(640, 600), { rot: { e: -Math.PI / 2, w: Math.PI / 2, s: 0, n: Math.PI }[sd] }),
-    dressing: [Object.assign({ t: "hay" }, P(700, 690)), Object.assign({ t: "hay" }, P(735, 715))]
+    dressing: []
   };
 }
 const OUTPOST_PLAN = {
@@ -1247,7 +1248,7 @@ const OUTPOST_PLAN = {
     gardens: [{ x: 900, y: 650, w: 160, h: 90 }, { x: 330, y: 650, w: 140, h: 80 }, { x: 900, y: 1160, w: 160, h: 90 }, { x: 330, y: 1160, w: 140, h: 80 }, { x: 2100, y: 650, w: 140, h: 80 }],
     benches: [[1350, 1040, 0.8], [1650, 1040, -0.8], [1350, 1320, 2.3], [1650, 1320, -2.3]],
     dressing: [{ t: "tree", x: 1300, y: 1000 }, { t: "tree", x: 1700, y: 1000 }, { t: "tree", x: 1290, y: 1340 }, { t: "tree", x: 1710, y: 1340 }, { t: "tree", x: 1500, y: 1010 }, { t: "tree", x: 1380, y: 1170 }, { t: "well", x: 900, y: 520 }, { t: "well", x: 330, y: 1290 }, { t: "planter", x: 2140, y: 990 }],
-    ambient: [{ type: "chicken", x: 900, y: 1160, n: 4, r: 70 }, { type: "chicken", x: 330, y: 650, n: 3, r: 60 }, { type: "cat", x: 1500, y: 1300, n: 1, r: 60, col: 0x5a5a5a }]
+    ambient: [{ type: "cat", x: 1500, y: 1300, n: 1, r: 60, col: 0x5a5a5a }]
   },
   market: {
     off: [2400, 1800], name: "Market District", color: "#d8a838", icon: "⚖️",
@@ -1315,6 +1316,30 @@ function auditSigns(z) {
   z.houses.forEach((h, i) => { if (h.sign && !h.shop && !homes.has(i) && !doorAt(h) && !h.home && !kept(h)) { h.hadSign = h.sign; delete h.sign; } });
   for (const s of z.stalls || []) if (s.sign && !z.npcs.some(n => Math.hypot(n.x - s.x, n.y - s.y) < 40)) delete s.sign;
 }
+function placeFarms(z, C, PLAN, FILL, free, roadHit, reserve) {
+  const homeShare = id => (FILL[id] || []).filter(f => f[0] === "home").reduce((a, f) => a + f[1], 0);
+  const best = z.districts.filter(d => FILL[d.id] && !PLAN[d.id].noFill).reduce((a, d) => !a || homeShare(d.id) > homeShare(a.id) ? d : a, null);
+  for (const d of z.districts) {
+    if (d !== best || homeShare(d.id) < 0.5) continue;
+    const fr = seeded(hashStr(C.seed + d.id + "farm"));
+    const spots = (w, h) => { const out = []; for (let y = d.y + 80; y < d.y + d.h - 80 - Math.max(w, h); y += 30) for (let x = d.x + 80; x < d.x + d.w - 80 - Math.max(w, h); x += 30) for (const [ww, hh] of [[w, h], [h, w]]) { const r = { x, y, w: ww, h: hh }; if (roadHit(r, 60) && free(r, d.id)) out.push(r); } return out; };
+    const claim = (w, h) => { const c = spots(w, h); if (!c.length) return null; const r = c[Math.floor(fr() * c.length)]; reserve.push({ x: r.x - 30, y: r.y - 30, w: r.w + 60, h: r.h + 60 }); return r; };
+    const cow = claim(390, 240);
+    if (cow) {
+      const lx = cow.w > cow.h, L = lx ? cow.w : cow.h, S2 = lx ? cow.h : cow.w, end = fr() < 0.5 ? -1 : 1, bl = 150, bs = 130;
+      const bc = L / 2 - bl / 2, pc = -(L / 2 - (L - bl - 20) / 2);
+      const cx = cow.x + cow.w / 2, cy = cow.y + cow.h / 2;
+      const barn = lx ? { x: Math.round(cx + end * bc), y: Math.round(cy), w: bl, h: bs, rot: end > 0 ? 3 : 1 } : { x: Math.round(cx), y: Math.round(cy + end * bc), w: bs, h: bl, rot: end > 0 ? 2 : 0 };
+      z.houses.push(Object.assign(barn, { type: "barn", floors: 1, district: d.id, farm: "cow", fixed: true }));
+      const pl = L - bl - 20;
+      z.pens.push(lx ? { kind: "cow", x: Math.round(cx + end * pc), y: Math.round(cy), w: pl, h: S2 } : { kind: "cow", x: Math.round(cx), y: Math.round(cy + end * pc), w: S2, h: pl });
+    }
+    const hen = claim(210, 170);
+    if (hen) z.pens.push({ kind: "chicken", x: Math.round(hen.x + hen.w / 2), y: Math.round(hen.y + hen.h / 2), w: hen.w, h: hen.h });
+    const bee = claim(180, 70);
+    if (bee) { const lx = bee.w > bee.h, n = 3; for (let i = 0; i < n; i++) { const t = (i - (n - 1) / 2) * 54; z.hives.push({ x: Math.round(bee.x + bee.w / 2 + (lx ? t : 0)), y: Math.round(bee.y + bee.h / 2 + (lx ? 0 : t)), kind: (i + Math.floor(fr() * 2)) % 2 ? "skep" : "box", rot: fr() * 0.6 - 0.3 }); } }
+  }
+}
 function buildCity(C) {
   const PLAN = C.plan, FILL = C.fill, rnd = seeded(hashStr(C.seed));
   const pick = a => a[Math.floor(rnd() * a.length)], range = r => r[0] + Math.round(rnd() * (r[1] - r[0]));
@@ -1322,13 +1347,14 @@ function buildCity(C) {
   if (C.cityStyle) z.cityStyle = C.cityStyle;
   if (C.palette) z.palette = C.palette;
   const keys = {}, homes = [];
+  z.pens = []; z.hives = [];
   const G = (d, x, y) => [PLAN[d].off[0] + x, PLAN[d].off[1] + y];
   for (const did in PLAN) {
     const P = PLAN[did], [ox, oy] = P.off, mv = o => { const c = Object.assign({}, o, { x: o.x + ox, y: o.y + oy }); if (o.path) c.path = o.path.map(q => [q[0] + ox, q[1] + oy]); return c; }, pt = q => [q[0] + ox, q[1] + oy].concat(q.slice(2));
     z.districts.push({ id: did, name: P.name, open: P.open, x: ox, y: oy, w: P.w || OUT_DW, h: P.h || OUT_DH, color: P.color, icon: P.icon });
     for (const s of P.streets) z.paths.push({ w: s.w, pts: s.pts.map(pt), trees: !!s.trees, district: did });
     for (const h of P.houses || []) { const c = mv(h); delete c.key; c.district = did; if (h.key) keys[did + ":" + h.key] = c; z.houses.push(c); }
-    for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") { c.home = did + ":" + c.home; homes.push(c); } z[k].push(c); }
+    for (const k of ["npcs", "props", "water", "gardens", "stalls", "fountains", "plazas", "ambient", "dressing", "exits", "pens", "hives"]) for (const o of P[k] || []) { const c = mv(o); if (k === "npcs" && typeof c.home === "string") { c.home = did + ":" + c.home; homes.push(c); } z[k].push(c); }
     for (const k of ["dummies", "racks", "benches", "lamps", "docks", "boats", "lighthouses", "slipways", "mines", "torches"]) for (const q of P[k] || []) (z[k] = z[k] || []).push(pt(q));
     if (P.plaza) z.plaza = mv(P.plaza);
     if (P.stable) (z.stables = z.stables || []).push(mv(P.stable));
@@ -1373,6 +1399,7 @@ function buildCity(C) {
     if ([].concat(z.npcs, z.props, z.dressing).some(o => inRect(o.x, o.y, r, 24))) return false;
     return !roadHit(r, 6);
   };
+  placeFarms(z, C, PLAN, FILL, free, roadHit, reserve);
   for (const p of z.paths) {
     const did = p.district, fill = FILL[did];
     if (PLAN[did].noFill) continue;
@@ -3111,6 +3138,7 @@ function lotFree(z, h, x, y, hard) {
   if ((z.houses || []).some(o => o !== h && rectsHit(r, houseRect(o), hard ? 4 : 14))) return false;
   if (cityWallRects(z).some(w => rectsHit(r, w, 24))) return false;
   if (gateZones(z).some(g => rectsHit(r, g, 0))) return false;
+  if ((z.pens || []).some(q => rectsHit(r, { x: q.x - q.w / 2, y: q.y - q.h / 2, w: q.w, h: q.h }, 26)) || (z.hives || []).some(q => inRect(q.x, q.y, r, 30))) return false;
   if (hard) return true;
   if ((z.stalls || []).some(s => rectsHit(r, { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 8))) return false;
   if ((z.gardens || []).some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 6))) return false;
@@ -3464,7 +3492,7 @@ for (const el in MOB_PET_EL) {
   const [nm, pk, opp] = MOB_PET_EL[el], P = PETS[pk];
   FAMILIES["pet_" + el] = { name: nm + " Spirit", color: "#" + P.col.toString(16).padStart(6, "0"), radius: 11, hpMul: 0.55, attMul: 0.75, defMul: 0.8, eva: 6, delay: 3.0, speed: 120, aggro: null, link: false, tpMove: { name: P.pact, mul: 1.6, el }, weak: { [opp]: 1.3 }, loot: [], model: "wisp", tint: P.col, tint2: P.eye, summoned: true, mobPet: true };
 }
-const TOWN_OBJ_KEYS = ["npcs", "props", "ambient", "water", "fountains", "gardens", "stalls", "spawns", "plazas", "dressing"];
+const TOWN_OBJ_KEYS = ["npcs", "props", "ambient", "water", "fountains", "gardens", "stalls", "spawns", "plazas", "dressing", "pens", "hives"];
 const TOWN_PT_KEYS = ["lamps", "benches", "dummies", "racks", "torches", "lighthouses", "slipways", "mines", "boats"];
 const TOWN_COPY_KEYS = ["theme", "safe", "paved", "city", "cityStyle", "palette", "mist", "cs", "music"];
 function splitTown(src) {
@@ -3652,6 +3680,8 @@ function depthClear(z, x, y, skip) {
   for (const q of z.dressing || []) pt(q.x, q.y, PIECE_R[q.t] || ((({ well: 1.1, cart: 1.0, hay: 0.6, statue: 0.8, shrine: 0.9, tower: 1.5, forge: 1.3, laundry: 1.1, minecart: 1.5, boatramp: 2.0, tree: 0.4 })[q.t] || 0.8) * 20 * (q.s || 1)));
   for (const q of z.stalls || []) rc(q.x - 30, q.y - 20, 60, 40);
   for (const q of z.gardens || []) rc(q.x - q.w / 2, q.y - q.h / 2, q.w, q.h);
+  for (const q of z.pens || []) rc(q.x - q.w / 2 - 12, q.y - q.h / 2 - 12, q.w + 24, q.h + 24);
+  for (const q of z.hives || []) pt(q.x, q.y, 30);
   for (const q of z.lamps || []) pt(q[0], q[1], 10);
   for (const q of z.benches || []) pt(q[0], q[1], 18);
   for (const k of ["docks", "boats"]) for (const q of z[k] || []) pt(q[0], q[1], 60);
@@ -3678,6 +3708,7 @@ function depthTerrace(z, lift) {
   for (const h of z.houses || []) hard.push({ x: h.x - h.w / 2, y: h.y - h.h / 2, w: h.w, h: h.h });
   for (const q of z.stalls || []) hard.push({ x: q.x - 30, y: q.y - 20, w: 60, h: 40 });
   for (const q of z.gardens || []) hard.push({ x: q.x - q.w / 2, y: q.y - q.h / 2, w: q.w, h: q.h });
+  for (const q of z.pens || []) hard.push({ x: q.x - q.w / 2, y: q.y - q.h / 2, w: q.w, h: q.h });
   const sq = (x, y, r, o) => ({ x: x - r, y: y - r, w: 2 * r, h: 2 * r, o });
   for (const q of z.dressing || []) (SOFT[q.t] ? soft : hard).push(sq(q.x, q.y, SR[q.t] || PIECE_R[q.t] || 24, { k: "dressing", v: q }));
   for (const q of z.props || []) hard.push(sq(q.x, q.y, q.r || 20));
@@ -3813,6 +3844,8 @@ function spotFree(z, x, y, r, skip, lax) {
   if ((z.benches || []).concat(z.lamps || [], z.racks || [], z.dummies || []).some(q => Math.hypot(q[0] - x, q[1] - y) < 32)) return false;
   if ((z.gardens || []).some(g => inRect(x, y, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 24))) return false;
   if (z.stable && Math.hypot(z.stable.x - x, z.stable.y - y) < (lax ? 60 : 80)) return false;
+  if ((z.pens || []).some(q => inRect(x, y, { x: q.x - q.w / 2, y: q.y - q.h / 2, w: q.w, h: q.h }, 30))) return false;
+  if ((z.hives || []).some(q => Math.hypot(q.x - x, q.y - y) < 50)) return false;
   for (const h of z.houses || []) if (h.shop) { const d = houseDoor(h), [fx, fy] = houseDir(h), al = (x - d.x) * fx + (y - d.y) * fy, hw = ((h.rot || 0) % 2 ? h.h : h.w) / 2 + 24; if (al > -4 && al < 124 && Math.abs((x - d.x) * -fy + (y - d.y) * fx) < hw) return false; }
   return true;
 }

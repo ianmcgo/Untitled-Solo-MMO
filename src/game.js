@@ -2253,6 +2253,40 @@ function cityLife(z, id) {
     for (let i = 0; i < cfg[1]; i++) make("guard", i, 320, { look: i % 2 ? "guard_f" : "guard", speed: 40, guard: true });
   }
 }
+const PEN_STOCK = {
+  raptor: { n: 3, speed: 46, radius: 14, pad: 30, wait: [2, 7] },
+  cow: { n: 3, speed: 18, radius: 14, pad: 30, wait: [4, 12] },
+  chicken: { n: 6, speed: 26, radius: 6, pad: 14, wait: [0.5, 3] }
+};
+const PEN_COATS = ["teal", "crimson", "sable", "gold"], COW_COATS = [[0xf2eee6, 0x2a2420], [0x8a5634, 0xf2eee6], [0x3a2a22, 0xf2eee6], [0xc89a6a, 0xf2e6d6]], HEN_COLS = [0xf2ece0, 0x9a5a30, 0x3a3230, 0xd8a868, 0xf2ece0];
+function spawnPenAnimals(id) {
+  for (const p of S.zone.pens || []) {
+    const K = PEN_STOCK[p.kind];
+    if (!K) continue;
+    const r = seeded(hashStr(id + p.kind + p.x + p.y)), box = { x0: p.x - p.w / 2 + K.pad, y0: p.y - p.h / 2 + K.pad, x1: p.x + p.w / 2 - K.pad, y1: p.y + p.h / 2 - K.pad };
+    for (let i = 0; i < K.n; i++) {
+      const x = box.x0 + r() * (box.x1 - box.x0), y = box.y0 + r() * (box.y1 - box.y0);
+      const a = { kind: "ambient", ambient: true, type: p.kind, penned: true, pen: box, seed: i, x, y, px: x, py: y, home: { x: p.x, y: p.y }, roam: 0, pi: 0, face: r() * 6.28, speed: K.speed * (0.85 + r() * 0.3), radius: K.radius, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 };
+      if (p.kind === "raptor") a.coat = PEN_COATS[(i + Math.floor(r() * 4)) % 4];
+      if (p.kind === "cow") a.coatCow = (i + Math.floor(r() * 4)) % COW_COATS.length;
+      if (p.kind === "chicken") a.col = HEN_COLS[(i + Math.floor(r() * 5)) % HEN_COLS.length];
+      S.ambient.push(a);
+    }
+  }
+}
+function tickPenned(a, dt) {
+  const K = PEN_STOCK[a.type], b = a.pen;
+  if (a.wait > 0) { a.wait -= dt; return; }
+  if (a.tx == null) {
+    a.tx = b.x0 + Math.random() * (b.x1 - b.x0); a.ty = b.y0 + Math.random() * (b.y1 - b.y0);
+    if (a.type === "chicken" && Math.random() < 0.6) { a.tx = a.x + (Math.random() - 0.5) * 50; a.ty = a.y + (Math.random() - 0.5) * 50; }
+    a.tx = Math.max(b.x0, Math.min(b.x1, a.tx)); a.ty = Math.max(b.y0, Math.min(b.y1, a.ty));
+    a.dash = a.type === "raptor" && Math.random() < 0.15 ? 2.2 : 1;
+  }
+  if (stepToward(a, a.tx, a.ty, dt, 3, a.dash || 1)) { a.tx = null; a.wait = K.wait[0] + Math.random() * (K.wait[1] - K.wait[0]); }
+  for (const o of S.ambient) if (o !== a && o.pen === b) { const dx = a.x - o.x, dy = a.y - o.y, d = Math.hypot(dx, dy), m = (a.radius + o.radius) * 0.9; if (d < m && d > 0.01) { a.x += dx / d * (m - d) * 0.5; a.y += dy / d * (m - d) * 0.5; } }
+  a.x = Math.max(b.x0, Math.min(b.x1, a.x)); a.y = Math.max(b.y0, Math.min(b.y1, a.y));
+}
 function ambientAwake(a) {
   if (a.time === "day" && isNight()) return false;
   if (a.time === "night" && !isNight()) return false;
@@ -2263,6 +2297,7 @@ function tickAmbient(dt) {
   for (const a of S.ambient || []) {
     a.away = !ambientAwake(a);
     if (a.away) continue;
+    if (a.pen) { tickPenned(a, dt); continue; }
     if (a.shy && player && dist(a, player) < 140 && !a.flee) { const ang = Math.atan2(a.y - player.y, a.x - player.x); a.tx = a.x + Math.cos(ang) * 260; a.ty = a.y + Math.sin(ang) * 260; a.flee = true; a.wait = 0; a.speedBase = a.speedBase || a.speed; a.speed = a.speedBase * 2.6; }
     if (a.path) {
       const p = a.path[a.pi % a.path.length];
@@ -4871,6 +4906,7 @@ function enterZone(id, x, y, opt) {
     const x = a.x + (r() - 0.5) * (a.r || 60), y = a.y + (r() - 0.5) * (a.r || 60);
     S.ambient.push({ kind: "ambient", ambient: true, type: a.type, seed: a.type === "walker" ? hashStr(id + S.ambient.length) % 997 : 0, col: a.col, scale: a.scale, time: a.time, look: a.look, x, y, px: x, py: y, home: { x: a.x, y: a.y }, roam: a.r || 60, path: a.path, pi: 0, face: r() * 6.28, speed: a.type === "walker" ? 55 : a.type === "dog" ? 90 : 40, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 });
   }
+  spawnPenAnimals(id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }

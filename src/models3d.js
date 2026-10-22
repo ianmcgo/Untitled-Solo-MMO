@@ -377,6 +377,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "bird") poseBird(v, e, dt);
   else if (v.kind === "crawler") poseCrawler(v, e, dt);
   else if (v.kind === "quad") poseQuad(v, e, dt);
+  else if (v.kind === "raptor") { const sp = v.rLast ? Math.hypot(e.x - v.rLast.x, e.y - v.rLast.y) * U / Math.max(dt, 1e-3) : 0; v.rLast = { x: e.x, y: e.y }; poseRaptor(v, sp, dt); }
   else if (v.kind === "crab") poseCrab(v, e, dt);
   else if (v.kind === "mandrake") poseMandrake(v, e, dt);
   else if (v.kind === "shroom") poseShroom(v, e, dt);
@@ -693,7 +694,7 @@ function syncBeacon() {
 function syncDecor(dt) {
   syncBeacon();
   const st = S.zone.stable;
-  if (!st) return;
+  if (!st || (S.zone.pens || []).some(p => p.kind === "raptor")) return;
   if (!VIEW.decor) {
     const mi = buildMount();
     const g = new THREE.Group();

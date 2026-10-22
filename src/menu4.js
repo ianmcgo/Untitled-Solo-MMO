@@ -1844,6 +1844,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.49.0", date: "2026-10-22", title: "Barns, pens and beehives", items: [
+    "<b>Raptor stables.</b> Every stablemaster now works beside a proper barn with a gambrel roof, a cupola and weathervane, big cross-braced doors and a hayloft. Next to it is a fenced paddock where three raptors in different coats roam, drink from a water trough, and pick at a feed bin and hay bales. Now and then one breaks into a short sprint.",
+    "<b>Farmyards in town.</b> The most residential district of each city (Ashenreach's Residential District, Saltreach's fishers' quarter and Ironvale's south ward) now has a red barn with a cow pasture beside it: cows in several coats graze slowly around a hay rack, trough, salt lick and round bales.",
+    "<b>Chicken yards.</b> Hens now live in a white picket yard with a raised coop, a ramp, nest box, feed tray and water dish, instead of wandering the streets.",
+    "<b>Beehives.</b> Small apiaries of box hives and straw skeps sit near the farmyards. On fair days you'll see bees buzzing around them. They stay inside at night, in bad weather and through winter.",
+    "Pens have solid fences and gates you can't walk through, and trees, hedges, lamps, banners, towers and houses keep clear of them.",
+  ] },
   { v: "19.48.0", date: "2026-10-22", title: "Townsfolk and new faces", items: [
     "<b>Townsfolk.</b> Every city now has people going about their day. Workers haul, saw and hammer in the industrial districts, residents and officials stroll the residential and government streets, and shoppers browse beside the market stalls without selling anything. Now and then they wander to a bench and sit down for a break.",
     "<b>Ask the locals.</b> Talk to any townsperson and they'll tell you something about their town: its history, its people, its odd customs. Each city has its own stories, and they don't all say the same thing.",
@@ -4569,6 +4576,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Farms:</b> stablemasters keep their raptors in a paddock beside a barn by each town gate, and every city has a farmyard with cows, a chicken yard and beehives in its most residential district.",
     "<b>Townsfolk:</b> ordinary people work, walk, shop and rest on benches around each city. Select one and talk to hear something about the town. They don't trade or give quests.",
     "<b>Skywatchers:</b> in the Government District, Harbor Square and the Keep, pay 50 crystals for a reading of any place you've discovered: its weather now, its land's element and today's element.",
     "<b>Rare forms:</b> dark and albino monsters are rare and carry better spoils. Each one you defeat gets its own Bestiary entry.",

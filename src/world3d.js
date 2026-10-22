@@ -771,6 +771,8 @@ function placeable(field, px, py, opts) {
   for (const g of z.gates || []) if (Math.hypot(px - g.x, py - g.y) < 120) return false;
   for (const lm of z.landmarks || []) if (lm.clear && Math.hypot(px - lm.x, py - lm.y) < lm.clear) return false;
   for (const f of z.sites || []) if (Math.hypot(px - f.x, py - f.y) < f.r + 25) return false;
+  for (const q of z.pens || []) if (inRect(px, py, penRect(q), 30)) return false;
+  for (const q of z.hives || []) if (Math.hypot(px - q.x, py - q.y) < 40) return false;
   return true;
 }
 
@@ -1650,7 +1652,11 @@ function buildCityBuildings(field, root) {
     fish: std({ color: 0xb8c4cc, roughness: 0.35, metalness: 0.5 }),
     white: std({ color: 0xf2efe8, roughness: 0.8 }),
     red: std({ color: 0xb03a30, roughness: 0.8 }),
-    hay: std({ color: 0xd8b860, roughness: 1 })
+    hay: std({ color: 0xd8b860, roughness: 1 }),
+    barnRed: std({ map: planks.map, normalMap: planks.normalMap, color: 0xa8402f, roughness: 0.9 }),
+    barnWood: std({ map: planks.map, normalMap: planks.normalMap, color: 0x8a6446, roughness: 0.92 }),
+    barnDoor: std({ map: planks.map, normalMap: planks.normalMap, color: 0x7a2e22, roughness: 0.9 }),
+    winB: std({ color: 0x1e1a16, roughness: 0.6 })
   };
   const win = std({ map: texWindowPane(), color: 0xffffff, emissive: 0xffb050, emissiveIntensity: 0, roughness: 0.4 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -1683,6 +1689,7 @@ function buildCityBuildings(field, root) {
       if (hs.sign) { const sg = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.8), new THREE.MeshStandardMaterial({ map: texSign(hs.sign, hs.signCol || "#d4a840"), side: THREE.DoubleSide })); sg.position.set(0, 3.25, bd / 2 + 0.05); sg.applyMatrix4(B); root.add(sg); }
       return;
     }
+    if (hs.type === "barn") { barnAt(bt, M, B, bw, bd, gy, field, hs, root); return; }
     const roofM = M.roof[hs.roof != null ? hs.roof : T.ground === "stone" ? 1 : Math.floor(rnd() * 4) % 4];
     const gAt = (lx, lz) => { const v = new THREE.Vector3(lx, 0, lz).applyMatrix4(B); return field.heightAt(v.x / U, v.z / U) - gy; };
     let lowY = 0;
@@ -2255,6 +2262,231 @@ function buildCityBuildings(field, root) {
   buildDais(z, field, root, bt, M, col);
   bt.flush(root);
 }
+function gambrelGeo(w, d, h1, h2) {
+  const o = 0.35, segs = [[-w / 2 - o, -0.12, -w * 0.3, h1], [-w * 0.3, h1, 0, h1 + h2]], L = [];
+  for (const sx of [-1, 1]) for (const [x0, y0, x1, y1] of segs) {
+    const ax = x0 * sx, bx = x1 * sx, len = Math.hypot(bx - ax, y1 - y0) + 0.16, g = new THREE.BoxGeometry(len, 0.2, d + 0.7);
+    g.rotateZ(Math.atan2(y1 - y0, bx - ax)); g.translate((ax + bx) / 2, (y0 + y1) / 2 - 0.08, 0); L.push(g);
+  }
+  return mergeNI(L);
+}
+function gableGeo(w, h1, h2) {
+  const sh = new THREE.Shape();
+  sh.moveTo(-w / 2, 0); sh.lineTo(w / 2, 0); sh.lineTo(w * 0.3 - 0.08, h1 - 0.18); sh.lineTo(0, h1 + h2 - 0.2); sh.lineTo(-w * 0.3 + 0.08, h1 - 0.18); sh.lineTo(-w / 2, 0);
+  const g = new THREE.ExtrudeGeometry(sh, { depth: 0.14, bevelEnabled: false });
+  g.translate(0, 0, -0.07);
+  return g;
+}
+function xDoor(bt, mat, trim, B, x, y, z, w, h, ry) {
+  const c = Math.cos(ry || 0), s2 = Math.sin(ry || 0), P = (lx, lz) => [x + lx * c + lz * s2, z - lx * s2 + lz * c];
+  const at = (lx, ly, lz, g, rz) => { const [px, pz] = P(lx, lz); bt.add(trim, g, B, px, y + ly, pz, ry || 0, 0, rz || 0); };
+  { const [px, pz] = P(0, 0); bt.add(mat, new THREE.BoxGeometry(w, h, 0.1), B, px, y + h / 2, pz, ry || 0); }
+  const tb = 0.11;
+  at(0, h - tb / 2, 0.07, new THREE.BoxGeometry(w, tb, 0.05)); at(0, tb / 2, 0.07, new THREE.BoxGeometry(w, tb, 0.05));
+  at(-w / 2 + tb / 2, h / 2, 0.07, new THREE.BoxGeometry(tb, h, 0.05)); at(w / 2 - tb / 2, h / 2, 0.07, new THREE.BoxGeometry(tb, h, 0.05));
+  const dl = Math.hypot(w - tb * 2, h - tb * 2), a = Math.atan2(h - tb * 2, w - tb * 2);
+  at(0, h / 2, 0.08, new THREE.BoxGeometry(dl, tb * 0.85, 0.04), a); at(0, h / 2, 0.08, new THREE.BoxGeometry(dl, tb * 0.85, 0.04), -a);
+}
+function barnAt(bt, M, B, bw, bd, gy, field, hs, root) {
+  const PL = 0.4, WH = hs.farm ? 3.4 : 3.0, h1 = bw * 0.26, h2 = bw * 0.14, box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const body = hs.farm ? M.barnRed : M.barnWood, trim = M.white, roofM = M.roof[hs.roof != null ? hs.roof : 1];
+  const gAt = (lx, lz) => { const v = new THREE.Vector3(lx, 0, lz).applyMatrix4(B); return field.heightAt(v.x / U, v.z / U) - gy; };
+  let lowY = 0;
+  for (const sx of [-0.5, 0, 0.5]) for (const sz of [-0.5, 0, 0.5]) lowY = Math.min(lowY, gAt(sx * (bw + 0.3), sz * (bd + 0.3)));
+  const footD = PL - lowY + 0.4;
+  bt.add(M.stone, box(bw + 0.3, footD, bd + 0.3), B, 0, PL - footD / 2, 0);
+  bt.add(body, box(bw, WH, bd), B, 0, PL + WH / 2, 0);
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(trim, box(0.18, WH, 0.18), B, sx * (bw / 2 + 0.02), PL + WH / 2, sz * (bd / 2 + 0.02));
+  bt.add(trim, box(bw + 0.1, 0.16, bd + 0.1), B, 0, PL + WH, 0);
+  for (const sz of [-1, 1]) bt.add(body, gableGeo(bw, h1, h2), B, 0, PL + WH, sz * (bd / 2 - 0.06));
+  bt.add(roofM, gambrelGeo(bw, bd, h1, h2), B, 0, PL + WH, 0);
+  bt.add(M.beam, box(0.16, 0.16, bd + 0.75), B, 0, PL + WH + h1 + h2 + 0.02, 0);
+  const dw = Math.min(1.5, bw * 0.22), dh = Math.min(2.7, WH - 0.4);
+  for (const sx of [-1, 1]) xDoor(bt, M.barnDoor, trim, B, sx * dw / 2, PL, bd / 2 + 0.05, dw, dh, 0);
+  bt.add(M.iron, box(dw * 2 + 0.6, 0.08, 0.08), B, 0, PL + dh + 0.12, bd / 2 + 0.1);
+  bt.add(trim, box(dw * 2 + 0.3, 0.14, 0.12), B, 0, PL + dh + 0.02, bd / 2 + 0.06);
+  const ly = PL + WH + h1 * 0.18;
+  xDoor(bt, M.barnDoor, trim, B, 0, ly, bd / 2 + 0.02, 1.1, Math.min(1.2, h1 * 0.6), 0);
+  for (let k = 0; k < 4; k++) bt.add(M.hay, box(0.25, 0.08, 0.3), B, -0.35 + k * 0.23, ly + 0.08, bd / 2 + 0.16, k * 0.4, 0, (k - 1.5) * 0.15);
+  bt.add(M.beam, box(0.18, 0.18, 1.2), B, 0, PL + WH + h1 + h2 - 0.45, bd / 2 + 0.45);
+  bt.add(M.iron, new THREE.TorusGeometry(0.12, 0.03, 6, 12), B, 0, PL + WH + h1 + h2 - 0.62, bd / 2 + 0.95);
+  bt.add(M.iron, new THREE.CylinderGeometry(0.01, 0.01, 1.4, 4), B, 0, PL + WH + h1 + h2 - 1.35, bd / 2 + 0.95);
+  xDoor(bt, M.barnDoor, trim, B, 0, PL, -bd / 2 - 0.05, 1.0, 2.1, Math.PI);
+  const nw = Math.max(1, Math.floor(bd / 2.6));
+  for (const sx of [-1, 1]) for (let i = 0; i < nw; i++) {
+    const zz = -bd / 2 + (i + 0.5) * bd / nw;
+    bt.add(M.winB, box(0.06, 0.7, 0.7), B, sx * (bw / 2 + 0.03), PL + WH * 0.62, zz);
+    for (const [dy, dz, w2, h3] of [[0.4, 0, 0.12, 0.92], [-0.4, 0, 0.12, 0.92]]) bt.add(trim, box(0.08, w2, h3), B, sx * (bw / 2 + 0.05), PL + WH * 0.62 + dy, zz + dz);
+    for (const dz of [-0.4, 0.4]) bt.add(trim, box(0.08, 0.92, 0.12), B, sx * (bw / 2 + 0.05), PL + WH * 0.62, zz + dz);
+    bt.add(trim, box(0.07, 0.06, 0.7), B, sx * (bw / 2 + 0.06), PL + WH * 0.62, zz);
+  }
+  const top = PL + WH + h1 + h2;
+  bt.add(trim, box(0.9, 0.8, 0.9), B, 0, top + 0.3, 0);
+  for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) { bt.add(M.beam, box(0.04, 0.06, 0.7), B, sx * 0.46, top + 0.15 + k * 0.2, 0, 0, 0, sx * 0.4); bt.add(M.beam, box(0.7, 0.06, 0.04), B, 0, top + 0.15 + k * 0.2, sx * 0.46, 0, sx * 0.4); }
+  bt.add(roofM, new THREE.ConeGeometry(0.85, 0.7, 4), B, 0, top + 1.05, 0, Math.PI / 4);
+  bt.add(M.iron, new THREE.CylinderGeometry(0.025, 0.025, 1.1, 5), B, 0, top + 1.8, 0);
+  bt.add(M.iron, box(0.7, 0.05, 0.03), B, 0, top + 2.05, 0);
+  bt.add(M.iron, new THREE.ConeGeometry(0.08, 0.2, 4), B, 0.42, top + 2.05, 0, 0, 0, -Math.PI / 2);
+  bt.add(M.iron, box(0.04, 0.18, 0.18), B, -0.36, top + 2.05, 0, 0, Math.PI / 4);
+  for (const [dx, dz] of [[0.42, 0], [-0.42, 0], [0, 0.42], [0, -0.42]]) bt.add(M.iron, box(Math.abs(dx) ? 0.14 : 0.02, 0.02, Math.abs(dz) ? 0.14 : 0.02), B, dx * 0.9, top + 1.72, dz * 0.9);
+  if (hs.sign) { const sg = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.62), new THREE.MeshStandardMaterial({ map: texSign(hs.sign, hs.signCol || "#d4a840"), side: THREE.DoubleSide })); sg.position.set(0, PL + WH - 0.25, bd / 2 + 0.14); sg.applyMatrix4(B); root.add(sg); }
+}
+function penSide(z, p) {
+  const sides = [[0, -1], [0, 1], [-1, 0], [1, 0]];
+  let best = sides[0], bd = 1e9;
+  for (const [gx, gy] of sides) { const x = p.x + gx * p.w / 2, y = p.y + gy * p.h / 2, d = roadGap(z, x, y); if (d < bd) { bd = d; best = [gx, gy]; } }
+  return best;
+}
+function penRect(p) { return { x: p.x - p.w / 2, y: p.y - p.h / 2, w: p.w, h: p.h }; }
+function buildFarms(field, root) {
+  const z = field.zone;
+  if (!(z.pens || []).length && !(z.hives || []).length) return;
+  const planks = texPlanks(), bark = texBark(), shingle = texShingle();
+  const wood = std({ map: bark.map, normalMap: bark.normalMap, color: 0x9a7a58, roughness: 0.95 });
+  const board = std({ map: planks.map, normalMap: planks.normalMap, color: 0xb89870, roughness: 0.9 });
+  const red = std({ map: planks.map, normalMap: planks.normalMap, color: 0xa8483a, roughness: 0.9 });
+  const white = std({ color: 0xf0ece0, roughness: 0.8 }), dark = std({ color: 0x2a2018, roughness: 1 });
+  const hay = std({ color: 0xd8b860, roughness: 1 }), twine = std({ color: 0x8a6a3a, roughness: 1 }), grain = std({ color: 0xc89a48, roughness: 1 });
+  const water = std({ color: 0x3a6a8a, roughness: 0.08, metalness: 0.3, emissive: 0x081820 }), iron = std({ color: 0x3a3a3e, metalness: 0.6, roughness: 0.5 });
+  const roof = std({ map: shingle.map, normalMap: shingle.normalMap, color: 0x5a4a40, roughness: 0.85 }), salt = std({ color: 0xe8e2d8, roughness: 0.7 });
+  const mud = std({ color: z.palette === "snow" ? 0xdcdcd8 : 0x7a6044, roughness: 1 });
+  const hiveC = [0xf2e8c8, 0xe8d070, 0xa8c8d8, 0xf0f0e8].map(c => std({ color: c, roughness: 0.8 })), skep = std({ color: 0xc8a050, roughness: 1 });
+  const bt = cityBatch(), I = new THREE.Matrix4(), cols = z.colliders || (z.colliders = []), box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  const H = (x, y) => field.heightAt(x, y), at = (x, y, ry, lift) => new THREE.Matrix4().makeRotationY(ry || 0).setPosition(x * U, H(x, y) + (lift || 0), y * U);
+  const yaw = (dx, dy) => Math.atan2(-dy, dx);
+  const bale = (x, y, ry, lift) => { const B = at(x, y, ry, lift); bt.add(hay, box(0.95, 0.45, 0.55), B, 0, 0.23, 0); for (const tx of [-0.22, 0.22]) bt.add(twine, box(0.03, 0.47, 0.57), B, tx, 0.23, 0); };
+  const roundBale = (x, y, ry) => { const B = at(x, y, ry); bt.add(hay, new THREE.CylinderGeometry(0.62, 0.62, 1.0, 14), B, 0, 0.6, 0, 0, 0, Math.PI / 2); for (const tx of [-0.3, 0, 0.3]) bt.add(twine, new THREE.TorusGeometry(0.625, 0.015, 4, 18), B, tx, 0.6, 0, Math.PI / 2); };
+  const trough = (x, y, ry) => {
+    const B = at(x, y, ry);
+    bt.add(board, box(2.2, 0.08, 0.6), B, 0, 0.27, 0);
+    for (const sz of [-1, 1]) bt.add(board, box(2.2, 0.42, 0.07), B, 0, 0.46, sz * 0.27);
+    for (const sx of [-1, 1]) { bt.add(board, box(0.07, 0.42, 0.6), B, sx * 1.07, 0.46, 0); bt.add(wood, box(0.12, 0.3, 0.7), B, sx * 0.9, 0.12, 0); }
+    for (const sx of [-0.55, 0.55]) bt.add(iron, box(0.05, 0.44, 0.64), B, sx, 0.46, 0);
+    bt.add(water, box(2.06, 0.02, 0.47), B, 0, 0.6, 0);
+  };
+  const feedBin = (x, y, ry) => {
+    const B = at(x, y, ry);
+    bt.add(board, box(1.0, 0.8, 0.7), B, 0, 0.4, 0);
+    bt.add(board, box(1.08, 0.06, 0.78), B, 0, 0.84, -0.04, 0, -0.14);
+    for (const sx of [-0.3, 0.3]) bt.add(iron, box(0.1, 0.05, 0.12), B, sx, 0.84, -0.38);
+    bt.add(iron, box(0.16, 0.08, 0.04), B, 0, 0.72, 0.36);
+    bt.add(board, box(1.0, 0.14, 0.32), B, 0, 0.07, 0.55);
+    bt.add(grain, new THREE.SphereGeometry(0.2, 8, 5).scale(2.2, 0.35, 0.6), B, 0, 0.14, 0.55);
+    for (let k = 0; k < 3; k++) bt.add(twine, new THREE.SphereGeometry(0.16, 8, 6).scale(1, 1.2, 0.8), B, -0.7, 0.18 + (k ? 0.3 : 0), -0.1 + k * 0.12);
+  };
+  const hayRack = (x, y, ry) => {
+    const B = at(x, y, ry);
+    for (const sx of [-1, 1]) bt.add(wood, box(0.12, 1.2, 0.12), B, sx * 0.9, 0.6, 0);
+    for (const sz of [-1, 1]) { bt.add(board, box(1.9, 0.08, 0.9), B, 0, 0.85, sz * 0.25, 0, sz * 0.6); for (let k = 0; k < 6; k++) bt.add(wood, box(0.04, 0.04, 0.9), B, -0.8 + k * 0.32, 0.86, sz * 0.27, 0, sz * 0.6); }
+    bt.add(hay, new THREE.SphereGeometry(0.5, 10, 6).scale(1.7, 0.6, 0.6), B, 0, 1.05, 0);
+  };
+  const coop = (x, y, ry) => {
+    const B = at(x, y, ry);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(wood, box(0.1, 0.65, 0.1), B, sx * 0.75, 0.32, sz * 0.55);
+    bt.add(board, box(1.7, 0.08, 1.3), B, 0, 0.65, 0);
+    bt.add(red, box(1.6, 1.0, 1.2), B, 0, 1.18, 0);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(white, box(0.08, 1.0, 0.08), B, sx * 0.8, 1.18, sz * 0.6);
+    { const sh = new THREE.Shape(); sh.moveTo(-0.6, 0); sh.lineTo(0.6, 0); sh.lineTo(0, 0.5); sh.lineTo(-0.6, 0); const tg = new THREE.ExtrudeGeometry(sh, { depth: 0.08, bevelEnabled: false }); for (const sx of [-1, 1]) bt.add(red, tg, B, sx * 0.76, 1.68, 0, Math.PI / 2); }
+    bt.add(roof, roofGeo(1.2, 1.7, 0.55), B, 0, 1.68, 0, Math.PI / 2);
+    bt.add(dark, box(0.36, 0.44, 0.04), B, -0.35, 0.92, 0.62);
+    bt.add(white, box(0.46, 0.06, 0.05), B, -0.35, 1.17, 0.63);
+    bt.add(board, box(0.36, 0.04, 1.15), B, -0.35, 0.36, 1.12, 0, Math.atan2(0.6, 1.0));
+    for (let k = 0; k < 5; k++) bt.add(wood, box(0.36, 0.04, 0.04), B, -0.35, 0.12 + k * 0.12, 1.55 - k * 0.2, 0, Math.atan2(0.6, 1.0));
+    bt.add(red, box(0.5, 0.5, 0.9), B, 1.05, 1.0, 0);
+    bt.add(roof, box(0.62, 0.06, 1.02), B, 1.08, 1.3, 0, 0, 0, -0.35);
+    bt.add(white, box(0.4, 0.3, 0.04), B, 0.35, 1.3, 0.62);
+    bt.add(dark, box(0.3, 0.22, 0.02), B, 0.35, 1.3, 0.645);
+    const ch = new THREE.Matrix4().makeRotationY(ry).setPosition(x * U, H(x, y), y * U);
+    bt.add(hay, new THREE.CylinderGeometry(0.5, 0.6, 0.05, 10), ch, 0.4, 0.03, 1.3);
+  };
+  const hive = (h) => {
+    const B = at(h.x, h.y, h.rot || 0);
+    bt.add(wood, new THREE.CylinderGeometry(0.28, 0.32, 0.4, 9), B, 0, 0.2, 0);
+    if (h.kind === "skep") {
+      const pts = []; for (let i = 0; i <= 10; i++) { const t = i / 10; pts.push(new THREE.Vector2(Math.max(0.01, 0.42 * Math.sin(Math.acos(t * 0.95))), t * 0.72)); }
+      bt.add(skep, new THREE.LatheGeometry(pts, 14), B, 0, 0.4, 0);
+      for (let k = 0; k < 6; k++) { const t = (k + 0.5) / 7, r = 0.42 * Math.sin(Math.acos(t * 0.95)); bt.add(twine, new THREE.TorusGeometry(r + 0.012, 0.022, 5, 18), B, 0, 0.4 + t * 0.72, 0, 0, Math.PI / 2); }
+      bt.add(dark, box(0.14, 0.07, 0.06), B, 0, 0.45, 0.4);
+      bt.add(board, new THREE.ConeGeometry(0.62, 0.35, 10), B, 0, 1.25, 0);
+      return;
+    }
+    const n = 2 + (Math.abs(Math.round(h.x + h.y)) % 2);
+    bt.add(board, box(0.6, 0.06, 0.55), B, 0, 0.43, 0.04);
+    for (let k = 0; k < n; k++) bt.add(hiveC[(k + Math.abs(Math.round(h.x))) % 4], box(0.52, 0.26, 0.44), B, 0, 0.59 + k * 0.27, 0);
+    for (let k = 0; k < n; k++) bt.add(dark, box(0.36, 0.015, 0.02), B, 0, 0.47 + k * 0.27, 0.22);
+    bt.add(white, box(0.6, 0.08, 0.52), B, 0, 0.5 + n * 0.27, 0);
+    bt.add(iron, box(0.62, 0.02, 0.54), B, 0, 0.55 + n * 0.27, 0);
+    bt.add(hiveC[0], box(0.12, 0.25, 0.05), B, 0, 0.3 + n * 0.27, 0.25);
+  };
+  const ground = (r, pad) => {
+    const x0 = r.x + pad, y0 = r.y + pad, w = r.w - pad * 2, h = r.h - pad * 2, nx = Math.max(2, Math.round(w / 20)), ny = Math.max(2, Math.round(h / 20)), pos = [], idx = [];
+    for (let j = 0; j <= ny; j++) for (let i = 0; i <= nx; i++) { const px = x0 + w * i / nx, py = y0 + h * j / ny; pos.push(px * U, H(px, py) + 0.04, py * U); }
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) { const a = j * (nx + 1) + i, b = a + 1, c = a + nx + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    bt.add(mud, g, I, 0, 0, 0);
+  };
+  for (const p of z.pens || []) {
+    const r = penRect(p), [gx, gy] = penSide(z, p), tall = p.kind === "raptor" ? 1.75 : p.kind === "cow" ? 1.35 : 1.05;
+    ground(r, 6);
+    const corners = [[r.x, r.y], [r.x + r.w, r.y], [r.x + r.w, r.y + r.h], [r.x, r.y + r.h]];
+    const sideOf = i => { const a = corners[i], b = corners[(i + 1) % 4], mx = (a[0] + b[0]) / 2 - p.x, my = (a[1] + b[1]) / 2 - p.y; return [Math.sign(Math.round(mx)), Math.sign(Math.round(my))]; };
+    for (let i = 0; i < 4; i++) {
+      const a = corners[i], b = corners[(i + 1) % 4], L = Math.hypot(b[0] - a[0], b[1] - a[1]), ux = (b[0] - a[0]) / L, uy = (b[1] - a[1]) / L, [sx, sy] = sideOf(i), gate = sx === gx && sy === gy, gw = p.kind === "chicken" ? 26 : 50;
+      const n = Math.max(2, Math.round(L / 42)), posts = [];
+      for (let k = 0; k <= n; k++) posts.push(k * L / n);
+      if (gate) { posts.push(L / 2 - gw / 2, L / 2 + gw / 2); posts.sort((q, w) => q - w); }
+      const pt = t => [a[0] + ux * t, a[1] + uy * t];
+      for (const t of posts) { const [x, y] = pt(t), big = gate && Math.abs(Math.abs(t - L / 2) - gw / 2) < 1; bt.add(wood, box(big ? 0.22 : 0.15, tall + 0.15, big ? 0.22 : 0.15), at(x, y, yaw(ux, uy)), 0, (tall + 0.15) / 2 - 0.05, 0); if (!big) bt.add(wood, new THREE.ConeGeometry(0.11, 0.12, 4), at(x, y, yaw(ux, uy)), 0, tall + 0.14, 0, Math.PI / 4); }
+      for (let k = 1; k < posts.length; k++) {
+        const t0 = posts[k - 1], t1 = posts[k];
+        if (gate && t0 >= L / 2 - gw / 2 - 0.5 && t1 <= L / 2 + gw / 2 + 0.5) {
+          const [x, y] = pt((t0 + t1) / 2), gl = (t1 - t0) * U - 0.12, B = at(x, y, yaw(ux, uy));
+          for (const yy of [0.25, tall * 0.5, tall - 0.15]) bt.add(board, box(gl, 0.12, 0.05), B, 0, yy, 0);
+          bt.add(board, box(0.1, tall - 0.2, 0.05), B, -gl / 2 + 0.06, tall / 2 - 0.02, 0); bt.add(board, box(0.1, tall - 0.2, 0.05), B, gl / 2 - 0.06, tall / 2 - 0.02, 0);
+          bt.add(board, box(Math.hypot(gl, tall - 0.4), 0.1, 0.04), B, 0, tall / 2, 0.02, 0, 0, Math.atan2(tall - 0.4, gl));
+          bt.add(iron, box(0.08, 0.1, 0.1), B, gl / 2 - 0.04, tall * 0.5, 0.06);
+          continue;
+        }
+        const [x0, y0] = pt(t0), [x1, y1] = pt(t1), h0 = H(x0, y0), h1 = H(x1, y1), hl = (t1 - t0) * U, len = Math.hypot(hl, h1 - h0), pitch = Math.atan2(h1 - h0, hl);
+        const mx = (x0 + x1) / 2, my = (y0 + y1) / 2, M2 = new THREE.Matrix4().setPosition(mx * U, (h0 + h1) / 2, my * U);
+        const rails = p.kind === "raptor" ? [0.45, 0.85, 1.25, 1.6] : p.kind === "cow" ? [0.45, 0.85, 1.22] : [0.25, 0.85];
+        for (const ry of rails) bt.add(board, box(len + 0.04, p.kind === "raptor" ? 0.13 : 0.1, 0.06), M2, 0, ry, 0, yaw(ux, uy), 0, pitch);
+        if (p.kind === "chicken") { const np = Math.max(2, Math.floor(len / 0.18)); for (let q = 0; q < np; q++) { const f = (q + 0.5) / np, px = x0 + (x1 - x0) * f, py = y0 + (y1 - y0) * f; bt.add(white, box(0.06, 0.95, 0.025), at(px, py, yaw(ux, uy)), 0, 0.5, 0.04); bt.add(white, new THREE.ConeGeometry(0.045, 0.07, 4), at(px, py, yaw(ux, uy)), 0, 1.0, 0.04, Math.PI / 4); } }
+      }
+      for (let t = 0; t <= L; t += 13) { const [x, y] = pt(t); cols.push({ x, y, r: 8 }); }
+    }
+    const hg = gx ? p.w / 2 : p.h / 2, hp = gx ? p.h / 2 : p.w / 2, px = -gy, py = gx;
+    const P2 = (a, b) => [p.x + gx * a * hg + px * b * hp, p.y + gy * a * hg + py * b * hp];
+    const along = yaw(px, py), across = yaw(gx, gy);
+    if (p.kind === "raptor") {
+      trough(...P2(-0.72, 0.35), along); feedBin(...P2(-0.72, -0.62), along);
+      bale(...P2(0.6, 0.78), across); bale(...P2(0.6, 0.78), across + 0.1, 0.45); bale(...P2(0.48, 0.78), across - 0.2);
+      { const [lx, ly] = P2(-0.1, -0.2); const B = at(lx, ly, along + 0.4); bt.add(wood, new THREE.CylinderGeometry(0.25, 0.3, 2.6, 9), B, 0, 0.25, 0, 0, 0, Math.PI / 2); }
+      { const [sx, sy] = P2(0.15, 0.55); bt.add(salt, box(0.3, 0.25, 0.3), at(sx, sy, 0.3), 0, 0.12, 0); }
+    } else if (p.kind === "cow") {
+      trough(...P2(-0.7, -0.4), along); hayRack(...P2(-0.62, 0.45), along);
+      roundBale(...P2(0.55, -0.7), across + 0.3); roundBale(...P2(0.2, -0.78), across + 1.2);
+      { const [sx, sy] = P2(0.0, 0.7); const B = at(sx, sy, 0.2); bt.add(wood, box(0.4, 0.3, 0.4), B, 0, 0.15, 0); bt.add(salt, box(0.3, 0.22, 0.3), B, 0, 0.41, 0); }
+    } else {
+      coop(...P2(-0.5, 0.35), across + Math.PI);
+      { const [fx, fy] = P2(0.2, -0.45); const B = at(fx, fy, along); bt.add(board, box(1.1, 0.1, 0.3), B, 0, 0.05, 0); bt.add(grain, new THREE.SphereGeometry(0.2, 8, 5).scale(2.5, 0.3, 0.6), B, 0, 0.1, 0); }
+      { const [fx, fy] = P2(-0.2, -0.6); const B = at(fx, fy, 0); bt.add(iron, new THREE.CylinderGeometry(0.28, 0.24, 0.12, 14), B, 0, 0.06, 0); bt.add(water, new THREE.CylinderGeometry(0.25, 0.25, 0.02, 14), B, 0, 0.11, 0); }
+      for (let k = 0; k < 3; k++) { const [hx, hy] = P2(0.55 - k * 0.12, 0.62 + (k % 2) * 0.1); bt.add(hay, new THREE.CylinderGeometry(0.4, 0.5, 0.06, 9), at(hx, hy, k), 0, 0.03, 0); }
+    }
+  }
+  W3.bees = [];
+  for (const h of z.hives || []) {
+    hive(h); cols.push({ x: h.x, y: h.y, r: 12 });
+    const n = 7, g = new THREE.BufferGeometry(), pos = new Float32Array(n * 3);
+    g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+    const pts = new THREE.Points(g, new THREE.PointsMaterial({ color: 0x2a2208, size: 0.07, sizeAttenuation: true }));
+    pts.frustumCulled = false;
+    pts.userData = { x: h.x * U, y: H(h.x, h.y) + 1.0, z: h.y * U, ph: Math.random() * 10 };
+    root.add(pts); W3.bees.push(pts);
+  }
+  bt.flush(root);
+}
+
 function buildSkyline(field, root) {
   const z = field.zone, G = z.ghost;
   if (!G || (!G.houses.length && !(G.marks || []).length)) return;
@@ -2294,6 +2526,16 @@ function updateCityAnim() {
     const u = f.userData;
     if (u.fx === "smoke") { const t = (S.time * 0.12 + u.ph) % 1; f.position.set(u.base.x + Math.sin(t * 5 + u.ph * 9) * 0.5 + t * 1.6, u.base.y + t * 7, u.base.z + t * 0.8); f.scale.setScalar(1.6 + t * 5); f.material.opacity = 0.42 * Math.sin(t * Math.PI); }
     else if (u.fx === "flame") { const k = 0.85 + Math.sin(S.time * 9 + u.ph) * 0.1 + Math.sin(S.time * 23 + u.ph * 3) * 0.06; f.scale.set(1, k, 1); }
+  }
+  if (W3.bees && W3.bees.length) {
+    const on = !isNight() && !/rain|storm|snow|blizzard/.test(weatherNow() || "") && seasonNow().q !== 3;
+    for (const b of W3.bees) {
+      b.visible = on;
+      if (!on) continue;
+      const u = b.userData, a = b.geometry.attributes.position;
+      for (let i = 0; i < a.count; i++) { const t = S.time * (0.9 + i * 0.13) + u.ph + i * 2.1; a.setXYZ(i, u.x + Math.sin(t * 1.3) * 0.5 + Math.sin(t * 3.7) * 0.12, u.y + Math.sin(t * 2.1 + i) * 0.35, u.z + Math.cos(t * 1.1) * 0.5 + Math.cos(t * 4.1) * 0.1); }
+      a.needsUpdate = true;
+    }
   }
   for (const s of W3.spinners || []) { if (s.userData.flag) { s.rotation.y = Math.sin(S.time * 1.7 + s.id) * 0.18; continue; } s.rotation.z = -S.time * (s.userData.spin || 0.5); }
   if (W3.clocks && W3.clocks.length) {
@@ -3239,7 +3481,8 @@ function* buildZone3DSteps() {
   buildPathEdges(field, root);
   buildProps(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
-  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildSkyline(field, root); }
+  W3.bees = [];
+  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildFarms(field, root); buildSkyline(field, root); }
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildDungeon(field, root);

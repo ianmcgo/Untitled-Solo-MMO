@@ -2970,6 +2970,9 @@ function quadEntry(o) {
     R.add(gBall(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), o.tailR * 0.72, 1, 1, 1, 7), "tail2", col, reg);
     R.add(gTaper(V3(0, B - o.tailDrop * 0.5, -bl * 0.5 - o.tailLen * 0.5), V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 0.7, o.tailR * 0.2, 7), "tail2", col, reg);
   }
+  if (o.patches != null) { const rp = seeded(hashStr("cow" + o.col + o.patches)); for (let k = 0; k < 7; k++) { const zz = (rp() - 0.5) * bl * 0.8, side = rp() < 0.5 ? -1 : 1, up = rp() * 0.9; { const an = up * 1.2, k = 0.6, pr = o.bodyR * (0.3 + rp() * 0.14); R.add(gBall(V3(side * o.bodyR * Math.cos(an) * k, B + o.bodyR * Math.sin(an) * k * 0.95, zz), pr, 1, 1, 1.5, 8), "body", o.patches, reg); } } R.add(gBall(V3(0, B + o.neckUp + o.headR * 0.15, bl * 0.45 + o.neckFwd + o.headR * 0.55), o.headR * 0.62, 0.9, 0.7, 0.6, 8), "head", o.patches, reg); }
+  if (o.udder) { R.add(gBall(V3(0, B - o.bodyR * 0.82, -bl * 0.22), o.bodyR * 0.3, 1, 0.75, 1, 10), "body", 0xe8a8a0, "skin"); for (const [ux, uz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) R.add(gTaper(V3(ux * 0.05, B - o.bodyR * 0.98, -bl * 0.22 + uz * 0.05), V3(ux * 0.05, B - o.bodyR * 1.12, -bl * 0.22 + uz * 0.05), 0.018, 0.012, 5), "body", 0xe09890, "skin"); }
+  if (o.tailLen > 0 && o.tailDrop > 0.4) R.add(gBall(V3(0, B - o.tailDrop, -bl * 0.5 - o.tailLen), o.tailR * 2.6, 1, 1.6, 1, 7), "tail2", 0x2a2420, reg);
   if (o.spines) {
     for (let k = 0; k < o.spines; k++) R.add(gTaper(V3(0, B + o.bodyR * 0.85, bl * 0.35 - k * (bl * 0.7 / o.spines)), V3(0, B + o.bodyR * 0.85 + 0.12, bl * 0.35 - k * (bl * 0.7 / o.spines) - 0.04), 0.03, 0.004, 5), "body", dark, "bone");
     if (o.tailLen > 0) for (let k = 0; k < 4; k++) { const f = (k + 0.5) / 4, z = -bl * 0.5 - o.tailLen * f * 0.9, y = B - o.tailDrop * f + o.tailR * (1 - f * 0.6) * 0.85, h = 0.09 * (1 - f * 0.7); R.add(gTaper(V3(0, y, z), V3(0, y + h, z - h * 0.3), 0.024 * (1 - f * 0.5), 0.003, 5), f < 0.5 ? "tail" : "tail2", dark, "bone"); }
@@ -2979,6 +2982,7 @@ function quadEntry(o) {
   return R.finish();
 }
 
+function cowEntry(col, patch) { return quadEntry({ col, belly: col, bodyY: 0.98, bodyR: 0.4, bodyH: 0.92, bodyLen: 1.55, leg: 0.84, hip: 0.22, legR: 0.075, legMass: 0.7, neckUp: 0.1, neckFwd: 0.36, neckR: 0.17, headR: 0.2, ears: 0.8, snout: 0.95, mw: 0.95, hoof: true, horns: true, tailLen: 0.7, tailDrop: 0.6, tailR: 0.03, stride: 1.7, patches: patch, udder: true }); }
 function sheepEntry(col) { return quadEntry({ col, belly: 0xf4f0e6, bodyY: 0.55, bodyR: 0.3, bodyLen: 0.74, leg: 0.47, hip: 0.15, legR: 0.05, neckUp: 0.1, neckFwd: 0.2, neckR: 0.1, headR: 0.145, ears: 0.9, droop: true, snout: 0.75, mw: 0.8, hoof: true, wool: true, tailLen: 0.1, tailDrop: 0.05, tailR: 0.05, stride: 1.1 }); }
 function lizardEntry(col, belly) { return quadEntry({ col, belly, region: "scale", bodyY: 0.22, bodyR: 0.18, bodyLen: 0.7, leg: 0.2, hip: 0.22, legR: 0.045, neckUp: 0.04, neckFwd: 0.22, neckR: 0.1, headR: 0.12, snout: 0.9, mw: 1.1, flat: 0.62, mouthLine: true, eye: 0xffd54f, eyeGlow: true, tailLen: 0.7, tailDrop: 0.1, tailR: 0.1, spines: 5, stride: 0.9 }); }
 function longneckEntry(col) { return quadEntry({ col, bodyY: 1.3, bodyR: 0.45, bodyLen: 1.5, leg: 1.1, hip: 0.24, legR: 0.095, legMass: 0.7, neckUp: 1.0, neckFwd: 0.5, neckR: 0.13, headR: 0.15, ears: 1.0, snout: 1.0, mw: 0.75, hoof: true, tailLen: 0.5, tailDrop: 0.3, tailR: 0.08, stride: 2.4 }); }
@@ -3773,6 +3777,8 @@ function buildEntityRig(e) {
     sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
     if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"), LW = npcFace(L, hashStr("w" + (e.seed || 0) + (e.look || ""))); make = () => humanEntry(LW); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
+    else if (e.type === "raptor") { const id = MOUNT_COATS[e.coat] ? e.coat : "teal"; sig += "|" + id; make = () => thornstriderEntry(MOUNT_COATS[id]); }
+    else if (e.type === "cow") { const cc = COW_COATS[e.coatCow || 0]; sig += "|" + (e.coatCow || 0); make = () => cowEntry(cc[0], cc[1]); }
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
     else if (e.type === "bird") make = () => birdEntry(e.col || 0x6a5a4a, null, 0xd8a040);
     else if (e.type === "deer") make = () => quadEntry({ col: e.col || 0x8a6a48, belly: 0xe8dcc8, slim: true, bodyW: 0.62, bodyY: 0.78, bodyR: 0.2, bodyLen: 0.86, leg: 0.72, hip: 0.1, legR: 0.03, neckUp: 0.34, neckFwd: 0.22, neckR: 0.052, headR: 0.09, ears: 1.3, snout: 0.85, mw: 0.72, hoof: true, tailLen: 0.12, tailDrop: 0.04, tailR: 0.04, stride: 1.6 });
