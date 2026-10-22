@@ -391,19 +391,47 @@ function entityHeight(e) {
   return h;
 }
 
+function crystalShardGeo(kind) {
+  if (kind === 0) { const g = new THREE.OctahedronGeometry(0.55, 0); g.scale(1, 1.8, 1); return g; }
+  if (kind === 1) { const pts = [[0, -0.9], [0.32, -0.45], [0.36, 0.45], [0, 1.0]].map(([x, y]) => new THREE.Vector2(x, y)); return new THREE.LatheGeometry(pts, 6); }
+  if (kind === 2) { const g = new THREE.LatheGeometry([[0, -1.0], [0.18, -0.6], [0.5, 0], [0.18, 0.6], [0, 1.0]].map(([x, y]) => new THREE.Vector2(x, y)), 5); const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const y = p.getY(i), t = y * 1.4, x = p.getX(i), z = p.getZ(i); p.setXYZ(i, x * Math.cos(t) - z * Math.sin(t), y, x * Math.sin(t) + z * Math.cos(t)); } g.computeVertexNormals(); return g; }
+  const g = new THREE.DodecahedronGeometry(0.6, 0); g.scale(0.9, 1.3, 0.9); return g;
+}
 function npcCrystalView(e) {
   const g = new THREE.Group();
-  const c = new THREE.Mesh(new THREE.OctahedronGeometry(0.55, 0), new THREE.MeshStandardMaterial({ color: 0x9ff3ff, emissive: 0x40d8ff, emissiveIntensity: 0.55, roughness: 0.1, metalness: 0.2, transparent: true, opacity: 0.9 }));
-  c.scale.y = 1.7;
-  c.position.y = 2.0;
-  const bt = texBricks();
-  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.9, 1.1, 0.4, 8), std({ map: bt.map, normalMap: bt.normalMap }));
-  base.position.y = 0.2;
-  base.receiveShadow = true;
-  const L = new THREE.PointLight(0x60e0ff, 4, 12, 1.6);
-  L.position.y = 2;
-  g.add(c, base, L);
-  return { g, spin: c };
+  const el = typeof zoneElement === "function" ? zoneElement(S.zone) : "water";
+  const col = new THREE.Color(ELEMENT_COLORS[el] || "#4fc3f7"), deep = col.clone().multiplyScalar(0.55);
+  const kind = hashStr(e.id || "c") % 4;
+  const mat = new THREE.MeshStandardMaterial({ color: col, emissive: col, emissiveIntensity: 1.1, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.85, flatShading: true });
+  const coreM = new THREE.MeshBasicMaterial({ color: col.clone().lerp(new THREE.Color(0xffffff), 0.6) });
+  const spin = new THREE.Group();
+  const main = new THREE.Mesh(crystalShardGeo(kind), mat);
+  const core = new THREE.Mesh(new THREE.IcosahedronGeometry(0.2, 1), coreM);
+  spin.add(main, core);
+  if (kind === 1) for (let k = 0; k < 4; k++) { const sh = new THREE.Mesh(crystalShardGeo(1), mat); const a = k / 4 * Math.PI * 2 + 0.4; sh.scale.setScalar(0.5); sh.position.set(Math.cos(a) * 0.38, -0.35, Math.sin(a) * 0.38); sh.rotation.set(Math.sin(a) * 0.5, 0, -Math.cos(a) * 0.5); spin.add(sh); }
+  const orbit = new THREE.Group();
+  const nOrb = [4, 0, 3, 6][kind];
+  for (let k = 0; k < nOrb; k++) { const sh = new THREE.Mesh(new THREE.OctahedronGeometry(0.11, 0), mat); const a = k / nOrb * Math.PI * 2; sh.scale.y = 1.8; sh.position.set(Math.cos(a) * 1.0, Math.sin(a * 2) * 0.25, Math.sin(a) * 1.0); orbit.add(sh); }
+  const ringM = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.55, blending: THREE.AdditiveBlending, depthWrite: false });
+  if (kind === 2 || kind === 3) for (const [r, tx] of [[0.85, 1.2], [1.05, -0.9]]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(r, 0.025, 6, 40), ringM); ring.rotation.x = tx; orbit.add(ring); }
+  spin.add(orbit);
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: col, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false }));
+  halo.scale.setScalar(3.6); spin.add(halo);
+  spin.position.y = 2.0;
+  const bt = texBricks(), stone = std({ map: bt.map, normalMap: bt.normalMap, color: 0x9a96a4 }), dark = std({ color: 0x3a3844, roughness: 0.6, metalness: 0.4 });
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 1.15, 0.3, 8), stone); base.position.y = 0.15;
+  const mid = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.85, 0.35, 8), stone); mid.position.y = 0.47;
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.55, 0.12, 8), dark); cap.position.y = 0.7;
+  const runeM = new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.9 });
+  const rune = new THREE.Mesh(new THREE.TorusGeometry(1.0, 0.03, 4, 8), runeM); rune.rotation.x = Math.PI / 2; rune.position.y = 0.31;
+  for (let k = 0; k < 8; k++) { const a = k / 8 * Math.PI * 2 + Math.PI / 8, gl = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.2, 0.02), runeM); gl.position.set(Math.cos(a) * 0.74, 0.47, Math.sin(a) * 0.74); gl.rotation.y = Math.PI / 2 - a; gl.rotation.x = -0.4; g.add(gl); }
+  for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + Math.PI / 4, pr = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.5, 4), dark); pr.position.set(Math.cos(a) * 0.45, 0.98, Math.sin(a) * 0.45); pr.rotation.set(Math.sin(a) * 0.4, 0, -Math.cos(a) * 0.4); g.add(pr); }
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 0.6, 1.4, 16, 1, true), new THREE.MeshBasicMaterial({ color: col, transparent: true, opacity: 0.18, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide })); beam.position.y = 1.35;
+  for (const o of [base, mid, cap]) { o.receiveShadow = true; o.castShadow = true; }
+  const L = new THREE.PointLight(col, 9, 16, 1.5); L.position.y = 2;
+  g.add(spin, base, mid, cap, rune, beam, L);
+  g.userData.crystal = { orbit, halo, core, L, deep };
+  return { g, spin };
 }
 
 function propView(n) {
@@ -629,6 +657,8 @@ function syncNpc(n, dt) {
     v.group.position.set(n.x * U, groundY(n.x, n.y), n.y * U);
     v.spin.rotation.y += dt * 0.8;
     v.spin.position.y = 2 + Math.sin(S.time * 1.5) * 0.12;
+    const cd = v.group.userData.crystal;
+    if (cd) { cd.orbit.rotation.y -= dt * 2.2; const p = 0.5 + 0.5 * Math.sin(S.time * 2.3); cd.halo.material.opacity = 0.55 + 0.35 * p; cd.halo.scale.setScalar(3.2 + 0.8 * p); cd.core.scale.setScalar(0.85 + 0.35 * p); cd.L.intensity = 7 + 4 * p; }
     return;
   }
   syncEntity(n, dt);

@@ -33,7 +33,99 @@ function* scaleSteps(gen, a, b, text) {
   return r.value;
 }
 
+function daisArms(z, x, y, r) {
+  const arms = [];
+  for (const p of z.paths || []) for (let i = 1; i < p.pts.length; i++) {
+    const a = p.pts[i - 1], b = p.pts[i];
+    if (distToSegPt(x, y, a, b) > r * 0.5) continue;
+    const ang = Math.atan2(b[1] - a[1], b[0] - a[0]);
+    for (const t of [ang, ang + Math.PI]) { const n = Math.atan2(Math.sin(t), Math.cos(t)); if (!arms.some(q => Math.abs(Math.atan2(Math.sin(q.a - n), Math.cos(q.a - n))) < 0.4)) arms.push({ a: n, w: p.w }); }
+  }
+  return arms;
+}
+function addDais(z) {
+  if (z._dais !== undefined) return z._dais;
+  z._dais = null;
+  if (themeOf(z) !== "town") return null;
+  const cr = (z.npcs || []).find(n => NPCS[n.id] && NPCS[n.id].crystal);
+  if (!cr) return null;
+  const pl = (z.plaza ? [z.plaza] : []).concat(z.plazas || []).find(q => Math.hypot(q.x - cr.x, q.y - cr.y) < q.r * 0.5);
+  if (!pl) return null;
+  const arms = daisArms(z, cr.x, cr.y, pl.r);
+  if (!arms.length) return null;
+  const f = { t: "dais", x: cr.x, y: cr.y, r: Math.min(110, pl.r * 0.46), h: 1.3, ramp: 72, aw: Math.min(30, Math.max(18, Math.min(...arms.map(q => q.w)) * 0.45)), arms: arms.map(q => q.a) };
+  z.features = (z.features || []).filter(q => q.t !== "dais").concat([f]);
+  z._dais = f;
+  return f;
+}
+function daisLift(f, px, py) {
+  const dx = px - f.x, dy = py - f.y;
+  if (dx * dx + dy * dy <= f.r * f.r) return 1;
+  let k = 0;
+  for (const a of f.arms) { const c = Math.cos(a), s = Math.sin(a), al = dx * c + dy * s, la = Math.abs(-dx * s + dy * c); if (la < f.aw && al > 0 && al < f.r + f.ramp) k = Math.max(k, al <= f.r ? 1 : 1 - (al - f.r) / f.ramp); }
+  return k;
+}
+function buildDais(z, field, root, bt, M, col) {
+  const f = z._dais;
+  if (!f) return;
+  const box = (w, h, d) => new THREE.BoxGeometry(w, h, d), cyl = (a, b, h, n) => new THREE.CylinderGeometry(a, b, h, n || 8);
+  const topY = field.heightAt(f.x, f.y), R = f.r * U;
+  let baseY = 1e9;
+  for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; baseY = Math.min(baseY, field.heightAt(f.x + Math.cos(a) * (f.r + f.ramp + 24), f.y + Math.sin(a) * (f.r + f.ramp + 24))); }
+  const B = new THREE.Matrix4().makeTranslation(f.x * U, 0, f.y * U), hh = topY - baseY + 0.6;
+  bt.add(M.stone, cyl(R, R + 0.15, hh, 40), B, 0, topY - hh / 2, 0);
+  bt.add(M.trim, new THREE.TorusGeometry(R, 0.12, 6, 48), B, 0, topY, 0, 0, Math.PI / 2);
+  bt.add(M.trim, cyl(R + 0.25, R + 0.3, 0.25, 40), B, 0, baseY + 0.05, 0);
+  bt.add(M.planks, cyl(R - 0.15, R - 0.15, 0.04, 40), B, 0, topY + 0.01, 0);
+  bt.add(M.trim, new THREE.RingGeometry(R * 0.32, R * 0.36, 32).rotateX(-Math.PI / 2), B, 0, topY + 0.035, 0);
+  bt.add(M.gold, new THREE.RingGeometry(R * 0.62, R * 0.64, 40).rotateX(-Math.PI / 2), B, 0, topY + 0.035, 0);
+  const n = 7, run = f.ramp / n * U, sw = f.aw * 2 * U;
+  for (const a of f.arms) {
+    const c = Math.cos(a), s = Math.sin(a), ry = Math.atan2(c, s);
+    for (let k = 0; k < n; k++) {
+      const al = f.r + (k + 0.5) * f.ramp / n, top = baseY + (topY - baseY) * (1 - (k + 0.5) / n) + (topY - baseY) / n * 0.5, hgt = top - baseY + 0.4;
+      bt.add(M.stone, box(sw, hgt, run + 0.02), B, c * al * U, top - hgt / 2, s * al * U, ry);
+      bt.add(M.trim, box(sw + 0.02, 0.06, 0.12), B, c * (al + f.ramp / n / 2 - 2) * U, top - 0.02, s * (al + f.ramp / n / 2 - 2) * U, ry);
+    }
+    for (const sd of [-1, 1]) {
+      const lx = -s * sd * (f.aw + 3), ly = c * sd * (f.aw + 3);
+      const a0 = f.r - 2, a1 = f.r + f.ramp, m = (a0 + a1) / 2, dh = topY - baseY, len = Math.hypot((a1 - a0) * U, dh);
+      bt.add(M.trim, box(0.3, 0.7, len).rotateX(Math.atan2(dh, (a1 - a0) * U)).rotateY(ry), B, (c * m + lx) * U, (topY + baseY) / 2 + 0.35, (s * m + ly) * U);
+      bt.add(M.stone, box(0.42, 1.1, 0.42), B, (c * a1 + lx) * U, baseY + 0.55, (s * a1 + ly) * U, ry);
+      bt.add(M.gold, new THREE.SphereGeometry(0.16, 8, 6), B, (c * a1 + lx) * U, baseY + 1.2, (s * a1 + ly) * U);
+      for (let k = 0; k <= 4; k++) { const al = a0 + (a1 - a0) * k / 4; col(f.x + c * al + lx, f.y + s * al + ly, 5); }
+    }
+  }
+  const gap = a => f.arms.some(q => Math.abs(Math.atan2(Math.sin(a - q), Math.cos(a - q))) < Math.asin(Math.min(1, (f.aw + 4) / f.r)));
+  const NB = 48;
+  for (let k = 0; k < NB; k++) {
+    const a = k / NB * Math.PI * 2, a2 = (k + 1) / NB * Math.PI * 2;
+    if (gap(a) || gap(a2)) continue;
+    const x = Math.cos(a) * (R - 0.25), y = Math.sin(a) * (R - 0.25), x2 = Math.cos(a2) * (R - 0.25), y2 = Math.sin(a2) * (R - 0.25);
+    bt.add(M.trim, cyl(0.07, 0.09, 0.8, 6), B, x, topY + 0.4, y);
+    const L = Math.hypot(x2 - x, y2 - y);
+    bt.add(M.trim, box(0.16, 0.1, L + 0.04), B, (x + x2) / 2, topY + 0.85, (y + y2) / 2, Math.atan2(x2 - x, y2 - y));
+    col(f.x + x / U, f.y + y / U, 5);
+  }
+  const NC = 8, CR = R * 0.78, CH = 4.4;
+  for (let k = 0; k < NC; k++) {
+    const a = (f.arms[0] || 0) + Math.PI / NC + k / NC * Math.PI * 2, x = Math.cos(a) * CR, y = Math.sin(a) * CR;
+    bt.add(M.stone, box(0.7, 0.35, 0.7), B, x, topY + 0.17, y, a);
+    bt.add(M.white, cyl(0.2, 0.24, CH, 12), B, x, topY + 0.35 + CH / 2, y);
+    bt.add(M.trim, box(0.6, 0.25, 0.6), B, x, topY + 0.35 + CH + 0.12, y, a);
+    col(f.x + x / U, f.y + y / U, 7);
+  }
+  const ry0 = topY + 0.35 + CH + 0.25;
+  bt.add(M.trim, new THREE.TorusGeometry(CR, 0.22, 6, 40), B, 0, ry0 + 0.1, 0, 0, Math.PI / 2);
+  bt.add(M.roof[1], new THREE.ConeGeometry(CR + 1.0, 2.8, 16, 1, true), B, 0, ry0 + 1.5, 0);
+  bt.add(M.trim, cyl(CR + 1.05, CR + 1.05, 0.18, 16), B, 0, ry0 + 0.15, 0);
+  bt.add(M.gold, cyl(0.06, 0.1, 1.2, 6), B, 0, ry0 + 3.4, 0);
+  bt.add(M.gold, new THREE.SphereGeometry(0.22, 10, 8), B, 0, ry0 + 4.05, 0);
+  bt.add(M.stone, cyl(1.1, 1.3, 0.45, 12), B, 0, topY + 0.22, 0);
+  bt.add(M.trim, cyl(0.95, 1.1, 0.25, 12), B, 0, topY + 0.55, 0);
+}
 function* buildFieldSteps(zone) {
+  addDais(zone);
   const theme = themeOf(zone);
   const M = zone.indoor ? 40 : 640;
   const cs = zone.indoor ? 8 : (zone.cs || 12);
@@ -135,6 +227,7 @@ function* buildFieldSteps(zone) {
       hgt -= (1 - sstep(wt.r * 0.45, wt.r + 22, d)) * 1.7;
     }
     for (const f of zone.features || []) {
+      if (f.t === "dais") { hgt += daisLift(f, px, py) * f.h; continue; }
       if (f.t === "terrace") { const dx = Math.max(0, Math.abs(px - f.x) - f.hw), dy = Math.max(0, Math.abs(py - f.y) - f.hh); hgt += f.lift * (1 - sstep(0, f.ramp, Math.hypot(dx, dy))); continue; }
       if (f.t === "plateau") { const d = Math.hypot(px - f.x, py - f.y) + (NOISE.value(px * 0.02, py * 0.02, 0, 411) - 0.5) * f.r * 0.25; hgt += sstep(f.r, f.r * 0.62, d) * f.h * (1 - pw * 0.8); }
       else if (f.t === "ravine") { let d = 1e9; for (let i = 0; i < f.pts.length - 1; i++) d = Math.min(d, distToSeg(px, py, f.pts[i][0], f.pts[i][1], f.pts[i + 1][0], f.pts[i + 1][1])); hgt -= sstep(f.w, f.w * 0.25, d) * f.d * (1 - pw); }
@@ -1035,6 +1128,7 @@ function buildTown(field, root) {
     if (st.pole) { const red = new THREE.MeshStandardMaterial({ color: 0xc0392b }), wht = new THREE.MeshStandardMaterial({ color: 0xf2ece0 }); for (let k = 0; k < 6; k++) { const sgm = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.3, 10), k % 2 ? wht : red); sgm.position.set(1.65, 0.45 + k * 0.3, 0.75); g.add(sgm); } const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd8b050, metalness: 0.6, roughness: 0.4 })); cap.position.set(1.65, 2.34, 0.75); g.add(cap); }
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     g.position.set(st.x * U, footY(field, st.x, st.y, 1.3), st.y * U);
+    if (st.rot != null) g.rotation.y = st.rot;
     root.add(g);
   }
   for (const pr of z.props || []) {
@@ -1437,7 +1531,11 @@ function buildCityBuildings(field, root) {
       return;
     }
     const roofM = M.roof[hs.roof != null ? hs.roof : T.ground === "stone" ? 1 : Math.floor(rnd() * 4) % 4];
-    bt.add(M.stone, box(bw + 0.3, PL + 0.4, bd + 0.3), B, 0, (PL - 0.4) / 2, 0);
+    const gAt = (lx, lz) => { const v = new THREE.Vector3(lx, 0, lz).applyMatrix4(B); return field.heightAt(v.x / U, v.z / U) - gy; };
+    let lowY = 0;
+    for (const sx of [-0.5, 0, 0.5]) for (const sz of [-0.5, 0, 0.5]) lowY = Math.min(lowY, gAt(sx * (bw + 0.3), sz * (bd + 0.3)));
+    const footD = PL - lowY + 0.4;
+    bt.add(M.stone, box(bw + 0.3, footD, bd + 0.3), B, 0, PL - footD / 2, 0);
     let depth = bd, topY = PL;
     for (let f = 0; f < n; f++) {
       const jet = T.timber && f > 0 ? 0.22 * f : 0, d = bd + jet * 2, y0 = PL + f * FH;
@@ -1506,7 +1604,11 @@ function buildCityBuildings(field, root) {
     bt.add(M.frame, box(dw + 0.3, dh + 0.2, 0.12), B, 0, PL + dh / 2, fz + 0.04);
     bt.add(M.door, box(dw, dh, 0.1), B, 0, PL + dh / 2, fz + 0.08);
     bt.add(M.iron, box(0.08, 0.08, 0.12), B, dw * 0.32, PL + dh * 0.45, fz + 0.14);
-    bt.add(M.stone, box(dw + 0.8, 0.22, 0.7), B, 0, PL - 0.09, fz + 0.35);
+    {
+      const sg = Math.min(gAt(0, fz + 0.4), gAt(0, fz + 1.2), gAt(-(dw + 0.8) / 2, fz + 0.7), gAt((dw + 0.8) / 2, fz + 0.7));
+      const drop = Math.max(0, PL - sg), ns = Math.max(1, Math.min(6, Math.round(drop / 0.22)));
+      for (let k = 0; k < ns; k++) { const top = PL - k * drop / ns, bot = Math.min(top - 0.22, sg - 0.25); bt.add(M.stone, box(dw + 0.8, top - bot, 0.5), B, 0, (top + bot) / 2, fz + 0.25 + k * 0.4); }
+    }
     bt.add(lampMat, box(0.24, 0.34, 0.24), B, dw / 2 + 0.45, PL + dh + 0.1, fz + 0.28);
     bt.add(M.iron, box(0.05, 0.05, 0.3), B, dw / 2 + 0.45, PL + dh + 0.3, fz + 0.14);
     glowAt(B, dw / 2 + 0.45, PL + dh + 0.1, fz + 0.28, 2);
@@ -1533,7 +1635,7 @@ function buildCityBuildings(field, root) {
       for (let k = 0; k < 4; k++) bt.add(M.trim, cyl(0.22, 0.26, dh + 1.4, 10), B, -bw * 0.36 + k * bw * 0.24, PL + (dh + 1.4) / 2, fz + 1.3);
       bt.add(M.trim, box(bw * 0.92, 0.35, 1.7), B, 0, PL + dh + 1.55, fz + 0.9);
       bt.add(M.trim, roofGeo(bw * 0.86, 1.1, 0.9), B, 0, PL + dh + 1.72, fz + 0.9);
-      bt.add(M.stone, box(bw * 0.95, 0.25, 2.0), B, 0, PL - 0.12, fz + 1.0);
+      { const pg = Math.min(gAt(-bw * 0.47, fz + 2), gAt(bw * 0.47, fz + 2), gAt(0, fz + 2), gAt(-bw * 0.47, fz + 0.2), gAt(bw * 0.47, fz + 0.2)), th = Math.max(0.25, PL - pg + 0.3); bt.add(M.stone, box(bw * 0.95, th, 2.0), B, 0, PL - th / 2, fz + 1.0); }
     }
     if (T.forge) {
       bt.add(M.stone, box(1.4, 4.2, 1.4), B, -bw * 0.32, topY + 1.4, 0);
@@ -1557,8 +1659,8 @@ function buildCityBuildings(field, root) {
     if (T.crane) {
       bt.add(M.beam, box(0.25, 0.25, 2.4), B, bw * 0.3, topY - 0.4, fz + 1.1);
       bt.add(M.iron, cyl(0.02, 0.02, 2.2, 4), B, bw * 0.3, topY - 1.6, fz + 2.2);
-      bt.add(M.planks, box(0.8, 0.6, 0.8), B, bw * 0.3, topY - 2.9, fz + 2.2);
-      for (let k = 0; k < 5; k++) bt.add(M.planks, box(0.75, 0.75, 0.75), B, -bw * 0.38 + (k % 3) * 0.8, PL + 0.38 + (k > 2 ? 0.75 : 0), fz + 1.4 + (k % 2) * 0.2, k * 0.2);
+      bt.add(M.planks, crateGeo(), B, bw * 0.3, topY - 2.9, fz + 2.2, 0, 0, 0, 0.85, 0.7, 0.85);
+      for (let k = 0; k < 5; k++) { const cx = -bw * 0.38 + (k % 3) * 0.8, cz = fz + 1.4 + (k % 2) * 0.2, gy0 = Math.min(gAt(cx - 0.4, cz - 0.4), gAt(cx + 0.4, cz + 0.4), gAt(cx - 0.4, cz + 0.4), gAt(cx + 0.4, cz - 0.4)); bt.add(M.planks, crateGeo(), B, cx, gy0 + 0.36 + (k > 2 ? 0.72 : 0), cz, k * 0.2, 0, 0, 0.8, 0.8, 0.8); }
     }
     if (T.clock) {
       const tw = 3.6, th = 7.5, ty = topY;
@@ -1966,6 +2068,7 @@ function buildCityBuildings(field, root) {
       ban2.position.set(gx * U - (vert ? (g.side === "e" ? -1.33 : 1.33) : 0), gy + 8.0, gyy * U - (vert ? 0 : g.side === "s" ? -1.33 : 1.33)); ban2.rotation.y = ban.rotation.y + Math.PI; root.add(ban2);
     }
   }
+  buildDais(z, field, root, bt, M, col);
   bt.flush(root);
 }
 function buildSkyline(field, root) {

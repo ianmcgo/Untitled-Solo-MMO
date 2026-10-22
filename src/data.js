@@ -1258,7 +1258,7 @@ const OUTPOST_PLAN = {
       { key: "auction", x: 1600, y: 770, w: 190, h: 110, type: "auction", sign: "Auction House", flag: "#c9a227", shop: "auction_outpost" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "The Ember Mug", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1600, y: 870 }],
+    npcs: [{ id: "crystal_town", x: 1200, y: 900 }, { id: "luna", x: 1390, y: 1110 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_outpost", x: 1600, y: 885 }],
     stalls: [{ x: 1359, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1100, y: 757, color: "#1565c0" }, { x: 1300, y: 757, color: "#ef8f00" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }, { t: "cart", x: 1880, y: 600, rot: -0.3 }],
@@ -1333,6 +1333,26 @@ function buildCity(C) {
     if (P.plaza) z.plaza = mv(P.plaza);
     if (P.stable) (z.stables = z.stables || []).push(mv(P.stable));
   }
+  for (const cr of z.npcs.filter(n => /^crystal_/.test(n.id))) {
+    const pl = (z.plaza ? [z.plaza] : []).concat(z.plazas).find(q => Math.hypot(q.x - cr.x, q.y - cr.y) < q.r * 0.5);
+    if (!pl) continue;
+    const inside = z.stalls.filter(st => Math.hypot(st.x - cr.x, st.y - cr.y) < pl.r + 10);
+    if (!inside.length) continue;
+    const arms = [];
+    for (const p of z.paths) for (let i = 1; i < p.pts.length; i++) {
+      const A = p.pts[i - 1], Bp = p.pts[i];
+      if (distToSegPt(cr.x, cr.y, A, Bp) > pl.r * 0.5) continue;
+      const ang = Math.atan2(Bp[1] - A[1], Bp[0] - A[0]);
+      for (const t of [ang, ang + Math.PI]) { const n = Math.atan2(Math.sin(t), Math.cos(t)); if (!arms.some(q => Math.abs(Math.atan2(Math.sin(q.a - n), Math.cos(q.a - n))) < 0.4)) arms.push({ a: n, w: p.w }); }
+    }
+    if (!arms.length) continue;
+    const slots = [];
+    for (let ring = 0; slots.length < inside.length && ring < 3; ring++) for (const sd of [1, -1]) for (const ar of arms) {
+      const c = Math.cos(ar.a), s2 = Math.sin(ar.a), along = pl.r + 50 + ring * 75, lat = sd * (ar.w / 2 + 46);
+      slots.push({ x: Math.round(cr.x + c * along - s2 * lat), y: Math.round(cr.y + s2 * along + c * lat), rot: Math.atan2(s2 * sd, -c * sd) });
+    }
+    inside.forEach((st, i) => { const keep = z.npcs.find(n => n !== cr && Math.hypot(n.x - st.x, n.y - st.y) < 40); Object.assign(st, slots[i]); if (keep) { keep.x = Math.round(st.x - Math.sin(st.rot) * 10); keep.y = Math.round(st.y - Math.cos(st.rot) * 10); keep.face = Math.atan2(Math.cos(st.rot), Math.sin(st.rot)); } });
+  }
   const signPool = {};
   for (const did in PLAN) signPool[did] = C.signs.slice().sort(() => rnd() - 0.5);
   const reserve = [];
@@ -1348,7 +1368,7 @@ function buildCity(C) {
     if (r.x < d.x + 60 || r.y < d.y + 60 || r.x + r.w > d.x + d.w - 60 || r.y + r.h > d.y + d.h - 60) return false;
     if (z.houses.some(h => rectsHit(r, { x: h.x - h.w / 2, y: h.y - h.h / 2, w: h.w, h: h.h }, 22))) return false;
     if (reserve.some(q => rectsHit(r, q, 10)) || z.gates.some(g => rectsHit(r, gateBox(g), 0)) || z.exits.some(e => rectsHit(r, exitBox(e), 0))) return false;
-    if (z.gardens.some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 14)) || z.stalls.some(s => rectsHit(r, { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 14))) return false;
+    if (z.gardens.some(g => rectsHit(r, { x: g.x - g.w / 2, y: g.y - g.h / 2, w: g.w, h: g.h }, 14)) || z.stalls.some(s => rectsHit(r, s.rot != null ? { x: s.x - 26, y: s.y - 26, w: 52, h: 52 } : { x: s.x - 26, y: s.y - 16, w: 52, h: 32 }, 14))) return false;
     if (circles().some(c => hitCirc(r, c))) return false;
     if ([].concat(z.npcs, z.props, z.dressing).some(o => inRect(o.x, o.y, r, 24))) return false;
     return !roadHit(r, 6);
@@ -1459,7 +1479,7 @@ const HARBOR_PLAN = {
       { key: "jobs", x: 1660, y: 1230, w: 180, h: 90, type: "hall", floors: 1, sign: "Job Master" },
       { key: "mercs", x: 780, y: 1240, w: 220, h: 100, type: "hall", sign: "Mercenary Hall", signCol: "#c0392b", shop: "merc_harbor" }
     ],
-    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 840 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "merc_harbor", x: 780, y: 1320 }],
+    npcs: [{ id: "crystal_harbor", x: 1200, y: 900 }, { id: "trade_board", x: 1010, y: 1100 }, { id: "auction_harbor", x: 1620, y: 855 }, { id: "barber_harbor", x: 1359, y: 817 }, { id: "job_harbor", x: 1660, y: 1310 }, { id: "merc_harbor", x: 780, y: 1320 }],
     stalls: [{ x: 1359, y: 826, color: "#c0392b", sign: "Barber", pole: true }, { x: 1041, y: 826, color: "#7b1fa2" }, { x: 1300, y: 1043, color: "#2e7d32" }, { x: 1100, y: 1043, color: "#b5651d" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "statue", x: 1200, y: 1560 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],
@@ -1783,7 +1803,7 @@ const IRONVALE_PLAN = {
       { key: "jobs", x: 1620, y: 1040, w: 170, h: 90, type: "hall", floors: 1, sign: "Job Master", shop: "job_ironvale" },
       { key: "tavern", x: 780, y: 1040, w: 190, h: 110, type: "hall", floors: 3, sign: "Anvil & Ale", signCol: "#ff9a40" }
     ],
-    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 870 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "trade_board", x: 1010, y: 1100 }],
+    npcs: [{ id: "crystal_ironvale", x: 1200, y: 900 }, { id: "auction_ironvale", x: 1600, y: 885 }, { id: "job_ironvale", x: 1620, y: 1140 }, { id: "trade_board", x: 1010, y: 1100 }],
     stalls: [{ x: 1359, y: 826, color: "#5d4037" }, { x: 1041, y: 826, color: "#37474f" }, { x: 1300, y: 1043, color: "#5d4037" }, { x: 1100, y: 1043, color: "#37474f" }],
     benches: [[1020, 720, 0.8], [1380, 720, -0.8], [1020, 1080, 2.3], [1380, 1080, -2.3]],
     dressing: [{ t: "planter", x: 960, y: 640 }, { t: "planter", x: 1440, y: 640 }, { t: "planter", x: 960, y: 1160 }, { t: "planter", x: 1440, y: 1160 }, { t: "cart", x: 520, y: 1220, rot: 0.4 }],

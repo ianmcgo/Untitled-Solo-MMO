@@ -4,7 +4,7 @@ G.enterZone('outpost'); for (let i = 0; i < 30; i++) tick(1000 / 60);
 for (const t of ['outpost', 'harbor', 'ironvale']) {
   const Z = G.ZONES[G.zoneOfNpc('barber_' + t)], b = (Z.npcs || []).find(n => /^barber_/.test(n.id));
   ok(b && G.NPCS[b.id].talk === 'talkBarber', t + ' has a barber');
-  ok((Z.stalls || []).some(s => s.sign === 'Barber' && Math.abs(s.x - b.x) < 5 && s.y > b.y), t + ' barber stands behind a signed stall');
+  ok((Z.stalls || []).some(s => s.sign === 'Barber' && (s.rot != null ? Math.hypot(s.x - b.x, s.y - b.y) < 20 : Math.abs(s.x - b.x) < 5 && s.y > b.y)), t + ' barber stands behind a signed stall');
 }
 G.save.gil = 500;
 G.TALK.talkBarber({ name: 'Corrin, Barber', x: 0, y: 0 });

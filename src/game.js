@@ -3834,7 +3834,7 @@ function keepOutOfWater(e) {
 
 function zoneRects(z) {
   if (z._rects) return z._rects;
-  let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => ({ x: r.x - 26, y: r.y - 16, w: 52, h: 32 })));
+  let rects = (z.houses || []).map(r => ({ x: r.x - r.w / 2, y: r.y - r.h / 2, w: r.w, h: r.h })).concat((z.stalls || []).map(r => r.rot != null ? { x: r.x - 26, y: r.y - 26, w: 52, h: 52 } : { x: r.x - 26, y: r.y - 16, w: 52, h: 32 }));
   rects = rects.concat((z.walls || []).map(r => ({ x: r.x, y: r.y, w: r.w, h: r.h })), cityWallRects(z));
   if (z.ruins) {
     for (const [x1, y1, x2, y2] of z.ruins.walls) rects.push({ x: Math.min(x1, x2) - 14, y: Math.min(y1, y2) - 14, w: Math.abs(x2 - x1) + 28, h: Math.abs(y2 - y1) + 28 });
