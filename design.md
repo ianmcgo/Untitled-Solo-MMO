@@ -2850,3 +2850,10 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 ## 19.40.1 Lots settle when you zone
 - game.js `settlePool()` runs at the start of `enterZone` when the zone id changes: every entry with no own lot gets a random lot (sent with `netLotOut` for shared pools); local and owned-online entries get `until = S.time − 5` so `tickPool(true)` resolves them at once (companions lot because their delay has passed). Afterwards only online entries owned by someone else stay in `S.pool`.
 - Test: test/p66unit.js.
+
+## 19.41.0 Faces in the sky
+- `moonTex(phase)`: the face is now scary: hairline cracks, two dark slanted eye sockets with radial ember pupils (pale yellow to red), angry brow strokes, a triangle nose, and a dark crescent mouth with 7 upper and 6 lower teeth. Craters, shading and the phase cut are unchanged.
+- `sunTex()`: a face drawn into the white disc (the sprite colour tints it): rosy cheek ellipses, closed smiling eye arcs and a smile arc in dark orange.
+- Constellations: world3d `CONSTELLATIONS` (12 original figures, star offsets in 1.6° units plus edge pairs) placed by `makeConstellations()` around the ecliptic band `eclipticEl(az)` = 42° ± 14° at radius 880. A LineSegments (opacity = star opacity × 0.32) and a glow Points layer, plus 4 planet sprites (`PLANETS`: Ember 48-day period, Verdis 96, Aster 150, Gild 300, each with a phase offset), all in a group parented to `W3.stars`.
+- Rotation: `W3.stars.rotation.y = dayFrac·2π − yearFrac·2π`, where yearFrac = (game day mod 360)/360 from `skyDayAbs()`. The sky turns nightly and drifts one full turn per 360-day game year (one constellation per 30-day month). Planets sit at azimuth `planetAz(P, day)` inside the rotating group, so they move against the constellations.
+- `skyTonight()` returns `{ high, planets[] }`: the midnight constellation is index round((1 − yearFrac)·12) mod 12; each planet is reported in the constellation nearest its azimuth. Shown in System → Time.

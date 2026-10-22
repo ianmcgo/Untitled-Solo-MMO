@@ -667,7 +667,7 @@ function tabSystem() {
   h += "<h3>Character</h3><div class=\"sub\" style=\"margin-bottom:8px\">" + esc(save.name) + " · " + JOBS[save.mainJob].name + " Lv." + player.lv + " · " + loadRoster().chars.length + " of " + MAX_CHARS + " characters.</div>";
   h += '<div class="opt"><button data-a="logout">👥 Change character</button></div>';
   h += '<input type="file" id="loadInput" accept=".json,application/json" style="display:none">';
-  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes.</div>";
+  h += "<h3>Time</h3><div class=\"sub\">" + clockText() + " · " + (isNight() ? "night" : "day") + " · Today's element: " + dayElement() + " (+10% to " + dayElement() + " spells). One game day lasts 57.6 real minutes." + (typeof skyTonight === "function" ? " Tonight " + skyTonight().high + " rides the midnight sky; " + skyTonight().planets.join(", ") + "." : "") + "</div>";
   h += '<h3>Updates</h3><div class="sub" style="margin-bottom:6px">' + BUILD_INFO + '</div><div class="opt"><button data-a="checkupd">🔄 Check for updates</button><button data-a="open" data-v="updates">📰 What changed</button></div>';
   return h;
 }
@@ -1793,6 +1793,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.41.0", date: "2026-10-22", title: "Faces in the sky", items: [
+    "<b>A scarier moon.</b> The moon now glares down with dark sunken eyes and glowing ember pupils, angry brows, cracks across its face and a jagged toothy grin. It still waxes and wanes over each 30-day game month.",
+    "<b>A happy sun.</b> The sun has a cheerful face with smiling eyes, rosy cheeks and a big grin.",
+    "<b>Constellations.</b> Twelve star pictures are drawn faintly across the night sky: the Lantern, the Wolf, the Ship, the Crown, the Serpent, the Anvil, the Twins, the Harp, the Stag, the Scales, the Owl and the Key. The whole star field turns through the night and shifts a little each game day, so a different constellation rides the midnight sky each game month.",
+    "<b>Wandering planets.</b> Four bright coloured planets move along the band of constellations at their own speeds: red Ember (fast), green Verdis, pale blue Aster and golden Gild (slowest). System → Time tells you which constellation rides tonight's sky and which constellation each planet is in."
+  ] },
   { v: "19.40.1", date: "2026-10-22", title: "Lots settle when you zone", items: [
     "<b>No more leftover treasure lots after zoning.</b> When you leave an area while items are still in the treasure pool, you automatically lot on anything you haven't, your companions lot, and the pool is settled before the next area loads. Online party pools you don't own still finish on the owner's side."
   ] },
@@ -4394,6 +4400,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild drift through them at different speeds. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
