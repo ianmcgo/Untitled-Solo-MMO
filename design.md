@@ -2680,6 +2680,12 @@ game.js: `tickAuction` only expires lots now (the old per-minute `saleChance` ro
 - The word "Capstone" from the request is not a game term; the crystals and warp stones page was written as the closest match. Edit that page in `TUT_STEPS` if something else was meant.
 - Test: scratch Playwright run (mock login): auto-show, Enter x2 reaches page 3, Esc closes and sets `tutSeen`, Config button replays, Skip closes; no page errors.
 
+## 19.34.0 Painted world (polish plan phase 8)
+- textures.js `toTexture`: `posterCanvas(canvas, 18, 12)` (was 7 tones, 5 alpha steps); texGray detail maps 12 tones (was 5). Removes blotchy cliffs, stained plaster and blocky clouds.
+- world3d `classicWorldChunk`: band blend 0.15 (was 0.45).
+- `texWindowPane()`: 64 px canvas (sky-to-dark glass gradient, warm lower glow, two reflection streaks, wooden frame and cross bar) used as the map for `winMat` (buildTown) and the city `win` material; emissive night glow unchanged.
+- `addWind` with gb: fragment sets `normal` to world up in view space, so back faces of double-sided plant cards no longer go black; tip brightening 0.9→1.08 (was 0.95→1.25).
+
 ## 19.33.0 Painted detail (polish plan phase 7)
 - rig.js `PST(x, n)` now gives 2n + 1 tones (was n), so every painter that posterises has finer steps.
 - Painters (`CLASSIC_PAINT`): skin = smooth fbm + faint 40-frequency value noise (no posterising); cloth adds a weave (sin 180u × sin 120v, ±0.035), low-frequency mottling and darker wear toward the hems (ev < 0.18); leather adds 70-frequency grain and ridge scuffs (ridge > 0.96 → −0.12); metal adds brushed streaks (value noise 6u × 140v) and dents (value > 0.86 → −0.08); hair adds 90-frequency strand noise.

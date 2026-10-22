@@ -11,7 +11,7 @@ Goal: closer to the look and feel of the classic MMO the game is modelled on (lo
 | 5 | 19.31.0 | Weapon grips (blades forward) and keyed swings | Done |
 | 6 | 19.32.0 | Bodies: continuous limbs, more segments, proportions | Done |
 | 7 | 19.33.0 | Painted detail on gear, skin, fur and scales | Done |
-| 8 | 19.34.0 | Towns and scenery detail | |
+| 8 | 19.34.0 | Softer painted scenery, window glass, night grass | Done |
 | 9 | 19.35.0 | Motion (Pipkin cadence) and final polish | |
 
 ## Causes found

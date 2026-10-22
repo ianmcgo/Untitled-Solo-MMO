@@ -667,7 +667,7 @@ function addWind(mat, strength, gb) {
       sh.uniforms.uGK = { value: new THREE.Vector4(gb.base, gb.tip, gb.h, gb.fade || 0) };
       pre += "uniform vec4 uGBox;\nuniform vec4 uGK;\nvarying vec2 vGUV;\nvarying float vGH;\n";
       body += "\nvGUV = vec2((wp0.x - uGBox.x) / uGBox.z, 1.0 - (wp0.z - uGBox.y) / uGBox.w);\nvGH = clamp(position.y / uGK.z, 0.0, 1.0);\nif (uGK.w > 0.0) { float gfd = distance(wp0.xyz, cameraPosition); transformed *= 1.0 - smoothstep(uGK.w * 0.65, uGK.w, gfd); }";
-      sh.fragmentShader = "uniform sampler2D uGMap;\nuniform vec4 uGK;\nvarying vec2 vGUV;\nvarying float vGH;\n" + sh.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\nvec3 gcol = texture2D(uGMap, vGUV).rgb;\nfloat gk = mix(uGK.x, uGK.y, smoothstep(0.0, 1.0, vGH));\ndiffuseColor.rgb = mix(diffuseColor.rgb, gcol * mix(0.95, 1.25, vGH), gk);");
+      sh.fragmentShader = "uniform sampler2D uGMap;\nuniform vec4 uGK;\nvarying vec2 vGUV;\nvarying float vGH;\n" + sh.fragmentShader.replace("#include <normal_fragment_begin>", "#include <normal_fragment_begin>\nnormal = normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz);").replace("#include <color_fragment>", "#include <color_fragment>\nvec3 gcol = texture2D(uGMap, vGUV).rgb;\nfloat gk = mix(uGK.x, uGK.y, smoothstep(0.0, 1.0, vGH));\ndiffuseColor.rgb = mix(diffuseColor.rgb, gcol * mix(0.9, 1.08, vGH), gk);");
     }
     sh.vertexShader = pre + sh.vertexShader.replace("#include <begin_vertex>", body);
   };
@@ -918,7 +918,7 @@ function buildTown(field, root) {
   const stoneMat = std({ map: bricks.map, normalMap: bricks.normalMap });
   const roofMat = std({ map: roof.map, normalMap: roof.normalMap, roughness: 0.8 });
   const doorMat = std({ color: 0x3b2716 });
-  const winMat = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
+  const winMat = std({ map: texWindowPane(), color: 0xffffff, emissive: 0xffb050, emissiveIntensity: 0, roughness: 0.4 });
   W3.windowMats.push(winMat);
   const plaster = texPlaster(), shingle = texShingle();
   const plasterMat = std({ map: plaster.map, normalMap: plaster.normalMap, roughness: 0.95 });
@@ -1317,7 +1317,7 @@ function buildCityBuildings(field, root) {
     red: std({ color: 0xb03a30, roughness: 0.8 }),
     hay: std({ color: 0xd8b860, roughness: 1 })
   };
-  const win = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
+  const win = std({ map: texWindowPane(), color: 0xffffff, emissive: 0xffb050, emissiveIntensity: 0, roughness: 0.4 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
   W3.windowMats.push(win, lampMat);
   W3.spinners = W3.spinners || []; W3.clocks = W3.clocks || [];
@@ -2469,6 +2469,22 @@ function pondShore(field, w, a) {
   return L;
 }
 
+function texWindowPane() {
+  if (TEXLIB.cache.winPane) return TEXLIB.cache.winPane;
+  const c = document.createElement("canvas"); c.width = 64; c.height = 64;
+  const g = c.getContext("2d");
+  const gr = g.createLinearGradient(0, 0, 0, 64);
+  gr.addColorStop(0, "#5a6e82"); gr.addColorStop(0.55, "#2c3846"); gr.addColorStop(1, "#3a3024");
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  g.fillStyle = "rgba(255,240,200,0.18)"; g.fillRect(6, 34, 52, 24);
+  g.strokeStyle = "rgba(230,240,255,0.35)"; g.lineWidth = 3; g.beginPath(); g.moveTo(10, 26); g.lineTo(24, 8); g.moveTo(40, 26); g.lineTo(52, 10); g.stroke();
+  g.fillStyle = "#4a3420"; g.fillRect(0, 0, 64, 5); g.fillRect(0, 59, 64, 5); g.fillRect(0, 0, 5, 64); g.fillRect(59, 0, 5, 64); g.fillRect(29, 0, 6, 64); g.fillRect(0, 29, 64, 6);
+  g.fillStyle = "rgba(0,0,0,0.25)"; g.fillRect(5, 5, 24, 3); g.fillRect(35, 5, 24, 3); g.fillRect(5, 35, 24, 3); g.fillRect(35, 35, 24, 3);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+  TEXLIB.cache.winPane = t;
+  return t;
+}
+
 function foamTex() {
   if (TEXLIB.cache.foam) return TEXLIB.cache.foam;
   const c = document.createElement("canvas"); c.width = 256; c.height = 32;
@@ -2533,7 +2549,7 @@ function makeStars() {
 
 function classicWorldChunk() {
   if (THREE.ShaderChunk.opaque_fragment.indexOf("clWorld") >= 0) return;
-  THREE.ShaderChunk.opaque_fragment = "#ifdef STANDARD\n{ float clWorld = 1.0; if (diffuseColor.a > 0.98) { float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; if (r > 0.2) { float qn = floor(r * 4.0 + 0.5) / 4.0; float rr = mix(r, qn, 0.45); outgoingLight *= rr / max(r, 0.001); } } }\n#endif\n" + THREE.ShaderChunk.opaque_fragment;
+  THREE.ShaderChunk.opaque_fragment = "#ifdef STANDARD\n{ float clWorld = 1.0; if (diffuseColor.a > 0.98) { float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; if (r > 0.2) { float qn = floor(r * 4.0 + 0.5) / 4.0; float rr = mix(r, qn, 0.15); outgoingLight *= rr / max(r, 0.001); } } }\n#endif\n" + THREE.ShaderChunk.opaque_fragment;
 }
 function initRenderer() {
   classicWorldChunk();
