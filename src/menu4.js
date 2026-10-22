@@ -1780,6 +1780,7 @@ function initMenu() {
   const m = $("menu");
   m.addEventListener("click", onMenuClick);
   m.addEventListener("input", e => {
+    if (e.target.dataset && e.target.dataset.updq) { updFilter(e.target.value); return; }
     if (e.target.dataset && e.target.dataset.uic) { VIEW.settings.uiColor = e.target.value; saveSettings(VIEW.settings); applyUiColor(); return; }
     const k = e.target.dataset && e.target.dataset.vol;
     if (!k) return;
@@ -1793,6 +1794,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.42.0", date: "2026-10-22", title: "Readable menus and roadside hedges", items: [
+    "<b>Readable folding sections.</b> Folding section headers in Config, Admin, Social, Pets and the guild window now sit on a dark bar with a gold edge and bold outlined white text, and the open section's contents sit on a darker panel with white text, so nothing gets lost against the striped background.",
+    "<b>Searchable Updates.</b> The Updates window has a search box. Type a word or a version number (moon, auction, 19.40) to show only the matching updates, each opened, with a count of how many were found. Every version is now a foldable entry; only the newest starts open.",
+    "<b>Bushes are solid.</b> You, your companions and monsters can no longer walk through bushes.",
+    "<b>Hedges along roads.</b> Trimmed hedgerows now line stretches of road in towns and out in the fields, with gaps every so often and breaks at junctions, gates, exits, stalls and benches. They are solid too."
+  ] },
   { v: "19.41.2", date: "2026-10-22", title: "Globes and comets", items: [
     "<b>Smaller constellations.</b> The star pictures are about half their old size, so they read as constellations rather than huge shapes across the sky.",
     "<b>Planets are globes.</b> Ember, Verdis, Aster and Gild are now shaded spheres with cloud bands and spots, lit from one side, with a soft coloured halo. Gild has a tilted golden ring.",
@@ -3913,9 +3920,21 @@ const UPDATES = [
 function verNum(v) { return String(v).split(".").reduce((n, x) => n * 1000 + (parseInt(x, 10) || 0), 0); }
 function updatesSorted() { return UPDATES.slice().sort((a, b) => verNum(b.v) - verNum(a.v)); }
 function tabUpdates() {
-  let h = '<div class="sub" style="margin-bottom:8px">' + BUILD_INFO + "</div>";
-  for (const u of updatesSorted()) h += '<div class="upd"><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4><ul>" + u.items.map(i => "<li>" + esc(i).replace(/&lt;(\/?)b&gt;/g, "<$1b>") + "</li>").join("") + "</ul></div>";
+  const q = (UI.updQ || "").trim().toLowerCase();
+  let h = '<div class="sub" style="margin-bottom:6px">' + BUILD_INFO + '</div><div class="updSearch"><input type="search" data-updq="1" placeholder="Search updates (e.g. moon, auction, 19.40)" value="' + esc(UI.updQ || "") + '"><span class="updN"></span></div>';
+  updatesSorted().forEach((u, i) => {
+    const text = ("v" + u.v + " " + u.title + " " + u.items.join(" ")).replace(/<[^>]*>/g, "").toLowerCase();
+    const hit = !q || text.includes(q);
+    h += '<details class="upd"' + (q ? (hit ? " open" : "") : i === 0 ? " open" : "") + (hit ? "" : ' style="display:none"') + ' data-ut="' + esc(text) + '"><summary><h4>v' + u.v + " · " + esc(u.title) + (u.date ? "<small>" + u.date + "</small>" : "") + "</h4></summary><ul>" + u.items.map(it => "<li>" + esc(it).replace(/&lt;(\/?)b&gt;/g, "<$1b>") + "</li>").join("") + "</ul></details>";
+  });
   return h;
+}
+function updFilter(v) {
+  UI.updQ = v;
+  const q = v.trim().toLowerCase(), list = document.querySelectorAll("#mBody details.upd");
+  let n = 0;
+  list.forEach((d, i) => { const hit = !q || d.dataset.ut.includes(q); d.style.display = hit ? "" : "none"; d.open = q ? hit : i === 0; if (hit) n++; });
+  const c = document.querySelector("#mBody .updN"); if (c) c.textContent = q ? n + " found" : "";
 }
 
 const HELP_CATS = [
@@ -4412,8 +4431,9 @@ function tabHelp() {
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
     "<b>The night sky:</b> twelve constellations circle the sky; one rides the midnight sky each game month. Planets Ember, Verdis, Aster and Gild (ringed) drift through them at different speeds, and a different coloured comet crosses the sky each game month. Check System → Time for tonight's sky. The moon's phase follows the 30-day game month.",
     "<b>Treasure pool:</b> lot or pass within the time limit. If you change areas first, you lot automatically on everything left and the pool is settled before you arrive.",
+    "<b>Updates window:</b> type in the search box to find any change by word or version number. Tap a version to open or fold it.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
-    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
+    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",

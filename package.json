@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.41.2",
-  "releaseTitle": "Globes and comets",
+  "version": "19.42.0",
+  "releaseTitle": "Readable menus and roadside hedges",
   "description": "",
   "main": "index.js",
   "scripts": {

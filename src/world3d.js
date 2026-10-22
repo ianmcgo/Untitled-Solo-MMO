@@ -670,6 +670,40 @@ function tintInst(im, rnd, amt) {
 
 function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 
+function hedgeRuns(field, z, rnd, q) {
+  const out = [], segs = [];
+  for (const p of z.paths || []) for (let i = 1; i < p.pts.length; i++) segs.push({ a: p.pts[i - 1], b: p.pts[i], w: p.w });
+  const clearOf = (x, y) => {
+    for (const s of segs) if (distToSegPt(x, y, s.a, s.b) < s.w / 2 + 16) return false;
+    for (const c of z.colliders || []) if (Math.hypot(x - c.x, y - c.y) < c.r + 14) return false;
+    for (const st of z.stalls || []) if (Math.hypot(x - st.x, y - st.y) < 50) return false;
+    for (const b of z.benches || []) if (Math.hypot(x - b[0], y - b[1]) < 40) return false;
+    return placeable(field, x, y, { path: 1, clr: 0, npc: 50, water: 25, exit: 130 });
+  };
+  const cap = { low: 120, medium: 260, high: 420 }[q] || 260;
+  for (const p of z.paths || []) {
+    const P = p.pts, cum = [0];
+    for (let i = 1; i < P.length; i++) cum.push(cum[i - 1] + Math.hypot(P[i][0] - P[i - 1][0], P[i][1] - P[i - 1][1]));
+    const L = cum[cum.length - 1];
+    if (L < 200) continue;
+    const at = t => { let i = 1; while (i < P.length - 1 && cum[i] < t) i++; const a = P[i - 1], b = P[i], sl = cum[i] - cum[i - 1] || 1, f = (t - cum[i - 1]) / sl, ux = (b[0] - a[0]) / sl, uy = (b[1] - a[1]) / sl; return { x: a[0] + (b[0] - a[0]) * f, y: a[1] + (b[1] - a[1]) * f, ux, uy }; };
+    for (const sd of [-1, 1]) {
+      const off = p.w / 2 + 24;
+      let t = 90 + rnd() * 80;
+      while (t < L - 90 && out.length < cap) {
+        const run = 3 + Math.floor(rnd() * 6);
+        for (let k = 0; k < run && t < L - 90; k++, t += 40) {
+          const c = at(t), x = c.x - c.uy * off * sd, y = c.y + c.ux * off * sd;
+          if (!clearOf(x, y)) continue;
+          out.push(mtx(x * U, footY(field, x, y, 1.05), y * U, 1 + rnd() * 0.06, 0.85 + rnd() * 0.3, 1 + rnd() * 0.15, Math.atan2(c.ux, c.uy) + Math.PI / 2 + (rnd() - 0.5) * 0.06));
+          for (const f of [-0.8, 0, 0.8]) z.colliders.push({ x: x + c.ux * f * 20, y: y + c.uy * f * 20, r: 10 });
+        }
+        t += 40 * (2 + Math.floor(rnd() * 4));
+      }
+    }
+  }
+  return out;
+}
 function placeable(field, px, py, opts) {
   const z = field.zone;
   if (!onTerrain(field, px, py)) return false;
@@ -857,8 +891,10 @@ function buildVegetation(field, root) {
     if (!placeable(field, px, py, { water: 25, npc: 60, path: 0.08 })) continue;
     const s = 0.5 + rnd() * 0.7;
     bushes.push(mtx(px * U, field.heightAt(px, py) - 0.1, py * U, s * (0.9 + rnd() * 0.4), s * (0.7 + rnd() * 0.4), s * (0.9 + rnd() * 0.4), rnd() * 6.28));
+    z.colliders.push({ x: px, y: py, r: s * 0.8 / U });
     k++;
   }
+  const hedges = outdoors && !volcanic && !desert ? hedgeRuns(field, z, rnd, q) : [];
   for (let k = 0, tries = 0; k < flowerN && tries < flowerN * 10; tries++) {
     const cx = 40 + rnd() * (z.w - 80), cy = 40 + rnd() * (z.h - 80);
     if (field.outsideE(cx, cy) > -30 || !placeable(field, cx, cy, { water: 20, npc: 40, path: 0.06 })) continue;
@@ -927,6 +963,12 @@ function buildVegetation(field, root) {
     bendGeo(canopy, -0.02, 0.016, 33);
     root.add(instanced(trunk2, barkMat, leafy2, true));
     root.add(tintInst(instanced(canopy, leafMat, leafy2, true), rnd, 0.18));
+  }
+  if (hedges.length) {
+    const hg = noisyGeo(THREE.mergeGeometries([new THREE.BoxGeometry(2.1, 1.0, 0.8, 6, 3, 2).translate(0, 0.5, 0), new THREE.IcosahedronGeometry(0.42, 1).translate(-0.6, 1.0, 0), new THREE.IcosahedronGeometry(0.45, 1).translate(0.15, 1.02, 0.05), new THREE.IcosahedronGeometry(0.4, 1).translate(0.8, 0.98, -0.05)].map(g => g.index ? g.toNonIndexed() : g)), 0.12, 23);
+    const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x7c9a68 });
+    addWind(hm, 0.01);
+    root.add(tintInst(instanced(hg, hm, hedges, true), rnd, 0.12));
   }
   if (bushes.length) {
     const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);
