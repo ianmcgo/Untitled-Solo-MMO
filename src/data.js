@@ -3802,8 +3802,23 @@ function cityDepth(zid) {
     if (at) z.dressing.push({ t, x: at.x, y: at.y, rot: Math.round(rnd() * 4) * Math.PI / 2, piece: 1 });
   }
   if (D.scene) { const [px, py] = depthPrefer(z, "loading"), at = depthSpot(z, PIECE_R.loading, px, py); if (at) z.dressing.push({ t: "loading", x: at.x, y: at.y, rot: rnd() * Math.PI * 2 }); }
-  const kit = STREET_KIT[D.role] || STREET_KIT.res;
-  let n = 0;
+  const kit = (STREET_KIT[D.role] || STREET_KIT.res).filter(t => t !== "banner"), wantBanners = (STREET_KIT[D.role] || STREET_KIT.res).includes("banner");
+  let n = 0, nb = 0;
+  if (wantBanners) for (const pa of z.paths || []) {
+    if (pa.lane || pa.w < 36) continue;
+    for (let i = 1; i < pa.pts.length && nb < 24; i++) {
+      const [ax, ay] = pa.pts[i - 1], [bx, by] = pa.pts[i], L = Math.hypot(bx - ax, by - ay), SP = 340;
+      if (L < 500) continue;
+      const ux = (bx - ax) / L, uy = (by - ay) / L, cnt = Math.floor((L - 300) / SP) + 1, t0 = (L - (cnt - 1) * SP) / 2;
+      for (let j = 0; j < cnt && nb < 24; j++) for (const sd of [-1, 1]) {
+        const R = PIECE_R.banner, off = pa.w / 2 + R + 10, t = t0 + j * SP;
+        const x = Math.round(ax + ux * t - uy * sd * off), y = Math.round(ay + uy * t + ux * sd * off);
+        if (depthClear(z, x, y, pa) < R + 4 || distToSegPt(x, y, pa.pts[i - 1], pa.pts[i]) < pa.w / 2 + R) continue;
+        z.dressing.push({ t: "banner", x, y, rot: Math.atan2(-uy, ux) + (sd > 0 ? Math.PI : 0), street: 1 });
+        nb++;
+      }
+    }
+  }
   for (const pa of z.paths || []) {
     if (pa.lane) continue;
     for (let i = 1; i < pa.pts.length && n < 30; i++) {

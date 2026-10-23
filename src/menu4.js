@@ -1844,6 +1844,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.53.0", date: "2026-10-23", title: "Wagons, crates and tidy roadsides", items: [
+    "<b>Real wagons.</b> Wagons in the wilds and in town are now proper farm wagons: plank beds with side boards, stakes and iron trim, spoked wheels with iron tyres on axles, and a draw pole. They carry loads of hay and bales, rocks with a pick, barrels with a crate and a sack, or a canvas cover, or stand empty. Some in the wilds have lost a wheel, which lies in the grass beside them.",
+    "<b>Wagons keep off the road.</b> Wild wagons now stand well back from the road edge, at least a long stretch apart from each other, and tilt with the slope instead of sinking into it.",
+    "<b>Barrels and crates.</b> Barrel piles in town are coopered barrels with iron hoops, lids and bungs, plus one barrel lying on chocks and a small keg. Crate piles are stacked plank crates with corner posts and lids, plus a grain sack, coiled rope and a barrel.",
+    "<b>Logs lie on the ground.</b> Fallen logs now tilt to follow hillsides, so their ends no longer bury into the slope or float in the air. Logs too steep to rest are not placed.",
+    "<b>Fences follow roads.</b> Field fences now run alongside the roads, bending with them, instead of wandering off across open ground.",
+    "<b>Even banners.</b> Town banners now stand in evenly spaced pairs facing each other across the street.",
+  ] },
   { v: "19.52.0", date: "2026-10-23", title: "Frostspire in three parts", items: [
     "<b>Frostspire is now three areas.</b> <b>Frostspire Approach</b> (west, Lv 15-18) leads out of Saltreach's East Gate. <b>Frostspire Pass</b> (middle, Lv 16-19) holds Icefall Camp, the Frozen Lake and the road north to Windreach Foothills. <b>Frostspire Heights</b> (east, Lv 17-20) holds the Whispering Cairns, the Summit Overlook and the road into Ironvale.",
     "Saltreach and Ironvale are now three wild areas apart (Approach, Pass, Heights) instead of one. Ashenreach is still at most three areas from either city.",

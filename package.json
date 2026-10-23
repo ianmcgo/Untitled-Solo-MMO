@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.52.0",
-  "releaseTitle": "Frostspire in three parts",
+  "version": "19.53.0",
+  "releaseTitle": "Wagons, crates and tidy roadsides",
   "description": "",
   "main": "index.js",
   "scripts": {

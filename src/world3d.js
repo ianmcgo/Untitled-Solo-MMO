@@ -494,6 +494,56 @@ function cartGeo() {
   for (const z of [0.58, -0.58]) { parts.push(new THREE.TorusGeometry(0.42, 0.05, 5, 14).translate(0.1, 0.45, z)); for (let k = 0; k < 4; k++) parts.push(new THREE.BoxGeometry(0.04, 0.8, 0.03).rotateZ(k * Math.PI / 4).translate(0.1, 0.45, z)); }
   return THREE.mergeGeometries(parts.map(g => g.toNonIndexed()));
 }
+function pathLen(P) { return P.pts.reduce((a, q, i) => i ? a + Math.hypot(q[0] - P.pts[i - 1][0], q[1] - P.pts[i - 1][1]) : 0, 0); }
+function pathAt(P, d) { for (let i = 1; i < P.pts.length; i++) { const [ax, ay] = P.pts[i - 1], [bx, by] = P.pts[i], L = Math.hypot(bx - ax, by - ay); if (d <= L || i === P.pts.length - 1) { const f = Math.min(1, d / (L || 1)); return { x: ax + (bx - ax) * f, y: ay + (by - ay) * f, ux: (bx - ax) / (L || 1), uy: (by - ay) / (L || 1) }; } d -= L; } return null; }
+function wheelGeo() { return propGeo("wagonwheel", () => { const L = [new THREE.TorusGeometry(0.44, 0.045, 6, 18), new THREE.CylinderGeometry(0.09, 0.09, 0.22, 8).rotateX(Math.PI / 2), new THREE.TorusGeometry(0.41, 0.02, 4, 18).translate(0, 0, 0.03)]; for (let k = 0; k < 10; k++) L.push(new THREE.BoxGeometry(0.035, 0.38, 0.035).translate(0, 0.24, 0).rotateZ(k * Math.PI / 5)); return mergeNI(L); }); }
+function wagonParts(bt, B, M, kind, r, broken) {
+  const box = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = 0.78;
+  bt.add(M.wood, box(2.4, 0.08, 1.2), B, 0, Y, 0);
+  for (let k = 0; k < 5; k++) bt.add(M.dark, box(2.4, 0.012, 0.02), B, 0, Y + 0.041, -0.48 + k * 0.24);
+  for (const sz of [-1, 1]) {
+    for (const yy of [Y + 0.16, Y + 0.38]) bt.add(M.wood, box(2.4, 0.16, 0.05), B, 0, yy, sz * 0.6);
+    for (const sx of [-1.15, -0.4, 0.4, 1.15]) bt.add(M.dark, box(0.07, 0.6, 0.07), B, sx, Y + 0.25, sz * 0.63);
+    bt.add(M.iron, box(2.42, 0.03, 0.06), B, 0, Y + 0.47, sz * 0.6);
+  }
+  for (const sx of [-1, 1]) { for (const yy of [Y + 0.16, Y + 0.38]) bt.add(M.wood, box(0.05, 0.16, 1.2), B, sx * 1.2, yy, 0); }
+  for (const sx of [-0.75, 0.75]) {
+    bt.add(M.dark, box(0.12, 0.12, 1.5), B, sx, 0.45, 0);
+    for (const sz of [-1, 1]) { if (broken && sx > 0 && sz > 0) continue; bt.add(M.wood, wheelGeo(), B, sx, 0.45, sz * 0.7); bt.add(M.iron, new THREE.TorusGeometry(0.46, 0.022, 4, 18), B, sx, 0.45, sz * 0.73); }
+  }
+  if (broken) { bt.add(M.wood, wheelGeo(), B, 0.9, 0.06, 1.25, 0.4, Math.PI / 2); bt.add(M.iron, new THREE.TorusGeometry(0.46, 0.022, 4, 18), B, 0.9, 0.09, 1.25, 0.4, Math.PI / 2); }
+  bt.add(M.dark, box(0.14, 0.1, 1.0), B, 0, 0.6, 0);
+  bt.add(M.dark, box(1.6, 0.09, 0.09), B, 1.95, 0.42, 0, 0, 0, -0.22);
+  bt.add(M.dark, box(0.08, 0.08, 0.9), B, 2.6, 0.24, 0);
+  bt.add(M.iron, new THREE.TorusGeometry(0.06, 0.015, 4, 8), B, 2.75, 0.24, 0, 0, 0, Math.PI / 2);
+  if (kind === "hay") {
+    for (let k = 0; k < 7; k++) bt.add(M.hay, new THREE.SphereGeometry(0.42, 8, 6).scale(1.2, 0.55, 1), B, -0.85 + (k % 4) * 0.55 + (k > 3 ? 0.25 : 0), Y + 0.35 + (k > 3 ? 0.28 : 0), (r() - 0.5) * 0.4, r() * 3);
+    for (let k = 0; k < 2; k++) { bt.add(M.hay, box(0.9, 0.42, 0.5), B, -0.5 + k * 1.0, Y + 0.95, 0.05, r() * 0.3); for (const tx of [-0.2, 0.2]) bt.add(M.dark, box(0.03, 0.44, 0.52), B, -0.5 + k * 1.0 + tx, Y + 0.95, 0.05, r() * 0.01); }
+    for (let k = 0; k < 6; k++) bt.add(M.hay, box(0.4, 0.02, 0.03), B, (r() - 0.5) * 2.2, Y + 0.6 + r() * 0.3, (r() < 0.5 ? -1 : 1) * 0.64, r() * 3, 0, (r() - 0.5));
+  } else if (kind === "rocks") {
+    for (let k = 0; k < 11; k++) { const sz = 0.18 + r() * 0.2; bt.add(M.rock, new THREE.IcosahedronGeometry(sz, 0), B, -0.95 + (k % 6) * 0.38 + r() * 0.1, Y + 0.12 + sz * 0.6 + (k > 5 ? 0.22 : 0), (r() - 0.5) * 0.8, r() * 3, r() * 3); }
+    bt.add(M.iron, new THREE.CylinderGeometry(0.03, 0.03, 1.1, 5), B, 0.9, Y + 0.6, 0.3, 0, 0, 1.1);
+    bt.add(M.iron, box(0.2, 0.28, 0.04), B, 1.38, Y + 0.85, 0.3, 0, 0, 1.1);
+  } else if (kind === "barrels") {
+    for (const [bx, bz] of [[-0.7, -0.27], [-0.7, 0.27], [0.0, -0.27]]) { bt.add(M.wood, barrelGeo(), B, bx, Y + 0.04, bz, r() * 6); bt.add(M.iron, hoopGeo(), B, bx, Y + 0.04, bz); }
+    bt.add(M.wood, crateGeo(), B, 0.65, Y + 0.32, 0.1, r() * 0.4, 0, 0, 0.62, 0.62, 0.62);
+    bt.add(M.cloth, new THREE.SphereGeometry(0.25, 8, 6).scale(1, 0.75, 1.3), B, 0.1, Y + 0.24, 0.32);
+  } else if (kind === "cover") {
+    for (let k = 0; k < 4; k++) bt.add(M.dark, new THREE.TorusGeometry(0.62, 0.025, 4, 12, Math.PI), B, -0.9 + k * 0.6, Y + 0.45, 0, Math.PI / 2);
+    bt.add(M.cloth, new THREE.CylinderGeometry(0.64, 0.64, 2.2, 14, 1, true, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).rotateX(Math.PI / 2), B, 0, Y + 0.45, 0);
+  }
+}
+let PROP_MATS = null;
+function propMats() {
+  if (PROP_MATS && PROP_MATS.zone === W3.zoneRoot) return PROP_MATS;
+  const planks = texPlanks();
+  return PROP_MATS = { zone: W3.zoneRoot, crate: std({ map: planks.map, normalMap: planks.normalMap, color: 0xc8a070, roughness: 0.9 }), crate2: std({ map: planks.map, normalMap: planks.normalMap, color: 0x9a7650, roughness: 0.9 }), barrel: std({ map: planks.map, normalMap: planks.normalMap, color: 0xa8784a, roughness: 0.85 }), lid: std({ map: planks.map, color: 0x8a6440, roughness: 0.9 }), iron: std({ color: 0x3a3a3e, metalness: 0.6, roughness: 0.5 }), sack: std({ color: 0xd8c8a0, roughness: 1 }), rope: std({ color: 0xb89a68, roughness: 1 }) };
+}
+function wagonMats(z) {
+  const bark = texBark(), planks = texPlanks(), rock = texRock();
+  return { wood: std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a66, roughness: 0.9 }), dark: std({ map: bark.map, color: 0x6a4a30, roughness: 0.95 }), iron: std({ color: 0x3a3a3e, metalness: 0.6, roughness: 0.5 }), hay: std({ color: 0xd8b860, roughness: 1 }), rock: std({ map: rock.map, normalMap: rock.normalMap, color: z && z.palette === "snow" ? 0x9aa2aa : 0x9a8f84, roughness: 0.95 }), cloth: std({ color: 0xe8dcc0, roughness: 0.95, side: THREE.DoubleSide }) };
+}
+const WAGON_KINDS = ["hay", "rocks", "barrels", "cover", "empty"];
 function stumpGeo() {
   return THREE.mergeGeometries([new THREE.CylinderGeometry(0.3, 0.42, 0.55, 9).translate(0, 0.27, 0).toNonIndexed(), new THREE.CylinderGeometry(0.06, 0.1, 0.5, 5).rotateZ(1.2).translate(0.35, 0.12, 0).toNonIndexed(), new THREE.CylinderGeometry(0.05, 0.09, 0.45, 5).rotateZ(-1.3).rotateY(2).translate(-0.2, 0.1, 0.25).toNonIndexed()]);
 }
@@ -518,32 +568,46 @@ function buildProps(field, root) {
   if (th === "field") scatter(Math.round((desert || volcanic || snowy ? 30 : 14) * K), (px, py) => inPlay(px, py, -260, 100) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 0.8; stumps.push(mtx(px * U, field.heightAt(px, py) - 0.05, py * U, s, s * (0.7 + rnd() * 0.6), s, rnd() * 6.28)); stumpSpots.push({ x: px, y: py, r: 0.42 * s / U }); z.colliders && z.colliders.push({ x: px, y: py, r: 0.42 * s / U }); });
   if (desert) scatter(Math.round(18 * K), (px, py) => inPlay(px, py, -300, 60) && placeable(field, px, py, { water: 30, npc: 60, path: 0.05 }), (px, py) => { const s = 0.8 + rnd() * 1.6; skulls.push(mtx(px * U, field.heightAt(px, py) - 0.08 * s, py * U, s, s, s, rnd() * 6.28, (rnd() - 0.5) * 0.4)); z.colliders && z.colliders.push({ x: px, y: py, r: 0.35 * s / U }); });
   if (th === "field" && (z.paths || []).length) {
-    const P = z.paths[Math.floor(rnd() * z.paths.length)];
-    for (let tries = 0, made = 0; tries < 30 && made < 2; tries++) {
-      const i = Math.floor(rnd() * (P.pts.length - 1)), t = rnd(), [ax, ay] = P.pts[i], [bx, by] = P.pts[i + 1];
-      const L = Math.hypot(bx - ax, by - ay); if (L < 1) continue;
-      const nx = -(by - ay) / L, ny = (bx - ax) / L, off = P.w * (0.7 + rnd() * 0.3) * (rnd() < 0.5 ? -1 : 1);
-      const px = ax + (bx - ax) * t + nx * off, py = ay + (by - ay) * t + ny * off;
-      if (!placeable(field, px, py, { water: 40, npc: 80, path: 0.3, exit: 420 }) || field.exitMask(px, py) > 0.02 || field.outsideE(px, py) > -80) continue;
-      const broken = rnd() < 0.5;
-      carts.push(mtx(px * U, field.heightAt(px, py) - (broken ? 0.18 : 0), py * U, 1, 1, 1, Math.atan2(by - ay, bx - ax) + (rnd() - 0.5) * 0.6, broken ? 0.18 : 0, broken ? 0.12 : 0));
-      z.colliders && z.colliders.push({ x: px, y: py, r: 24 });
-      made++;
+    const placed = [], W = wagonMats(z), wb = cityBatch(), want = 2 + (rnd() < 0.4 ? 1 : 0), PL = z.paths.map(P => [P, pathLen(P)]).filter(q => q[1] > 300);
+    for (let tries = 0; tries < 240 && placed.length < want; tries++) {
+      if (!PL.length) break;
+      const [P, len] = PL[Math.floor(rnd() * PL.length)], q = pathAt(P, len * (0.1 + rnd() * 0.8)), sd = rnd() < 0.5 ? -1 : 1, off = P.w / 2 + 75 + rnd() * 70;
+      const px = q.x - q.uy * sd * off, py = q.y + q.ux * sd * off, ax = 0, ay = 0, bx = q.ux, by = q.uy;
+      if (placed.some(q => Math.hypot(q.x - px, q.y - py) < 650)) continue;
+      if (roadGap(z, px, py) < 45) continue; if (!placeable(field, px, py, { water: 40, npc: 80, path: 0.05, exit: 420, clr: 45 })) continue; if (field.exitMask(px, py) > 0.02 || field.outsideE(px, py) > -80) continue;
+      const ang = Math.atan2(by - ay, bx - ax) + (rnd() - 0.5) * 0.5 + (rnd() < 0.5 ? Math.PI : 0), cx = Math.cos(ang), cy = Math.sin(ang);
+      if ([-1.3, 0, 1.3].some(k => (z.colliders || []).some(c => Math.hypot(px + cx * k / U - c.x, py + cy * k / U - c.y) < c.r + 14))) continue;
+      const broken = rnd() < 0.3, kind = WAGON_KINDS[Math.floor(rnd() * WAGON_KINDS.length)];
+      const hF = field.heightAt(px + cx * 1.2 / U, py + cy * 1.2 / U), hB = field.heightAt(px - cx * 1.2 / U, py - cy * 1.2 / U);
+      const B = new THREE.Matrix4().makeRotationFromEuler(new THREE.Euler(broken ? 0.12 : 0, -ang, Math.atan2(hF - hB, 2.4))).setPosition(px * U, Math.min(hF, hB) + Math.abs(hF - hB) * 0.5 - (broken ? 0.1 : 0.02), py * U);
+      wagonParts(wb, B, W, kind, rnd, broken);
+      for (const k of [-1.2, 0, 1.2]) z.colliders && z.colliders.push({ x: px + cx * k / U, y: py + cy * k / U, r: 18 });
+      placed.push({ x: px, y: py, kind });
     }
+    wb.flush(root);
+    z._wagons = placed;
   }
-  if (th === "field" && !desert && !volcanic && z.start) {
-    const runs = 2 + Math.floor(rnd() * 2);
-    for (let r = 0; r < runs; r++) {
-      let px = z.start.x + (rnd() - 0.5) * 500, py = z.start.y + (rnd() - 0.5) * 500, a = rnd() * 6.28;
-      for (let k = 0; k < 5 + Math.floor(rnd() * 5); k++) {
-        const nx = px + Math.cos(a) * 49, ny = py + Math.sin(a) * 49, mx = (px + nx) / 2, my = (py + ny) / 2;
-        if (!placeable(field, mx, my, { water: 30, npc: 60, path: 0.05, exit: 160 }) || field.outsideE(mx, my) > -40) break;
-        const y0 = field.heightAt(px, py), y1 = field.heightAt(nx, ny);
-        fences.push(mtx(mx * U, (y0 + y1) / 2 - 0.05, my * U, 1, 1, 1, -a, 0, Math.atan2(y1 - y0, 49 * U) * 0.9 * (k % 2 ? 1 : 1)));
-        if (z.colliders) for (let t = 0; t <= 6; t++) z.colliders.push({ x: px + (nx - px) * t / 6, y: py + (ny - py) * t / 6, r: 4, fence: 1 });
-        px = nx; py = ny; a += (rnd() - 0.5) * 0.5;
-        if (rnd() < 0.15) k++;
+  if (th === "field" && !desert && !volcanic && (z.paths || []).length) {
+    const at = pathAt, plen = pathLen;
+    const runs = 2 + Math.floor(rnd() * 3);
+    for (let r = 0, tries = 0; r < runs && tries < 20; tries++) {
+      const P = z.paths[Math.floor(rnd() * z.paths.length)], len = plen(P);
+      if (len < 600) continue;
+      const sd = rnd() < 0.5 ? -1 : 1, off = P.w / 2 + 34, n = 5 + Math.floor(rnd() * 7);
+      let d = 150 + rnd() * (len - 450), made = 0;
+      const pt = d0 => { const q = at(P, d0); return q && { x: q.x - q.uy * sd * off, y: q.y + q.ux * sd * off }; };
+      let a0 = pt(d);
+      for (let k = 0; k < n && a0; k++) {
+        const b0 = pt(d + 49); if (!b0) break;
+        const mx = (a0.x + b0.x) / 2, my = (a0.y + b0.y) / 2;
+        if (!placeable(field, mx, my, { water: 30, npc: 60, path: 0.2, exit: 200, clr: 20 }) || field.outsideE(mx, my) > -40 || roadGap(z, mx, my) < 24) { if (made) break; d += 49; a0 = b0; continue; }
+        const y0 = field.heightAt(a0.x, a0.y), y1 = field.heightAt(b0.x, b0.y), a = Math.atan2(b0.y - a0.y, b0.x - a0.x), hl = Math.hypot(b0.x - a0.x, b0.y - a0.y) * U;
+        fences.push(mtx(mx * U, (y0 + y1) / 2 - 0.05, my * U, hl / 2.5, 1, 1, -a, 0, Math.atan2(y1 - y0, hl)));
+        if (z.colliders) for (let t = 0; t <= 6; t++) z.colliders.push({ x: a0.x + (b0.x - a0.x) * t / 6, y: a0.y + (b0.y - a0.y) * t / 6, r: 4, fence: 1 });
+        made++; d += 49; a0 = b0;
+        if (rnd() < 0.08) { d += 49; a0 = pt(d); }
       }
+      if (made) r++;
     }
   }
   const leaf = texFoliage("leaf", [74, 110, 48]), bark = texBark();
@@ -1034,8 +1098,11 @@ function buildVegetation(field, root) {
     const px = field.x0 + rnd() * field.w, py = field.y0 + rnd() * field.h;
     const e = field.outsideE(px, py);
     if (e < -220 || e > 60 || !placeable(field, px, py, { water: 40, npc: 80, path: 0.05, exit: 200 })) continue;
-    const s = 0.8 + rnd() * 0.6;
-    logs.push(mtx(px * U, field.heightAt(px, py) + 0.15 * s, py * U, s, s, s, rnd() * 6.28, 0, Math.PI / 2));
+    const s = 0.8 + rnd() * 0.6, th = rnd() * 6.28, dx = -Math.cos(th) * 1.3 * s / U, dy = Math.sin(th) * 1.3 * s / U;
+    const hA = field.heightAt(px + dx, py + dy), hB = field.heightAt(px - dx, py - dy), hM = field.heightAt(px, py);
+    if (Math.abs(hA - hB) > 2.2 * s) continue;
+    const dl = Math.asin(clamp((hB - hA) / (2.6 * s), -0.8, 0.8)), cy = Math.max((hA + hB) / 2, hM - 0.08) + 0.24 * s;
+    logs.push(mtx(px * U, cy, py * U, s, s, s, th, 0, Math.PI / 2 + dl));
     (field.logSpots = field.logSpots || []).push({ x: px, y: py, r: 1.6 * s / U });
     z.colliders.push({ x: px, y: py, r: 1.4 * s / U });
     k++;
@@ -1307,8 +1374,14 @@ function buildTown(field, root) {
       const coals = new THREE.Mesh(new THREE.CylinderGeometry(0.36, 0.36, 0.05, 10), new THREE.MeshBasicMaterial({ color: 0xff6a20 })); coals.position.set(-1.3, 0.72, 0.3);
       g.add(base, body, horn, fire, coals);
     } else if (pr.type === "crates") {
-      for (let k = 0; k < 4; k++) { const c = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.5, 0.6), k % 2 ? wood : dark); c.position.set((k % 2) * 0.65 - 0.3, 0.25 + (k > 2 ? 0.5 : 0), Math.floor(k / 2) * 0.65 - 0.3); c.rotation.y = k * 0.3; g.add(c); }
-      const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.7, 10), wood); bar.position.set(1.0, 0.35, 0.2); g.add(bar);
+      const PM = propMats(), r = seeded(hashStr("cr" + pr.x + "," + pr.y));
+      const put = (geo, m, x, y, z2, ry, sc, rx, rz) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z2); o.rotation.set(rx || 0, ry || 0, rz || 0); if (sc) o.scale.setScalar(sc); g.add(o); return o; };
+      for (const [cx, cz, cy, sc] of [[-0.35, -0.3, 0, 0.7], [0.4, -0.25, 0, 0.66], [-0.3, 0.42, 0, 0.62], [-0.32, -0.28, 0.63, 0.58]]) { const s2 = sc * (0.92 + r() * 0.12); put(crateGeo(), r() < 0.5 ? PM.crate : PM.crate2, cx, cy + s2 * 0.45, cz, (r() - 0.5) * 0.5, s2); }
+      put(new THREE.SphereGeometry(0.26, 9, 7).scale(1, 0.8, 1.25), PM.sack, 0.45, 0.2, 0.45, r() * 3);
+      put(new THREE.TorusGeometry(0.06, 0.03, 4, 8), PM.rope, 0.45, 0.42, 0.45, 0, 0, Math.PI / 2);
+      put(new THREE.TorusGeometry(0.22, 0.045, 5, 14), PM.rope, 0.95, 0.05, -0.1, 0, 0, Math.PI / 2).scale.set(1, 1, 1);
+      put(new THREE.TorusGeometry(0.16, 0.045, 5, 12), PM.rope, 0.95, 0.12, -0.1, 0, 0, Math.PI / 2);
+      put(barrelGeo(), PM.barrel, 0.95, 0, 0.45, r() * 6, 0.85); put(hoopGeo(), PM.iron, 0.95, 0, 0.45, 0, 0.85);
     } else if (pr.type === "desk") {
       const top = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.08, 0.6), wood); top.position.y = 0.82;
       for (const [dx, dz] of [[-0.58, -0.25], [0.58, -0.25], [-0.58, 0.25], [0.58, 0.25]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.8, 0.08), dark); l.position.set(dx, 0.4, dz); g.add(l); }
@@ -1316,7 +1389,12 @@ function buildTown(field, root) {
       const ink = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.1, 8), dark); ink.position.set(0.35, 0.91, 0.1);
       g.add(top, book, ink);
     } else if (pr.type === "barrels") {
-      for (let k = 0; k < 3; k++) { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.75, 10), wood); b.position.set(k * 0.65 - 0.65, 0.37, (k % 2) * 0.3); g.add(b); }
+      const PM = propMats(), r = seeded(hashStr("br" + pr.x + "," + pr.y));
+      const put = (geo, m, x, y, z2, ry, sc, rx, rz) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z2); o.rotation.set(rx || 0, ry || 0, rz || 0); if (sc) o.scale.setScalar(sc); g.add(o); return o; };
+      for (const [bx, bz] of [[-0.62, 0], [0, 0.18], [-0.3, -0.5]]) { const ry = r() * 6, sc = 1.05 + r() * 0.1; put(barrelGeo(), PM.barrel, bx, 0, bz, ry, sc); put(hoopGeo(), PM.iron, bx, 0, bz, ry, sc); put(new THREE.CylinderGeometry(0.27, 0.27, 0.03, 14), PM.lid, bx, 0.86 * sc, bz, ry); put(new THREE.CylinderGeometry(0.035, 0.035, 0.05, 6), PM.iron, bx + 0.12, 0.88 * sc, bz); }
+      put(barrelGeo(), PM.barrel, 0.75, 0.3, -0.15, 0.3, 1.0, 0, Math.PI / 2).position.set(0.62, 0.3, -0.05); put(hoopGeo(), PM.iron, 0.62, 0.3, -0.05, 0.3, 1.0, 0, Math.PI / 2);
+      for (const sx of [-1, 1]) put(new THREE.BoxGeometry(0.08, 0.08, 0.5), PM.lid, 0.62 + sx * 0.2 - 0.41, 0.04, -0.05, 0.3);
+      put(new THREE.CylinderGeometry(0.2, 0.17, 0.32, 10), PM.barrel, 0.45, 0.16, 0.6, 0); put(new THREE.TorusGeometry(0.2, 0.02, 4, 12), PM.iron, 0.45, 0.28, 0.6, 0, 0, Math.PI / 2);
     }
     g.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
     g.position.set(pr.x * U, footY(field, pr.x, pr.y, (pr.r || 20) * U * 0.8), pr.y * U);
@@ -1946,6 +2024,7 @@ function buildCityBuildings(field, root) {
     for (const sx of [-1, 1]) bt.add(M.trim, box(0.04, 0.06, d), B, sx * w / 2, 0.55, 0);
   }
   const cartG = (z.dressing || []).some(o => o.t === "cart" || o.t === "loading") ? cartGeo() : null;
+  const WM = (z.dressing || []).some(o => o.t === "cart") ? Object.assign(wagonMats(z), { wood: M.planks, hay: M.hay, cloth: M.white, iron: M.iron }) : null;
   const smokeTex = texGlow(), flameMat = new THREE.MeshBasicMaterial({ color: 0xffa040 }), flameMat2 = new THREE.MeshBasicMaterial({ color: 0xffe08a });
   const fxAdd = (B, x, y, zz, kind) => {
     const v = new THREE.Vector3(x, y, zz).applyMatrix4(B);
@@ -2097,8 +2176,7 @@ function buildCityBuildings(field, root) {
       bt.add(M.planks, bucketGeo(), B, 1.35, 0, 0.5, 0.4); bt.add(M.water, cyl(0.12, 0.12, 0.01, 10), B, 1.35, 0.2, 0.5);
     } else if (o.t === "cart") {
       col(o.x, o.y, 24);
-      bt.add(M.planks, cartG, B, 0, 0, 0, 0, 0, 0, 1.3, 1.3, 1.3);
-      if (r3() < 0.6) for (let k = 0; k < 3; k++) bt.add(M.hay, cyl(0.25, 0.25, 0.7, 8), B, -0.5 + k * 0.5, 1.1, 0, 0, 0, Math.PI / 2);
+      wagonParts(bt, B, WM, WAGON_KINDS[Math.floor(r3() * 4)], r3, false);
     } else if (o.t === "planter") {
       col(o.x, o.y, 16);
       bt.add(M.planks, box(1.5, 0.5, 0.7), B, 0, 0.25, 0);

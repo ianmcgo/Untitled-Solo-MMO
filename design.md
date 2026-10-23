@@ -2978,3 +2978,11 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Town-to-town distance in wild maps: Salt-Iron 3, Ash-Iron 3, Ash-Salt 3 (two routes).
 - The blizzard ice_wight spawn is pushed through splitLocal("frost", x, y) into the right part. POI_PLAN: frost gets the lookout and tablet (the tablet lore stays keyed "frost"), frost_west the shrine, frost_east the cache. Story visits use inArea, so the summit and Icefall steps still work. Weather, backdrop and atmosphere are keyed by area. Conquest region peaks includes it via areaOf.
 - Tests updated: c1 (cache in frost_east), p20 (summit in frost_east), p35 (Ironvale exit in frost_east).
+
+## 19.53.0 Wagons, crates and tidy roadsides
+- wagonParts(bt, B, M, kind, r, broken) builds a wagon into a cityBatch in local space: 2.4 long on x, 1.2 wide on z, bed at y 0.78, wheels at x +/-0.75, z +/-0.7 (wheelGeo, 10 spokes, cached), draw pole toward +x. Kinds (WAGON_KINDS): hay, rocks, barrels, cover, empty. Broken drops the front-right wheel beside it. Materials come from wagonMats(z) {wood, dark, iron, hay, rock, cloth}; town carts reuse the city M where it exists.
+- Field wagons: 2-3 per field zone. Spots are sampled by arc length on paths longer than 300 (pathLen/pathAt helpers; paths are densely resampled, so per-segment sampling fails). Each sits 75-145 px past the road edge, needs roadGap >= 45, placeable (clr 45), no collider within r+14 of three points along it, and 650 px between wagons. It is pitched to the slope from heights at its ends. Colliders: three r 18 circles. Spots are stored in z._wagons.
+- Town props: crates and barrels piles (z.props) are built from crateGeo/barrelGeo/hoopGeo with propMats(), which is cached per W3.zoneRoot.
+- Logs: heights at both ends set the pitch (rz = pi/2 + asin(dh / 2.6s)); centre y = max(avg of ends, mid - 0.08) + 0.24s. Logs on slopes over 2.2s height difference are skipped.
+- Field fences: 2-4 runs along random paths (length >= 600), P.w/2 + 34 off one side, 49 px panels via pathAt. A run breaks on the first blocked panel after it has started (scaled in x to the actual span).
+- Town banners: STREET_KIT banners are no longer random. A banner pass puts pairs on both sides every 340 px, centred on each segment >= 500 long and w >= 36 (max 24 per district, and the depthClear check still applies).
