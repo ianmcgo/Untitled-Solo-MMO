@@ -2972,3 +2972,9 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - New field links are added just before exitSide/hall generation, so they get halls, lanes and signposts. They use post-split, post-scale coords: highlands (Foothills) east edge to frost, west edge to outpost (city coords 5560,900, remapped by splitTown); frost north edge to highlands. Roads: two Foothills paths (routed above the pond at 1300,600) and a frost path from the north edge down to the main road at y 1680.
 - Town-to-town distance in wild maps: Ash-Salt 2 (or 3 via the meadows), Ash-Iron 2, Salt-Iron 1.
 - World map: ATLAS_POS moved (den, crypt, frost, ironvale) so links don't cross nodes. atlasLinks drops residence links except to outpost.
+
+## 19.52.0 Frostspire in three parts
+- splitZone("frost") runs right after the Highgate link block (after scaling and before exit halls) on the scaled 4200x3360 zone. Parts are 1400 wide: frost_west "Frostspire Approach" (exit to Saltreach East Gate, Frost Gate landmark), frost "Frostspire Pass" (north exit to the Foothills, Icefall Camp, Frozen Lake), frost_east "Frostspire Heights" (exit to Ironvale Gate Ward, Cairns, Summit). The edge exits between parts sit where the main road crosses each seam.
+- Town-to-town distance in wild maps: Salt-Iron 3, Ash-Iron 3, Ash-Salt 3 (two routes).
+- The blizzard ice_wight spawn is pushed through splitLocal("frost", x, y) into the right part. POI_PLAN: frost gets the lookout and tablet (the tablet lore stays keyed "frost"), frost_west the shrine, frost_east the cache. Story visits use inArea, so the summit and Icefall steps still work. Weather, backdrop and atmosphere are keyed by area. Conquest region peaks includes it via areaOf.
+- Tests updated: c1 (cache in frost_east), p20 (summit in frost_east), p35 (Ironvale exit in frost_east).

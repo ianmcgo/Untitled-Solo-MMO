@@ -1,5 +1,5 @@
 const H = require('./harness.js'); const { G } = H; const S = G.S; let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
-const z = G.ZONES.frost;
+const z = G.ZONES.frost_east;
 ok(!!z.cacheId && !z.npcs.some(n => n.id === z.cacheId), 'cache is not a fixed npc');
 G.CONFIG.cacheChance = 1;
 let c = G.dailyCache(z);

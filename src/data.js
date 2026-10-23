@@ -2815,6 +2815,11 @@ for (const town in VENDOR_TOWNS) {
   F.exits.push({ x: Math.round(F.w / 2) - 70, y: 0, w: 140, h: 24, to: "highlands", tx: H.w - 160, ty: 510, label: "Windreach Foothills" });
   (F.paths = F.paths || []).push({ w: 40, pts: [[Math.round(F.w / 2), -150], [Math.round(F.w / 2), 500], [Math.round(F.w / 2) - 160, 1000], [Math.round(F.w / 2) - 60, 1400], [Math.round(F.w / 2) - 100, 1680]] });
 }
+splitZone("frost", [
+  { id: "frost_west", name: "Frostspire Approach", rect: [0, 0, 1400, ZONES.frost.h] },
+  { id: "frost", name: "Frostspire Pass", rect: [1400, 0, 2800, ZONES.frost.h] },
+  { id: "frost_east", name: "Frostspire Heights", rect: [2800, 0, ZONES.frost.w, ZONES.frost.h] }
+]);
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
   const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);
@@ -3002,7 +3007,7 @@ function poiSpot(z, cx, cy, rad) {
   for (let k = 0; k < 64; k++) { const a = k * 2.4, r = rad * (0.5 + (k % 8) / 8); const x = Math.round(cx + Math.cos(a) * r), y = Math.round(cy + Math.sin(a) * r); if (ok(x, y)) return { x, y }; }
   return null;
 }
-const POI_PLAN = { hollow: ["shrine"], hollow_lake: ["lookout"], hollow_ruins: ["tablet", "cache"], frost: ["lookout", "shrine", "tablet", "cache"], marsh: ["lookout", "shrine", "tablet", "cache"], sunscar: ["lookout", "shrine", "tablet", "cache"], verdant: ["lookout", "shrine", "tablet", "cache"], cinder: ["lookout", "shrine", "tablet", "cache"], gullisle: ["shrine", "tablet", "cache"], highlands: ["shrine"], highlands_plateau: ["lookout", "tablet"], highlands_ridge: ["cache"] };
+const POI_PLAN = { hollow: ["shrine"], hollow_lake: ["lookout"], hollow_ruins: ["tablet", "cache"], frost: ["lookout", "tablet"], frost_west: ["shrine"], frost_east: ["cache"], marsh: ["lookout", "shrine", "tablet", "cache"], sunscar: ["lookout", "shrine", "tablet", "cache"], verdant: ["lookout", "shrine", "tablet", "cache"], cinder: ["lookout", "shrine", "tablet", "cache"], gullisle: ["shrine", "tablet", "cache"], highlands: ["shrine"], highlands_plateau: ["lookout", "tablet"], highlands_ridge: ["cache"] };
 for (const zid in POI_PLAN) {
   const z = ZONES[zid], L = z.landmarks || [];
   if (!L.length) continue;
@@ -3344,7 +3349,7 @@ ACHIEVEMENTS.push({ id: "verdant", icon: "🌴", name: "Into the Green", desc: "
 WEATHER.sunscar = [["clear", 6], ["wind", 2.5], ["sandstorm", 2], ["cloudy", 1], ["storm", 0.3]];
 WEATHER.cinder.push(["sandstorm", 1]);
 ZONES.sunscar.spawns.push({ fam: "dune_worm", lv: [20, 20], x: 1500, y: 1900, weather: "sandstorm" });
-ZONES.frost.spawns.push({ fam: "ice_wight", lv: [19, 20], x: Math.round(2200 * zsc("frost")), y: Math.round(1400 * zsc("frost")), weather: "blizzard" });
+{ const L = splitLocal("frost", Math.round(2200 * zsc("frost")), Math.round(1400 * zsc("frost"))); ZONES[L.zone].spawns.push({ fam: "ice_wight", lv: [19, 20], x: L.x, y: L.y, weather: "blizzard" }); }
 ZONES.marsh.spawns.push({ fam: "drowned", lv: [15, 16], x: Math.round(1700 * zsc("marsh")), y: Math.round(1400 * zsc("marsh")), weather: "fog" });
 ACHIEVEMENTS.push({ id: "sunscar", icon: "🏜️", name: "Sunburnt", desc: "Set foot in the Sunscar Desert.", test: s => areaVisited(s, "sunscar") });
 WEATHER.ironvale = [["clear", 4], ["snow", 3], ["cloudy", 3], ["wind", 1.5], ["fog", 0.8]];

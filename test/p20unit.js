@@ -38,8 +38,8 @@ ok(S.mobs.some(m => m.alive && m.famKey === 'rimefang'), 'Rimefang shows himself
 const r = S.mobs.find(m => m.famKey === 'rimefang'); r.hp = 1; r.enmity.set(P(), 9); G.applyDamage(P(), r, 99, {}); run(0.3);
 ok(G.storyStep().type === 'talk' && G.storyStep().npc === 'ilsa', 'defeating Rimefang moves the story on');
 G.advanceStory();
-const sm = G.ZONES.frost.landmarks.find(l => l.id === 'summit');
-P().x = sm.x; P().y = sm.y; run(0.4); clickThrough(); run(0.2);
+const sm = G.ZONES.frost_east.landmarks.find(l => l.id === 'summit');
+G.enterZone('frost_east', sm.x, sm.y); run(0.4); clickThrough(); run(0.2);
 const her = S.mobs.find(m => m.alive && m.famKey === 'ashen_herald');
 ok(her && her.lv === 22, 'the Ashen Herald waits at the summit');
 her.hp = 1; her.enmity.set(P(), 9); G.applyDamage(P(), her, 99, {}); run(0.3);
