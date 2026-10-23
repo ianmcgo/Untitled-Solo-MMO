@@ -1160,7 +1160,8 @@ const NPC_LOOK = {
   haldor: { build: 0, skin: SKIN_TONES[1], hair: { style: "short", color: 0x8a8a8a }, beard: 0x9a9a9a, longBeard: true, top: { type: "apron", color: 0x3a3430, color2: 0x5a4030 }, legs: 0x2e2a26, boots: 0x1e1610, gloves: 0x3a2a1e, belt: 0x2a1a10, prop: { girth: 1.2 } },
   odette: { build: 1, skin: SKIN_TONES[1], hair: { style: "bun", color: HAIR_COLORS[6] }, top: { type: "coat", color: 0x7a3a5a, trim: 0xe8d0a0 }, collar: 0xf0e8e0, legs: 0x3a2a34, boots: 0x2a1a14, gloves: 0xe8e0d0, glovesRegion: "cloth", belt: 0x4a2a1a },
   ysolde: { build: 1, skin: SKIN_TONES[2], hair: { style: "ponytail", color: HAIR_COLORS[3] }, top: { type: "coat", color: 0x2f5a3a, trim: 0xc8a040 }, legs: 0x6a5238, legsRegion: "leather", boots: 0x3a2618, gloves: 0x6a4428, belt: 0x4a2e1a }
-};
+};NPC_LOOK.pip = Object.assign(goblinLook("raider"), { skin: 0x7a8a48, top: { type: "coat", color: 0x1a1a22, trim: 0xe8e4dc }, collar: 0xf2efe8, legs: 0x1a1a22, boots: 0x101014, barefoot: false, sack: false, weapon: null, head: null, gloves: 0xf2efe8, belt: null, eyesGlow: 0xffe080 });
+
 
 
 function headHorns(R, H, hc, hr, k) {
@@ -2041,8 +2042,9 @@ function humanEntryBase(L) {
       const ea = FACE_PX.eyeA * 1.15, eb = FACE_PX.eyeB + 0.02, dx = Math.sin(ea) * Math.cos(eb), dy = -Math.sin(eb), dz = Math.cos(ea) * Math.cos(eb), rr = headRadial(HP, dx, dy, dz, true) * hr;
       const ep = V3(s * Math.abs(dx) * rr * HEAD_SCALE[0], hc + dy * rr * HEAD_SCALE[1], 0.005 + dz * rr * HEAD_SCALE[2]);
       if (L.skull) {
-        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.06)), hr * 0.17, 1.1, 1, 0.6, 10), "head", 0x0c0806, "plain");
-        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.05)), hr * 0.07, 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.06)), hr * (L.scary ? 0.21 : 0.17), 1.1, 1, 0.6, 10), "head", 0x0c0806, "plain");
+        R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.05)), hr * (L.scary ? 0.085 : 0.07), 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
+        if (L.scary) { R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.04)), hr * 0.035, 1, 1, 0.5, 6), "head", 0xffffff, "glow", true); R.add(gBox(ep.clone().add(V3(-s * hr * 0.02, hr * 0.17, hr * 0.02)), hr * 0.36, hr * 0.09, hr * 0.12, 0.2, 0, s * -0.25), "head", skin, "bone"); }
       } else if (L.claws) {
         R.add(gBall(ep.clone().add(V3(0, 0, -hr * 0.02)), hr * 0.1, 1.3, 0.75, 0.5, 8), "head", L.eyesGlow, "glow", true);
       } else {
@@ -2055,8 +2057,13 @@ function humanEntryBase(L) {
   if (L.beak) { R.add(gTaper(V3(0, hc - hr * 0.1, hr * 0.8), V3(0, hc - hr * 0.3, hr * 1.9), hr * 0.3, 0.01, 8, 0.8), "head", L.beak, "bone"); R.add(gTaper(V3(0, hc - hr * 0.35, hr * 0.8), V3(0, hc - hr * 0.35, hr * 1.5), hr * 0.18, 0.01, 6, 0.8), "head", new THREE.Color(L.beak).multiplyScalar(0.7).getHex(), "bone"); }
   if (L.crest) for (let k = 0; k < 5; k++) R.add(gBall(V3((k - 2) * hr * 0.25, hc + hr * (0.9 + 0.15 * (2 - Math.abs(k - 2))), -hr * 0.3 - k * 0.02), hr * 0.22, 0.5, 1.6 + 0.4 * (2 - Math.abs(k - 2)), 0.5, 6), "head", L.crest, "feather");
   if (L.leafHead) { for (let k = 0; k < 7; k++) { const a = k * 0.9, rr = hr * 0.75; R.add(gBall(V3(Math.cos(a) * rr, hc + hr * 0.9 + (k % 2) * hr * 0.25, Math.sin(a) * rr), hr * 0.55, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); } R.add(gBall(V3(0, hc + hr * 1.3, 0), hr * 0.6, 1, 0.8, 1, 8), "head", L.leafHead, "plain"); }
+  if (L.skull && L.scary) {
+    const cr = [[0.1, 0.95, 0.4, 0.5, 0.3], [-0.35, 0.8, 0.55, 0.35, -0.6], [0.45, 0.55, 0.62, 0.3, 1.0]];
+    for (const [x, y, z, l, a] of cr) R.add(gBox(V3(x * hr, hc + y * hr * 0.75, z * hr), hr * 0.025, l * hr, hr * 0.02, 0, 0, a), "head", 0x1a1410, "plain");
+    for (const s of [-1, 1]) R.add(gBall(V3(s * hr * 0.42, hc - hr * 0.42, hr * 0.62), hr * 0.13, 1, 1.3, 0.5, 8), "head", 0x1a1410, "plain");
+  }
   if (L.skull) {
-    const jy = hc - hr * 0.86, jz = hr * 0.12;
+    const jy = hc - hr * (L.scary ? 0.98 : 0.86), jz = hr * 0.12;
     R.add(gRing(V3(0, jy, jz), hr * 0.5, hr * 0.09, "y", 16, Math.PI, null), "head", skin, "bone");
     R.add(gBox(V3(0, jy - hr * 0.02, jz + hr * 0.52), hr * 0.32, hr * 0.2, hr * 0.12), "head", skin, "bone");
     for (const s of [-1, 1]) R.add(gTaper(V3(s * hr * 0.5, jy, jz), V3(s * hr * 0.6, hc - hr * 0.25, -hr * 0.08), hr * 0.1, hr * 0.07, 6, 0.55), "head", skin, "bone");
@@ -2101,7 +2108,7 @@ function humanEntryBase(L) {
     const tw = (x, y) => blendW(y, [[0, "hips", 0], [spineY, "spine", 0.05], [chestY, "chest", 0.06], [neckY - 0.005, "neck", 0.02]]);
     const skirt = ["tunic", "mail", "plate", "tabard", "rags"].includes(top.type), gOn = fem && !L.doll && !robe && !skirt;
     const backAt = y => { const rs = lowR.concat(upR.slice(1)); for (let i = 0; i < rs.length - 1; i++) { const a = rs[i], b = rs[i + 1]; if (y >= a.y && y <= b.y) { const f = (y - a.y) / Math.max(1e-6, b.y - a.y); return (a.rz * (a.b || 1) - (a.z || 0)) * (1 - f) + (b.rz * (b.b || 1) - (b.z || 0)) * f; } } return hipR * hz; };
-    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.03, gax = 0.097 * gi, gay = 0.05, gayU = 0.14, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
+    const gA = 0.064 * gi, gcx = 0.086 * gi, gcy = hipJ - 0.03, gax = 0.097 * gi, gay = fem ? 0.062 : 0.05, gayU = 0.14, gaz = 0.056 * gi, gcz = -(backAt(gcy) + gA * 0.5), gkb = 0.034;
     const zMod = (x, y, z) => {
       if (!gOn || z >= 0) return z;
       let dep = 0;
@@ -2125,8 +2132,8 @@ function humanEntryBase(L) {
     const allR = lowR.concat(upR.slice(1)), nLo = lowR.length, lowL = gOn ? densCR(allR, 0, nLo - 1) : lowR, upL = gOn ? densCR(allR, nLo - 1, nLo + 1).concat(upR.slice(3)) : upR, sg = gOn ? 64 : 24;
     R.addW(sculpt(gLoft(lowL, sg, true, false, 0, 0.3)), "hips", robe ? topC : legC, robe ? topR : legR, gW);
     R.addW(sculpt(gLoft(upL, sg, false, false, 0.3, 1)), "chest", topC, topR, gW);
-    const bR = 0.062 * gi, bY = chestY - 0.002, bZ = cz * 0.172 * 0.92, bX = 0.054 * gi;
-    if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 1, 0.95, 1, 20), "bust" + sd, topC, topR); }
+    const bR = 0.062 * gi, bY = chestY + 0.012, bZ = cz * 0.172 * 0.9, bX = 0.054 * gi;
+    if (fem && !L.doll && !robe) for (const [xs, sd] of [[1, "L"], [-1, "R"]]) { R.bone("bust" + sd, "chest", xs * bX, bY, bZ); R.add(gBall(V3(xs * bX, bY, bZ), bR, 1, 0.95, 0.96, 20), "bust" + sd, topC, topR); R.add(gBall(V3(xs * bX * 0.92, bY + bR * 0.55, bZ - bR * 0.42), bR * 0.95, 1.05, 0.8, 0.62, 16), "chest", topC, topR); }
     if (fem && !L.doll && !robe && top.type === "bare") { const cp = []; for (let i = 0; i <= 6; i++) { const y = bY + bR * (0.5 - 0.85 * i / 6), dy = (y - bY) / (bR * 0.95), q = 1 - Math.pow(bX / bR, 2) - dy * dy; if (q > 0.002) cp.push(V3(0, y, bZ + bR * Math.sqrt(q) - 0.0012)); } for (let i = 0; i < cp.length - 1; i++) R.add(gTaper(cp[i], cp[i + 1], 0.0022, 0.0022, 5), "chest", new THREE.Color(skin).multiplyScalar(0.62).getHex(), SKR); }
     BODY.up = upR; BODY.tw = tw; BODY.bust = fem && !L.doll && !robe ? { y: bY, front: bZ + bR, r: bR } : null;
     const UW0 = L.under || {}, brief = UW0.low === "boxer" || UW0.low === "brief";
@@ -2208,9 +2215,9 @@ function humanEntryBase(L) {
       const awFix = (x, y, z) => { const w = aw(x, y); return y < elY + 0.035 && y > elY - 0.035 ? w : w; };
       const tuck = (rg, k) => Object.assign(rg, { x: rg.x - s * k }), uA = L.ears === "ursan"; const upRings0 = [...(uA ? [tuck(ar(shY - 0.006, 0.032), 0.085), tuck(ar(shY - 0.02, 0.048), 0.055), tuck(ar(shY - 0.038, 0.058), 0.026)] : [tuck(ar(shY + 0.012, 0.036), 0.06), tuck(ar(shY - 0.004, 0.052), 0.04), tuck(ar(shY - 0.026, 0.059), 0.02)]), ar(shY - 0.05, 0.061, 1.02, 1.0), ar(shY - 0.085, 0.055), ar((shY + elY) / 2 - 0.01, 0.053, 1.14, 0.98), ar(elY + 0.035, 0.045), ar(elY, 0.042, 1, 1.08)];
       const upRings = L.doll ? monoRings(upRings0) : upRings0;
-      const fa10 = [ar(elY, 0.043, 1, 1.08), ar(elY - 0.03, 0.048, 1.08, 1.0), ar(elY - 0.07, 0.045, 1.04, 1), ar(mid, 0.039)];
+      const fa10 = fem ? [ar(elY, 0.039, 1, 1.03), ar(elY - 0.03, 0.043, 1.05, 1.0), ar(elY - 0.07, 0.042, 1.03, 1), ar(mid, 0.037)] : [ar(elY, 0.043, 1, 1.08), ar(elY - 0.03, 0.048, 1.08, 1.0), ar(elY - 0.07, 0.045, 1.04, 1), ar(mid, 0.039)];
       const fa1 = L.doll ? monoRings(fa10).map((r, i, a) => i === a.length - 1 ? Object.assign({}, r, { rx: r.rx * 0.92, rz: r.rz * 0.92 }) : r) : fa10;
-      const WK = 1.16, fa20 = [ar(mid, 0.039), ar((mid + wrY) / 2, 0.035 * 1.06), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK, 1, 1, 2.4)];
+      const WK = fem ? 0.98 : 1.16, fa20 = [ar(mid, fem ? 0.037 : 0.039), ar((mid + wrY) / 2, (fem ? 0.032 : 0.035) * 1.06), ar(wrY + 0.018, 0.031 * WK, 1, 1, 2.4), ar(wrY - 0.004, 0.03 * WK * (fem ? 1.04 : 1), 1, 1, 2.4)];
       const fa2 = L.doll ? monoRings(fa20).map((r, i) => { const k = [0.92, 0.82, 0.72, 0.7][Math.min(i, 3)]; return Object.assign({}, r, { rx: r.rx * k, rz: r.rz * k }); }) : fa20;
       const flip = rs => rs.slice().reverse();
       const armW = (x, y, z) => y < elY - 0.035 ? [["foreArm" + sd, 1]] : awFix(x, y, z);
@@ -2223,7 +2230,7 @@ function humanEntryBase(L) {
       R.addW(gLoft(flip(fa1), 16, false, false, 0.5, 0.75), "foreArm" + sd, fa1C, fa1R, armW);
       R.addW(gLoft(flip(fa2), 16, false, false, 0.75, 1), "foreArm" + sd, fa2C, fa2R, wrW);
       }
-      if (!L.doll && !uA) R.addW(gBall(V3(ax - s * (uA ? 0.012 : 0.004), shY - (uA ? 0.075 : 0.058), 0), (uA ? 0.05 : 0.056) * gi, 1.0, 1.15, 1.0, 14), "upArm" + sd, upC, upR, (x, y, z) => { const k = smoothRange(shY - 0.07, shY + 0.01, y) * smoothRange(-0.02, 0.04, -s * (x - ax)); return [["upArm" + sd, 1 - 0.55 * k], ["chest", 0.55 * k]]; });
+      if (!L.doll && !uA) R.addW(gBall(V3(ax - s * (uA ? 0.012 : fem ? 0.0 : 0.004), shY - (uA ? 0.075 : fem ? 0.054 : 0.058), 0), (uA ? 0.05 : fem ? 0.058 : 0.056) * gi, fem ? 1.06 : 1.0, fem ? 1.2 : 1.15, fem ? 1.08 : 1.0, 16), "upArm" + sd, upC, upR, (x, y, z) => { const k = smoothRange(shY - 0.07, shY + 0.01, y) * smoothRange(-0.02, 0.04, -s * (x - ax)); return [["upArm" + sd, 1 - 0.55 * k], ["chest", 0.55 * k]]; });
       BODY["arm" + sd] = { up: upRings, fa1, fa2, w: armW };
     }
     if (sleeves === "wide" && !bare) {
@@ -3558,10 +3565,10 @@ function mobLook(m) {
   if (model === "skeleton") {
     if (key === "spire_warden") return { kind: "human", look: { skull: true, skin: 0x8a5a48, noFace: true, headRegion: "bone", eyesGlow: 0xff5722, top: { type: "plate", color: 0x5a2a20, region: "chain", plate: 0x8a3a24, trim: 0xffb74d, glowTrim: true }, pauldrons: 0x8a3a24, gauntlets: true, gloves: 0x5a2a20, greaves: 0x8a3a24, head: { type: "horned", color: 0x5a2a20, color2: 0xe8d8c0 }, cape: 0x3a1410, legs: 0x8a5a48, barefoot: true, weapon: "gsword", weaponId: "lucent_sword", prop: { girth: 0.9 } } };
     if (key === "hollow_king") return { kind: "human", look: { skull: true, skin: 0xd8d0b8, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "cloth", color2: 0xd8b040 }, cape: 0x3a1030, legs: 0xd8d0b8, barefoot: true, head: { type: "crown" }, weapon: "sword", weaponId: "iron_sword", prop: { girth: 0.85 } } };
-    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "butterfly_axe", prop: { girth: 0.85 } } };
-    if (key === "royal_guard") return { kind: "human", look: { skull: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
+    if (key === "crypt_sentinel") return { kind: "human", look: { skull: true, scary: true, skin: 0xc8d0c8, noFace: true, headRegion: "bone", eyesGlow: 0x80cbc4, top: { type: "mail", color: 0x4a5a5a, region: "chain" }, pauldrons: 0x5a6a6a, legs: 0xc8d0c8, barefoot: true, head: { type: "helm", color: 0x4a5a5a }, weapon: "greataxe", weaponId: "butterfly_axe", prop: { girth: 0.85 } } };
+    if (key === "royal_guard") return { kind: "human", look: { skull: true, scary: true, skin: 0xe0dccc, noFace: true, headRegion: "bone", eyesGlow: 0xffd54f, top: { type: "tabard", color: 0x2a1a3a, region: "chain", color2: 0xd8b040 }, legs: 0xe0dccc, barefoot: true, head: { type: "cap", color: 0x5a5a62 }, weapon: "sword", weaponId: "bronze_sword", prop: { girth: 0.75 } } };
     if (key === "ice_wight" || key === "frost_wight") return { kind: "human", look: { skull: true, skin: 0xd4eef8, noFace: true, headRegion: "bone", eyesGlow: 0x40c4ff, top: { type: key === "frost_wight" ? "robe" : "rags", color: 0x6a8aa0, trim: 0xb3e5fc, glowTrim: key === "frost_wight" }, legs: 0xd4eef8, barefoot: true, head: key === "frost_wight" ? { type: "hood", color: 0x4a6a80 } : null, weapon: "sword", weaponId: "iron_sword", prop: { girth: key === "frost_wight" ? 0.95 : 0.75 } } };
-    return { kind: "human", look: { skull: true, skin: 0xe8e2cf, noFace: true, headRegion: "bone", eyesGlow: 0x66e0ff, top: { type: "rags", color: 0x3a3028 }, legs: 0xe8e2cf, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
+    return { kind: "human", look: { skull: true, scary: true, skin: 0xcfc4a4, noFace: true, headRegion: "bone", eyesGlow: 0xff3a20, top: { type: "rags", color: 0x2a2420 }, legs: 0xcfc4a4, barefoot: true, weapon: "sword", weaponId: "rusty", prop: { girth: 0.7 } } };
   }
   if (key === "tide_priest") return { kind: "human", look: { skull: true, skin: 0x7aa6a6, noFace: true, headRegion: "bone", eyesGlow: 0x4dd0e1, top: { type: "robe", color: 0x14303a, trim: 0x4dd0e1, glowTrim: true }, head: { type: "hood", color: 0x0f2530 }, legs: 0x14303a, barefoot: true, weapon: "staff", weaponId: "holly_staff" } };
   if (model === "orc") {

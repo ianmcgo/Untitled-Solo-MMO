@@ -1715,7 +1715,7 @@ const NPCS = {
   marn: { name: "Marn, Fishmonger", model: "marn", talk: "talkMarn" },
   crystal_harbor: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
   crystal_hollow: { name: "Home Point Crystal", model: "crystal", crystal: true, talk: "talkCrystal" },
-  pip: { name: "Pip the Nubbin", prop: "nubbin", talk: "talkPip" },
+  pip: { name: "Pip, Goblin Butler", talk: "talkPip", noRelook: true },
   delivery_box: { name: "Delivery Box", prop: "chest", chest: "vault", talk: "talkDeliveryBox" },
   brazier_fire: { name: "Brazier of Flame", prop: "brazier", element: "fire", talk: "talkBrazier" },
   brazier_wind: { name: "Brazier of Wind", prop: "brazier", element: "wind", talk: "talkBrazier" },

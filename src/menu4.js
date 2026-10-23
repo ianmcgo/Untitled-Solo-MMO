@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.57.0", date: "2026-10-23", title: "Smoother figures, scarier skeletons and Pip the butler", items: [
+    "<b>Smoother figures.</b> Female characters have rounder, less flat shoulders, a higher bust that blends smoothly into the chest, slimmer, smoother elbows, slimmer wrists that meet the hands cleanly, and a rounder curve from the lower back into the legs.",
+    "<b>Scarier skeletons.</b> Plain skeletons now have aged yellowed bone, deep enlarged eye sockets with burning red eyes and a white-hot pupil, a heavy brow ridge, cracks across the skull, hollow cheeks and a gaping jaw. Royal guards and crypt sentinels get the same skull.",
+    "<b>Pip the goblin butler.</b> Pip, who keeps your residence, is now a goblin butler in a black tailcoat with a starched white collar and white gloves.",
+  ] },
   { v: "19.56.0", date: "2026-10-23", title: "Two-handed grips, first-person blades and better hair", items: [
     "<b>Two hands on the hilt.</b> Great swords, great axes, scythes, great katanas, polearms and staves are now gripped with both hands whenever they're drawn, by heroes and monsters alike. The off hand reaches down the handle and follows every swing.",
     "<b>Casters fight back.</b> Mage companions now draw their weapon and fight in melee between spells whenever it's safe, instead of standing idle at range.",
@@ -4526,7 +4531,7 @@ function tabHelp() {
     "The <b>Stats</b> tab inside Achievements counts what you have done: play time, job levels, craft and gather skills, creatures defeated by kind, distance walked and ridden, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
   ]));
   h += sec("🏠 Your residence", ul([
-    "You have a door to your residence in every city: Ashenreach's Residential District, Saltreach's Fish Market and Ironvale's South Ward. Each has a gold Home sign. All three doors open into the same home, so your storage, furniture and delivery box are always there. When you leave, you come out of the door you went in by. <b>Pip the Nubbin</b> lives there.",
+    "You have a door to your residence in every city: Ashenreach's Residential District, Saltreach's Fish Market and Ironvale's South Ward. Each has a gold Home sign. All three doors open into the same home, so your storage, furniture and delivery box are always there. When you leave, you come out of the door you went in by. <b>Pip</b>, your goblin butler in a black tailcoat and white gloves, keeps it for you.",
     "<b>Storage:</b> Pip keeps " + CONFIG.storageBase + " slots of items, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. Stored items don't count against your bag.",
     "<b>Furniture:</b> Odette by the west wall sells it. Ask Pip to arrange: pick a piece, tap a tile on the 10×8 grid; tap a placed piece to rotate or pack it away. The door tiles and Pip's corner are blocked; rugs can sit under other pieces.",
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."

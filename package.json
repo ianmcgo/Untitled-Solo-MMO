@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.56.0",
-  "releaseTitle": "Two-handed grips, first-person blades and better hair",
+  "version": "19.57.0",
+  "releaseTitle": "Smoother figures, scarier skeletons and Pip the butler",
   "description": "",
   "main": "index.js",
   "scripts": {
