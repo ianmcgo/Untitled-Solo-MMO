@@ -51,16 +51,21 @@ function vana() {
 function isNight() { const h = vana().hour; return h >= 18 || h < 6; }
 function period() { return isNight() ? "night" : "day"; }
 function dayElement() { return DAY_ELEMENTS[vana().dayIndex]; }
-function weatherNow(zoneId) {
+function weatherNow(zoneId, back) {
   const id = areaOf(zoneId || S.zoneId), tbl = WEATHER[id];
   if (!tbl) return null;
   const mins = (Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000;
-  const slot = Math.floor(mins / 180);
+  const slot = Math.floor(mins / 180) - (back || 0);
   const r = seeded(hashStr(id + ":w:" + slot))();
   const tot = tbl.reduce((a, w) => a + w[1], 0);
   let acc = 0;
   for (const [k, w] of tbl) { acc += w / tot; if (r < acc) return k; }
   return tbl[0][0];
+}
+function rainSlot(zoneId) {
+  const mins = (Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000, now = Math.floor(mins / 180);
+  for (let b = 0; b <= 3; b++) if (/rain|storm|squall|drizzle/.test(weatherNow(zoneId, b) || "")) return now - b;
+  return null;
 }
 function weatherElement() { const w = weatherNow(); return w && WEATHER_INFO[w].el || null; }
 function gameDate() {
@@ -2230,7 +2235,81 @@ function addWildlife(id) {
   const mk = (type, x, y, o) => S.ambient.push(Object.assign({ kind: "ambient", ambient: true, wild: true, type, seed: 0, x, y, px: x, py: y, home: { x, y }, roam: 120, pi: 0, face: r() * 6.28, speed: 60, radius: 8, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4 }, o));
   const snowy = z.palette === "snow", wet = z.mist;
   for (let h = 0; h < (snowy ? 1 : 2); h++) { const p = spot(); if (p) for (let i = 0; i < 3; i++) mk("deer", p[0] + (r() - 0.5) * 120, p[1] + (r() - 0.5) * 120, { col: snowy ? 0xb8b0a4 : 0x8a6a48, roam: 180, speed: 70, time: "day", shy: true }); }
-  for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 150, fly: 7 + r() * 5, time: "day", dry: true, wait: 0 }); }
+  for (let f = 0; f < 2; f++) { const p = spot(); if (p) for (let i = 0; i < 4; i++) { const alt = 7 + r() * 5; mk("bird", p[0] + (r() - 0.5) * 80, p[1] + (r() - 0.5) * 80, { col: wet ? 0x3a3a34 : snowy ? 0xe8ecf0 : 0x6a5a4a, roam: 500, speed: 130 + r() * 30, fly: alt, flyer: true, alt0: alt, turn: 1.6, canLand: true, shy: true, time: "day", dry: true, wait: 0 }); } }
+}
+const CRITTER_SETS = {
+  field: { mouse: [3, 4], bug: [4, 6], owl: [0, 2], nbat: [0, 4] },
+  town: { rat: [0, 3], bug: [2, 3], owl: [0, 1], nbat: [0, 3], mouse: [1, 0] },
+  cave: { nbat: [6, 0], rat: [3, 0], bug: [6, 0] },
+  crypt: { nbat: [4, 0], rat: [3, 0], bug: [4, 0] }
+};
+const CRITTER_LOOK = {
+  mouse: { col: [0x7a6a5a, 0x8a7a6a, 0x5a4e44], speed: 18, roam: 90, radius: 3, shy: true, scale: 1 },
+  rat: { col: [0x4a4440, 0x5a524a, 0x3a3430], speed: 22, roam: 140, radius: 4, shy: true, scale: 1.5 },
+  bug: { col: [0x2a3a1a, 0x3a2418, 0x1e2430, 0x5a3a14], speed: 7, roam: 50, radius: 2, scale: 0.16 },
+  owl: { col: [0x7a5a3a, 0x9a8a70, 0x5a4a3a], speed: 95, roam: 600, radius: 6, scale: 1.45 },
+  nbat: { col: [0x3a2e2a, 0x2a2428, 0x4a3a30], speed: 120, roam: 380, radius: 5, scale: 0.42 }
+};
+function addCritters(id) {
+  const z = S.zone, th = z.theme || "field";
+  if (z.indoor || th === "house" || z.battlefield) return;
+  const set = CRITTER_SETS[th] || CRITTER_SETS.field, r = seeded(hashStr(id + "critters")), rects = zoneRects(z);
+  const cave = th === "cave" || th === "crypt";
+  const free = (x, y) => x > 120 && y > 120 && x < z.w - 120 && y < z.h - 120 && !rects.some(q => x > q.x - 24 && x < q.x + q.w + 24 && y > q.y - 24 && y < q.y + q.h + 24) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 30) && !critterBlocked(x, y, 4);
+  const spot = () => { for (let k = 0; k < 50; k++) { const x = r() * z.w, y = r() * z.h; if (free(x, y)) return [x, y]; } return null; };
+  for (const type in set) for (const [cnt, when] of [[set[type][0], cave ? null : "any"], [set[type][1], "night"]]) for (let i = 0; i < cnt; i++) {
+    const p = spot(); if (!p) continue;
+    const L = CRITTER_LOOK[type], o = { kind: "ambient", ambient: true, critter: true, type, seed: i, x: p[0], y: p[1], px: p[0], py: p[1], home: { x: p[0], y: p[1] }, roam: L.roam, pi: 0, face: r() * 6.28, speed: L.speed * (0.8 + r() * 0.4), radius: L.radius, buffs: {}, alive: true, hp: 1, maxHp: 1, tp: 0, lastSwing: -9, lastHit: -9, lastWS: -9, wait: r() * 4, col: L.col[Math.floor(r() * L.col.length)], scale: L.scale, shy: !!L.shy };
+    if (when === "night") o.time = "night";
+    if (type === "owl" || type === "nbat") { o.time = cave ? null : "night"; const alt = type === "owl" ? 6 + r() * 4 : cave ? 2.4 + r() * 1.8 : 4 + r() * 4; Object.assign(o, { fly: alt, flyer: true, alt0: alt, turn: type === "nbat" ? 4.5 : 1.2, canLand: type === "owl", jitter: type === "nbat" ? 1 : 0, dry: true }); }
+    if (type === "bug") o.slow = true;
+    S.ambient.push(o);
+  }
+}
+function critterBlocked(x, y, rad) {
+  const z = S.zone, cs = z.colliders;
+  if ((z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + rad)) return true;
+  if (cs && cs.length) { const g = colliderGrid(z), C = g.C, list = g.m.get(Math.floor(x / C) * 100003 + Math.floor(y / C)); if (list && list.some(c => Math.hypot(x - c.x, y - c.y) < c.r + rad)) return true; }
+  return zoneRects(z).some(q => x > q.x - rad && x < q.x + q.w + rad && y > q.y - rad && y < q.y + q.h + rad);
+}
+function pathBlocked(a, tx, ty) {
+  const d = Math.hypot(tx - a.x, ty - a.y), n = Math.max(1, Math.ceil(d / 14)), rad = Math.max(3, (a.radius || 8) * 0.6);
+  for (let i = 1; i <= n; i++) { const f = i / n; if (critterBlocked(a.x + (tx - a.x) * f, a.y + (ty - a.y) * f, rad)) return true; }
+  return false;
+}
+function tickFlyer(a, dt) {
+  const z = S.zone;
+  if (a.grounded) {
+    a.gT -= dt;
+    if (a.shy && player && dist(a, player) < 170) a.gT = 0;
+    if (a.gT > 0) { if (a.tx == null || Math.random() < dt * 0.4) { a.tx = a.x + (Math.random() - 0.5) * 30; a.ty = a.y + (Math.random() - 0.5) * 30; } if (stepToward(a, a.tx, a.ty, dt, 2, 0.12)) a.tx = a.x; return; }
+    a.grounded = false; a.tx = null; a.flapT = 2.5;
+  }
+  if (a.tx == null || Math.hypot(a.tx - a.x, a.ty - a.y) < (a.landing ? 8 : 70)) {
+    if (a.landing && a.tx != null) { a.grounded = true; a.landing = false; a.fly = 0; a.gT = 4 + Math.random() * 8; a.tx = null; return; }
+    const ang = Math.random() * 6.283, rr = Math.random() * a.roam;
+    a.tx = Math.max(150, Math.min(z.w - 150, a.home.x + Math.cos(ang) * rr)); a.ty = Math.max(150, Math.min(z.h - 150, a.home.y + Math.sin(ang) * rr));
+    a.landing = !!a.canLand && Math.random() < 0.3 && !critterBlocked(a.tx, a.ty, 10) && !(z.water || []).some(w => Math.hypot(a.tx - w.x, a.ty - w.y) < w.r + 20);
+  }
+  const dTo = Math.hypot(a.tx - a.x, a.ty - a.y);
+  let want = Math.atan2(a.ty - a.y, a.tx - a.x) + (a.jitter ? Math.sin(S.time * 3.1 + a.seed * 7) * 0.9 + Math.sin(S.time * 7.3 + a.seed) * 0.4 : 0);
+  const turn = a.turn * (a.landing && dTo < 150 ? 2.2 : 1), dA = clamp(normAng(want - a.face), -turn * dt, turn * dt);
+  a.face += dA; a.bank = dA / Math.max(dt, 1e-3);
+  const sp = a.speed * (a.landing ? clamp(dTo / 160, 0.35, 1) : 1);
+  a.x += Math.cos(a.face) * sp * dt; a.y += Math.sin(a.face) * sp * dt;
+  a.x = Math.max(60, Math.min(z.w - 60, a.x)); a.y = Math.max(60, Math.min(z.h - 60, a.y));
+  const tAlt = a.landing && dTo < 220 ? a.alt0 * Math.max(0, (dTo - 10) / 210) : a.alt0 + Math.sin(S.time * 0.23 + a.seed) * 1.2, was = a.fly || 0;
+  a.fly = was + clamp(tAlt - was, -2.6 * dt, 1.8 * dt);
+  if (a.fly > was + 0.01) a.flapT = Math.max(a.flapT || 0, 0.8);
+  a.flapT = (a.flapT || 0) - dt;
+  a.flap = a.jitter || a.flapT > 0 || Math.sin(S.time * 0.55 + a.seed * 2.3) > -0.25;
+}
+function ambientPick(a) {
+  for (let k = 0; k < 6; k++) {
+    const tx = a.home.x + (Math.random() - 0.5) * a.roam * 2, ty = a.home.y + (Math.random() - 0.5) * a.roam * 2;
+    if (!pathBlocked(a, tx, ty)) { a.tx = tx; a.ty = ty; return; }
+  }
+  a.tx = a.x + (Math.random() - 0.5) * 30; a.ty = a.y + (Math.random() - 0.5) * 30;
 }
 function cityLife(z, id) {
   const rs = zoneRects(z);
@@ -2298,17 +2377,20 @@ function tickAmbient(dt) {
     a.away = !ambientAwake(a);
     if (a.away) continue;
     if (a.pen) { tickPenned(a, dt); continue; }
+    if (a.flyer) { tickFlyer(a, dt); continue; }
     if (a.shy && player && dist(a, player) < 140 && !a.flee) { const ang = Math.atan2(a.y - player.y, a.x - player.x); a.tx = a.x + Math.cos(ang) * 260; a.ty = a.y + Math.sin(ang) * 260; a.flee = true; a.wait = 0; a.speedBase = a.speedBase || a.speed; a.speed = a.speedBase * 2.6; }
     if (a.path) {
       const p = a.path[a.pi % a.path.length];
       if (a.wait > 0) { a.wait -= dt; continue; }
-      if (moveToward(a, p[0], p[1], dt, 6)) { a.pi++; a.wait = 1 + Math.random() * 4; }
+      if (navTo(a, p[0], p[1], dt, 6)) { a.pi++; a.wait = 1 + Math.random() * 4; }
       continue;
     }
     if (a.wait > 0) { a.wait -= dt; continue; }
-    if (a.tx == null) { a.tx = a.home.x + (Math.random() - 0.5) * a.roam * 2; a.ty = a.home.y + (Math.random() - 0.5) * a.roam * 2; if (!a.flee && (a.type === "dog" || a.type === "cat")) { const k = Math.random(), dog = a.type === "dog"; a.speed = k < 0.7 ? (dog ? 26 : 18) : k < 0.93 ? (dog ? 48 : 32) : (dog ? 90 : 60); } }
-    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.wait = a.fly ? 0 : 1.5 + Math.random() * 5; if (a.flee) { a.flee = false; a.speed = a.speedBase; a.home = { x: a.x, y: a.y }; } }
+    if (a.tx == null) { ambientPick(a); if (!a.flee && (a.type === "dog" || a.type === "cat")) { const k = Math.random(), dog = a.type === "dog"; a.speed = k < 0.7 ? (dog ? 26 : 18) : k < 0.93 ? (dog ? 48 : 32) : (dog ? 90 : 60); } if (!a.flee && (a.type === "mouse" || a.type === "rat")) { a.speedBase = a.speedBase || a.speed; a.speed = a.speedBase * (Math.random() < 0.4 ? 3.2 : 1); } }
+    const ox = a.x, oy = a.y, step = a.speed * dt;
+    if (moveToward(a, a.tx, a.ty, dt, 4)) { a.tx = null; a.stuck = 0; a.wait = a.slow ? 1 + Math.random() * 6 : a.critter ? 0.4 + Math.random() * 3 : 1.5 + Math.random() * 5; if (a.flee) { a.flee = false; a.speed = a.speedBase; a.home = { x: a.x, y: a.y }; } }
     keepOutOfColliders(a);
+    if (a.tx != null && step > 0.5) { const moved = Math.hypot(a.x - ox, a.y - oy); a.stuck = moved < step * 0.4 ? (a.stuck || 0) + dt : 0; if (a.stuck > 0.5) { a.stuck = 0; a.tx = null; a.wait = 0.3 + Math.random(); if (a.flee) { a.flee = false; a.speed = a.speedBase || a.speed; } } }
   }
 }
 
@@ -3839,6 +3921,86 @@ function tickBuffs(e) {
   }
 }
 
+const NAV_C = 20;
+function navGrid(z) {
+  const nc = (z.colliders || []).length, nr = zoneRects(z).length;
+  if (z._nav && z._nav.nc === nc && z._nav.nr === nr) return z._nav;
+  const C = NAV_C, W = Math.ceil(z.w / C), H = Math.ceil(z.h / C), b = new Uint8Array(W * H), rects = zoneRects(z), cs = z.colliders || [];
+  const mark = (x0, y0, x1, y1) => { for (let gy = Math.max(0, Math.floor(y0 / C)); gy <= Math.min(H - 1, Math.floor(y1 / C)); gy++) for (let gx = Math.max(0, Math.floor(x0 / C)); gx <= Math.min(W - 1, Math.floor(x1 / C)); gx++) b[gy * W + gx] = 1; };
+  for (const r of rects) mark(r.x - 8, r.y - 8, r.x + r.w + 8, r.y + r.h + 8);
+  for (const c of cs) { const R = c.r + 5; for (let gy = Math.max(0, Math.floor((c.y - R) / C)); gy <= Math.min(H - 1, Math.floor((c.y + R) / C)); gy++) for (let gx = Math.max(0, Math.floor((c.x - R) / C)); gx <= Math.min(W - 1, Math.floor((c.x + R) / C)); gx++) { const cx = (gx + 0.5) * C, cy = (gy + 0.5) * C; if (Math.hypot(cx - c.x, cy - c.y) < R + C * 0.35) b[gy * W + gx] = 1; } }
+  for (const w of z.water || []) { const R = w.r + 10; for (let gy = Math.max(0, Math.floor((w.y - R) / C)); gy <= Math.min(H - 1, Math.floor((w.y + R) / C)); gy++) for (let gx = Math.max(0, Math.floor((w.x - R) / C)); gx <= Math.min(W - 1, Math.floor((w.x + R) / C)); gx++) if (Math.hypot((gx + 0.5) * C - w.x, (gy + 0.5) * C - w.y) < R) b[gy * W + gx] = 1; }
+  for (let gx = 0; gx < W; gx++) { b[gx] = 1; b[(H - 1) * W + gx] = 1; }
+  for (let gy = 0; gy < H; gy++) { b[gy * W] = 1; b[gy * W + W - 1] = 1; }
+  return z._nav = { C, W, H, b, nc, nr };
+}
+function navFree(N, x, y) { const gx = Math.floor(x / N.C), gy = Math.floor(y / N.C); return gx >= 0 && gy >= 0 && gx < N.W && gy < N.H && !N.b[gy * N.W + gx]; }
+function navLos(N, x0, y0, x1, y1) {
+  const d = Math.hypot(x1 - x0, y1 - y0), n = Math.max(1, Math.ceil(d / (N.C * 0.4)));
+  for (let i = 1; i < n; i++) { const f = i / n; if (!navFree(N, x0 + (x1 - x0) * f, y0 + (y1 - y0) * f)) return false; }
+  return true;
+}
+function navNearest(N, gx, gy) {
+  if (gx >= 0 && gy >= 0 && gx < N.W && gy < N.H && !N.b[gy * N.W + gx]) return [gx, gy];
+  for (let r = 1; r < 12; r++) for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) { if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; const x = gx + dx, y = gy + dy; if (x >= 0 && y >= 0 && x < N.W && y < N.H && !N.b[y * N.W + x]) return [x, y]; }
+  return null;
+}
+function navPath(z, x0, y0, x1, y1) {
+  const N = navGrid(z), C = N.C, W = N.W;
+  if (navLos(N, x0, y0, x1, y1)) return [[x1, y1]];
+  const s0 = navNearest(N, Math.floor(x0 / C), Math.floor(y0 / C)), g0 = navNearest(N, Math.floor(x1 / C), Math.floor(y1 / C));
+  if (!s0 || !g0) return null;
+  const start = s0[1] * W + s0[0], goal = g0[1] * W + g0[0], gs = new Map([[start, 0]]), from = new Map(), heap = [[0, start]], closed = new Set();
+  const hf = i => { const dx = Math.abs(i % W - g0[0]), dy = Math.abs(Math.floor(i / W) - g0[1]); return Math.max(dx, dy) + 0.414 * Math.min(dx, dy); };
+  const push = it => { heap.push(it); let i = heap.length - 1; while (i > 0) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = i * 2 + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  let found = false, iter = 0;
+  while (heap.length && iter++ < 9000) {
+    const [, cur] = pop();
+    if (cur === goal) { found = true; break; }
+    if (closed.has(cur)) continue;
+    closed.add(cur);
+    const cx = cur % W, cy = Math.floor(cur / W), g = gs.get(cur);
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      if (!dx && !dy) continue;
+      const nx = cx + dx, ny = cy + dy;
+      if (nx < 0 || ny < 0 || nx >= W || ny >= N.H) continue;
+      const ni = ny * W + nx;
+      if (N.b[ni] || (dx && dy && (N.b[cy * W + nx] || N.b[ny * W + cx]))) continue;
+      const ng = g + (dx && dy ? 1.414 : 1);
+      if (ng < (gs.has(ni) ? gs.get(ni) : 1e9)) { gs.set(ni, ng); from.set(ni, cur); push([ng + hf(ni), ni]); }
+    }
+  }
+  if (!found) return null;
+  const cells = [];
+  for (let c = goal; c !== undefined; c = from.get(c)) { cells.push([(c % W + 0.5) * C, (Math.floor(c / W) + 0.5) * C]); if (c === start) break; }
+  cells.reverse();
+  const out = [];
+  let ax = x0, ay = y0, i = 0;
+  while (i < cells.length) {
+    let j = cells.length - 1;
+    while (j > i && !navLos(N, ax, ay, cells[j][0], cells[j][1])) j--;
+    out.push(cells[j]); ax = cells[j][0]; ay = cells[j][1]; i = j + 1;
+  }
+  if (navFree(N, x1, y1) && navLos(N, ax, ay, x1, y1)) out.push([x1, y1]);
+  return out;
+}
+function navTo(e, tx, ty, dt, stop, speedMul) {
+  const z = S.zone;
+  if (!z || z.theme !== "town") return moveToward(e, tx, ty, dt, stop, speedMul);
+  const N = navGrid(z);
+  if (navLos(N, e.x, e.y, tx, ty)) { e._nav = null; return moveToward(e, tx, ty, dt, stop, speedMul); }
+  let P = e._nav;
+  if (!P || Math.hypot(P.tx - tx, P.ty - ty) > 30 || S.time > P.until) {
+    const pts = navPath(z, e.x, e.y, tx, ty);
+    P = e._nav = { tx, ty, pts: pts && pts.length ? pts : [[tx, ty]], i: 0, until: S.time + 6 };
+  }
+  let wp = P.pts[P.i];
+  while (P.i < P.pts.length - 1 && (Math.hypot(wp[0] - e.x, wp[1] - e.y) < 8 || navLos(N, e.x, e.y, P.pts[P.i + 1][0], P.pts[P.i + 1][1]))) wp = P.pts[++P.i];
+  const last = P.i === P.pts.length - 1, done = stepToward(e, wp[0], wp[1], dt, last ? stop : 0, speedMul);
+  if (last && done && Math.hypot(tx - e.x, ty - e.y) > stop + 1) { e._nav = null; return Math.hypot(tx - e.x, ty - e.y) < stop + 30; }
+  return last && done;
+}
 function moveToward(e, tx, ty, dt, stop, speedMul) {
   const hop = S.zone && S.zone.gates ? gateHop(e, tx, ty) : null;
   if (hop) { stepToward(e, hop.x, hop.y, dt, 0, speedMul); return false; }
@@ -4270,7 +4432,7 @@ function follow(a, dt) {
   const tx = player.x + o.x * cos - o.y * sin, ty = player.y + o.x * sin + o.y * cos;
   if (a.kiting) { const nt = closestOf({ x: tx, y: ty }, allyThreats()); if (nt && dist({ x: tx, y: ty }, nt) < CONFIG.allyKiteDist) return; }
   if (dist(a, player) > 700 && !partyInCombat()) { a.x = player.x - Math.cos(player.face) * 40 + rand(-20, 20); a.y = player.y - Math.sin(player.face) * 40 + rand(-20, 20); a.px = a.x; a.py = a.y; return; }
-  if (Math.hypot(tx - a.x, ty - a.y) > 12) moveToward(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
+  if (Math.hypot(tx - a.x, ty - a.y) > 12) navTo(a, tx, ty, dt, 4, (a.mounted ? mountMul() : 1) * (Math.hypot(tx - a.x, ty - a.y) > 160 ? 1.4 : 1));
 }
 
 function allyTry(a, act, t) {
@@ -4908,6 +5070,8 @@ function enterZone(id, x, y, opt) {
   }
   spawnPenAnimals(id);
   if ((S.zone.theme || "field") === "field" && !S.zone.indoor) addWildlife(id);
+  addCritters(id);
+  for (const a of S.ambient) if (a.type === "gull" && !a.flyer) { const alt = 6 + Math.random() * 6; Object.assign(a, { fly: alt, flyer: true, alt0: alt, turn: 1.1, canLand: true, speed: 90 + Math.random() * 30, roam: Math.max(a.roam, 300) }); }
   for (const n of S.npcs) if (n.only) n.away = !npcOn(n);
   for (const n of S.npcs) if (n.sleep && npcAsleep(n)) { n.away = true; const d = npcDoor(n); if (d) { n.x = d.x; n.y = d.y; } }
   const rnd = seeded(hashStr(id));
@@ -4991,7 +5155,7 @@ function tfUpdate(n, dt) {
   if (player.target === n && dist(n, player) < CONFIG.talkRange * 1.5) { n.moving = false; n.face += normAng(Math.atan2(player.y - n.y, player.x - n.x) - n.face) * Math.min(1, dt * 4); return; }
   if (tf.state === "go") {
     n.moving = true;
-    if (moveToward(n, tf.spot.x, tf.spot.y, dt, 5, 0.8) || S.time > tf.giveUp) {
+    if (navTo(n, tf.spot.x, tf.spot.y, dt, 5, 0.8) || S.time > tf.giveUp) {
       n.moving = false; tf.state = "idle"; n.idleFace = tf.spot.face;
       const r = tf.rnd;
       if (tf.spot.sit) { n.resting = true; n.benchSit = true; n.x = tf.spot.x; n.y = tf.spot.y; tf.until = S.time + 20 + r() * 25; }
@@ -5022,11 +5186,11 @@ function updateNpcs(dt) {
       if (n.away) continue;
       if (!n.heading) { n.heading = true; if (dist(n, player) < 700) log(n.name.split(",")[0] + " heads home for the night.", "sys"); }
       n.moving = true;
-      if (moveToward(n, door.x, door.y, dt, 6, 1)) { n.away = true; n.heading = false; n.moving = false; if (player.target === n) player.target = null; if (S.pendingTalk === n) S.pendingTalk = null; }
+      if (navTo(n, door.x, door.y, dt, 6, 1)) { n.away = true; n.heading = false; n.moving = false; if (player.target === n) player.target = null; if (S.pendingTalk === n) S.pendingTalk = null; }
     } else {
       if (n.away) { n.away = false; n.x = door.x; n.y = door.y; if (dist(n, player) < 700) log(n.name.split(",")[0] + " steps out for the day.", "sys"); }
       n.heading = false;
-      if (dist(n, n.post) > 6) { n.moving = true; moveToward(n, n.post.x, n.post.y, dt, 4, 1); }
+      if (dist(n, n.post) > 6) { n.moving = true; navTo(n, n.post.x, n.post.y, dt, 4, 1); }
       else { n.moving = false; if (Math.abs(normAng(n.face - n.idleFace)) > 0.05 && !(player.target === n && dist(n, player) < CONFIG.talkRange)) n.face += normAng(n.idleFace - n.face) * Math.min(1, dt * 4); }
     }
   }

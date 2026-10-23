@@ -1844,6 +1844,17 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.50.0", date: "2026-10-23", title: "Wings, critters and smarter walking", items: [
+    "<b>Birds really fly.</b> Birds now spread their wings, flap to climb and glide on the level, bank into slow turns and drift up and down instead of hanging in one spot. Now and then a flock swoops down to land, hops about pecking, then takes off again, sooner if you walk up to them. Saltreach's gulls do the same.",
+    "<b>Night fliers.</b> Harmless bats flit about in zigzags after dark, and owls glide over fields and towns at night and sometimes land. Bats also live in caves and crypts all day.",
+    "<b>Little critters.</b> Mice, rats and beetles now scurry and crawl about fields, towns and caves. Mice and rats dart in short bursts and run from you. You'll see more of them at night, when rats come out in town.",
+    "<b>Animals walk around things.</b> Deer, dogs, cats and critters pick routes that don't run through trees, rocks, fences, houses or ponds, and turn around if they get stuck.",
+    "<b>Townsfolk find their way.</b> Townsfolk, the people strolling the streets, vendors heading home at night and your party in town now plan routes around houses, walls, fences, pens, stalls and ponds instead of walking through them.",
+    "<b>Mushrooms after rain.</b> Mushrooms now grow in clumps around fallen logs and old stumps. After it rains, more spring up across the fields, in different spots each time, and are gone again a few hours later. None grow in winter.",
+    "<b>Wildflowers move.</b> Patches of wildflowers grow in new places every game week.",
+    "<b>Fixes:</b> the church spire in the Residential District stands straight again; the dormers on house roofs now sit properly on the slope, and chimneys no longer poke through them; the district banners beside town gate towers no longer show their crest backwards.",
+    "<b>Tutorial:</b> a new page explains that the first visit to a zone can take a while to load, especially on High graphics, and that it loads much faster after that.",
+  ] },
   { v: "19.49.0", date: "2026-10-22", title: "Barns, pens and beehives", items: [
     "<b>Raptor stables.</b> Every stablemaster now works beside a proper barn with a gambrel roof, a cupola and weathervane, big cross-braced doors and a hayloft. Next to it is a fenced paddock where three raptors in different coats roam, drink from a water trough, and pick at a feed bin and hay bales. Now and then one breaks into a short sprint.",
     "<b>Farmyards in town.</b> The most residential district of each city (Ashenreach's Residential District, Saltreach's fishers' quarter and Ironvale's south ward) now has a red barn with a cow pasture beside it: cows in several coats graze slowly around a hay rack, trough, salt lick and round bales.",
@@ -4576,6 +4587,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Wildlife:</b> birds fly and land to feed; bats and owls come out at night (bats live in caves all day); mice, rats and beetles scurry about, more at night. Mushrooms grow near logs and stumps, and more spring up for a few hours after rain. Wildflowers grow in new places each game week.",
     "<b>Farms:</b> stablemasters keep their raptors in a paddock beside a barn by each town gate, and every city has a farmyard with cows, a chicken yard and beehives in its most residential district.",
     "<b>Townsfolk:</b> ordinary people work, walk, shop and rest on benches around each city. Select one and talk to hear something about the town. They don't trade or give quests.",
     "<b>Skywatchers:</b> in the Government District, Harbor Square and the Keep, pay 50 crystals for a reading of any place you've discovered: its weather now, its land's element and today's element.",

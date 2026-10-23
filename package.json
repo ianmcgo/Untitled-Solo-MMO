@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.49.0",
-  "releaseTitle": "Barns, pens and beehives",
+  "version": "19.50.0",
+  "releaseTitle": "Wings, critters and smarter walking",
   "description": "",
   "main": "index.js",
   "scripts": {

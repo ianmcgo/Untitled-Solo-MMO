@@ -366,7 +366,12 @@ function syncEntity(e, dt) {
     g.position.y -= clamp(k, 0, 1) * 1.2;
     g.visible = !e.despawned && k < 1;
   } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
-  if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
+  if (e.flyer) {
+    const tY = g.position.y + (e.fly || 0), up = (e.fly || 0) > 0.3;
+    v.airY = v.airY == null ? tY : v.airY + (tY - v.airY) * Math.min(1, dt * (up ? 1.4 : 10));
+    g.position.y = Math.max(g.position.y, v.airY) + (up ? Math.sin(S.time * 0.8 + (e.seed || 0) * 3) * 0.25 : 0);
+    g.rotation.z += (clamp(-(e.bank || 0) * 0.32, -0.55, 0.55) * (up ? 1 : 0) - g.rotation.z) * Math.min(1, dt * 4);
+  } else if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
   v.lookTgt = lookTargetOf(e);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);

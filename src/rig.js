@@ -2706,10 +2706,11 @@ function birdEntry(col, comb, beak) {
   R.bone("root", null, 0, 0, 0);
   R.bone("body", "root", 0, Y, 0);
   R.bone("head", "body", 0, Y + 0.12, 0.09);
-  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("leg" + sd, "body", s * 0.04, Y - 0.05, 0); R.bone("wing" + sd, "body", s * 0.08, Y + 0.03, 0); }
-  const dark = new THREE.Color(col).multiplyScalar(0.75).getHex();
-  R.add(gBall(V3(0, Y, 0), 0.1, 0.85, 0.85, 1.2, 10), "body", col, "feather");
-  R.add(gTaper(V3(0, Y + 0.02, -0.1), V3(0, Y + 0.1, -0.18), 0.05, 0.01, 6, 0.4), "body", dark, "feather");
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("leg" + sd, "body", s * 0.04, Y - 0.05, 0); R.bone("wing" + sd, "body", s * 0.065, Y + 0.04, 0.03); }
+  const dark = new THREE.Color(col).multiplyScalar(0.75).getHex(), slim = !comb;
+  R.add(gBall(V3(0, Y, 0), 0.1, slim ? 0.72 : 0.85, slim ? 0.74 : 0.85, slim ? 1.35 : 1.2, 10), "body", col, "feather");
+  if (slim) R.add(gBall(V3(0, Y + 0.01, -0.17), 0.06, 0.9, 0.16, 1.3, 7), "body", dark, "feather");
+  else R.add(gTaper(V3(0, Y + 0.02, -0.1), V3(0, Y + 0.1, -0.18), 0.05, 0.01, 6, 0.4), "body", dark, "feather");
   R.add(gBall(V3(0, Y + 0.14, 0.1), 0.055, 1, 1, 1, 8), "head", col, "feather");
   R.add(gTaper(V3(0, Y + 0.13, 0.15), V3(0, Y + 0.12, 0.2), 0.016, 0.002, 5), "head", beak || 0xe8a030, "bone");
   if (comb) R.add(gBall(V3(0, Y + 0.2, 0.1), 0.03, 0.4, 1, 1.2, 6), "head", comb, "plain");
@@ -2717,7 +2718,8 @@ function birdEntry(col, comb, beak) {
     const sd = s > 0 ? "L" : "R";
     R.add(gBall(V3(s * 0.035, Y + 0.155, 0.135), 0.009, 1, 1, 0.6, 5), "head", 0x111111, "plain");
     R.add(gTaper(V3(s * 0.04, Y - 0.05, 0), V3(s * 0.04, 0.01, 0.01), 0.008, 0.007, 5), "leg" + sd, 0xe8a030, "bone");
-    R.add(gBall(V3(s * 0.08, Y + 0.02, -0.01), 0.07, 0.25, 0.7, 1.1, 8), "wing" + sd, dark, "feather");
+    R.add(gBall(V3(s * (0.065 + (slim ? 0.11 : 0.08)), Y + 0.04, 0.0), slim ? 0.12 : 0.085, 1, 0.14, 0.5, 8), "wing" + sd, dark, "feather");
+    R.add(gBall(V3(s * (0.065 + (slim ? 0.21 : 0.14)), Y + 0.04, -0.025), slim ? 0.07 : 0.05, 1, 0.12, 0.62, 7), "wing" + sd, new THREE.Color(dark).multiplyScalar(0.8).getHex(), "feather");
   }
   R.meta = { kind: "bird", headTop: 0.45 };
   return R.finish();
@@ -3774,9 +3776,13 @@ function buildEntityRig(e) {
     make = () => humanEntry(LF);
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
-    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
+    sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.critter ? "|" + (e.col || 0) : "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
     if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"), LW = npcFace(L, hashStr("w" + (e.seed || 0) + (e.look || ""))); make = () => humanEntry(LW); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
+    else if (e.type === "owl") make = () => birdEntry(e.col || 0x7a5a3a, null, 0x3a3020);
+    else if (e.type === "nbat") make = () => batEntry(e.col || 0x3a2e2a, 0x1a1010);
+    else if (e.type === "bug") make = () => crawlerEntry(e.col || 0x2a3a1a, new THREE.Color(e.col || 0x2a3a1a).multiplyScalar(1.6).getHex());
+    else if (e.type === "mouse" || e.type === "rat") make = () => quadEntry({ col: e.col || 0x6a5a4a, belly: new THREE.Color(e.col || 0x6a5a4a).lerp(new THREE.Color(0xe8dcd0), 0.5).getHex(), slim: true, digi: true, bodyW: 0.72, bodyY: 0.06, bodyR: 0.042, bodyLen: 0.15, leg: 0.05, hip: 0.022, legR: 0.007, neckUp: 0.015, neckFwd: 0.045, neckR: 0.02, headR: 0.028, ears: 1.5, snout: 1.0, mw: 0.75, eye: 0x101010, tailLen: 0.18, tailDrop: 0.03, tailR: 0.006, stride: 0.22 });
     else if (e.type === "raptor") { const id = MOUNT_COATS[e.coat] ? e.coat : "teal"; sig += "|" + id; make = () => thornstriderEntry(MOUNT_COATS[id]); }
     else if (e.type === "cow") { const cc = COW_COATS[e.coatCow || 0]; sig += "|" + (e.coatCow || 0); make = () => cowEntry(cc[0], cc[1]); }
     else if (e.type === "gull") make = () => birdEntry(0xf0f2f4, null, 0xe8c040);
