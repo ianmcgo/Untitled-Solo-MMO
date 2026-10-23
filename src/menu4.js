@@ -1844,6 +1844,13 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.54.0", date: "2026-10-23", title: "Wayside shrines, war camps and cave mouths", items: [
+    "<b>Wayside shrines.</b> Round stone shrines, open on every side with candles, lanterns and flowers, now appear at random in the wilds and move every few game hours. Pray once and one fades away for a while, granting one of five blessings: +10% experience, +15% defence, health and mana restored with slow healing after, +25 accuracy or +10% attack.",
+    "<b>War camps.</b> Goblins, orcs, fishfolk and birdfolk now gather in camps: two or three tents around a crackling campfire with a spit roast, smoke and firelight, log seats, a tribal totem (skulls, horns, fish or feathers) and a spear rack. Each camp's warriors spawn as a group around the fire.",
+    "<b>Warp stones are all different.</b> Six designs, each glowing in its district's colour: a rune obelisk, a twin-pillar arch, a ring of standing stones, a pillar with spinning gold rings, a crystal cluster, and a stepped rune tower.",
+    "<b>Cave mouths.</b> Paths into caves and crypts now end at a rocky arch with hanging stalactites and a pitch-dark opening. From inside a cave, the way out glows with daylight and soft light shafts, dimmer at night.",
+    "<b>Better waterfalls.</b> Waterfalls are wider and taller, with a deep blue sheet behind running white streaks, a curved lip, rocks framing the sides, churning foam where they hit the pond, rising spray and mist. Boulders no longer cover them.",
+  ] },
   { v: "19.53.0", date: "2026-10-23", title: "Wagons, crates and tidy roadsides", items: [
     "<b>Real wagons.</b> Wagons in the wilds and in town are now proper farm wagons: plank beds with side boards, stakes and iron trim, spoked wheels with iron tyres on axles, and a draw pole. They carry loads of hay and bales, rocks with a pick, barrels with a crate and a sack, or a canvas cover, or stand empty. Some in the wilds have lost a wheel, which lies in the grass beside them.",
     "<b>Wagons keep off the road.</b> Wild wagons now stand well back from the road edge, at least a long stretch apart from each other, and tilt with the slope instead of sinking into it.",
@@ -4607,6 +4614,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>Wayside shrines and camps:</b> look for round candlelit shrines in the wilds; each gives one random blessing and then fades away for a while. Goblins, orcs, fishfolk and birdfolk camp in groups around tents and campfires, so expect to fight several at once.",
     "<b>Wildlife:</b> birds fly and land to feed; bats and owls come out at night (bats live in caves all day); mice, rats and beetles scurry about, more at night. Mushrooms grow near logs and stumps, and more spring up for a few hours after rain. Wildflowers grow in new places each game week.",
     "<b>Farms:</b> stablemasters keep their raptors in a paddock beside a barn by each town gate, and every city has a farmyard with cows, a chicken yard and beehives in its most residential district.",
     "<b>Townsfolk:</b> ordinary people work, walk, shop and rest on benches around each city. Select one and talk to hear something about the town. They don't trade or give quests.",

@@ -5062,8 +5062,8 @@ function enterZone(id, x, y, opt) {
     if (fixed && fixed > Date.now()) { S.spawnAt[i] = S.time + (fixed - Date.now()) / 1000; return; }
     spawnMob(i);
   });
-  const cacheNpc = dailyCache(S.zone);
-  S.npcs = S.zone.npcs.concat(cacheNpc ? [cacheNpc] : []).map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
+  const cacheNpc = dailyCache(S.zone), shrineNpc = wayShrine(S.zone, id);
+  S.npcs = S.zone.npcs.concat(cacheNpc ? [cacheNpc] : [], shrineNpc ? [shrineNpc] : []).map(n => Object.assign({ id: n.id, x: n.x, y: n.y, radius: 14, kind: "npc", face: n.face != null ? n.face : Math.PI / 2, idleFace: n.face != null ? n.face : Math.PI / 2, post: { x: n.x, y: n.y }, home: n.home, sleep: n.sleep, away: false, speed: CONFIG.npcSpeed }, NPCS[n.id]));
   for (const n of S.npcs) if ((n.prop === "board" || n.prop === "sign") && (S.zone.paths || []).length) faceRoad(n, S.zone);
   spawnTownsfolk();
   S.gatherAt = [];
@@ -6006,6 +6006,25 @@ function brazierOrder() {
   return els;
 }
 function brazierLit(el) { return save.crypt.solved || save.crypt.lit.includes(el); }
+function wayShrineSlot() { return Math.floor((Date.now() + S.timeShift - VANA_EPOCH) * 25 / 60000 / 360); }
+function wayShrine(z, zid) {
+  const id = "wayshrine_" + zid;
+  if (!z || !NPCS[id]) return null;
+  const slot = wayShrineSlot();
+  save.wayUsed = save.wayUsed || {};
+  if (save.wayUsed[zid] === slot) return null;
+  const rnd = seeded(hashStr(String(save.created || 1) + ":way:" + zid + ":" + slot));
+  if (rnd() > CONFIG.wayShrineChance) return null;
+  for (let k = 0; k < 24; k++) { const at = poiSpot(z, 300 + rnd() * (z.w - 600), 300 + rnd() * (z.h - 600), 90); if (at) return { id, x: at.x, y: at.y }; }
+  return null;
+}
+const WAY_BLESSINGS = [
+  { id: "boon", min: 30, text: "Shrine's Favour: +10% experience" },
+  { id: "protect", min: 20, pow: 1, text: "Warding: +15% defence" },
+  { id: "paeon", min: 10, pow: 4, text: "Mending: health slowly returns", heal: true },
+  { id: "focus", min: 15, text: "Keen Eye: +25 accuracy" },
+  { id: "minuet", min: 15, pow: 0.1, text: "Valour: +10% attack" }
+];
 function dailyCache(z) {
   if (!z || !z.cacheId) return null;
   const day = boardDay();
@@ -6485,6 +6504,21 @@ const TALK = {
     if (first) { save.poi[n.id] = Date.now(); gainXp(60, 0, true); log("From the top of the lookout you can see the whole of " + S.zone.name + ". (+60 EXP)", "loot"); }
     openDialog(n.name, "You climb the ladder and look out over " + S.zone.name + ". You can make out " + names + "." + (found ? " " + found + " new place" + (found === 1 ? "" : "s") + " marked on your map." : ""), []);
     saveGame();
+  },
+  talkWayshrine(n) {
+    openDialog(n.name, "A weathered stone shrine stands open to the four winds, its candles still burning. Someone has left fresh flowers. It feels as if it will only answer one prayer.", [{ label: "Pray", fn: () => {
+      closeDialog();
+      const B = WAY_BLESSINGS[Math.floor(Math.random() * WAY_BLESSINGS.length)];
+      player.buffs[B.id] = Object.assign({ until: S.time + B.min * 60 }, B.pow != null ? { pow: B.pow, next: S.time + 3 } : {});
+      if (B.heal) { player.hp = player.maxHp; player.mp = player.maxMp; }
+      save.wayUsed = save.wayUsed || {}; save.wayUsed[S.zoneId] = wayShrineSlot();
+      save.stats.wayshrines = (save.stats.wayshrines || 0) + 1;
+      log("The candles flare and the shrine crumbles to dust. " + B.text + " for " + B.min + " minutes.", "loot");
+      ring(player, "#ffe8a0", 34, 0.9, "sparkle"); vfx("buff", { tgt: player, id: B.id }); sfx("buff", player);
+      n.away = true; if (player.target === n) player.target = null;
+      S.npcs = S.npcs.filter(q => q !== n);
+      saveGame();
+    } }]);
   },
   talkShrine(n) {
     save.poi = save.poi || {};

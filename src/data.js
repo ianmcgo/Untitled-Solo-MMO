@@ -75,6 +75,7 @@ const CONFIG = {
   outOfCombatAfter: 3,
   maxParty: 4,
   cacheChance: 0.25,
+  wayShrineChance: 0.6,
   supportUnlockLevel: 10,
   mountLevel: 20,
   synthTime: 3,
@@ -3025,6 +3026,7 @@ for (const zid in POI_PLAN) {
   }
 }
 ACHIEVEMENTS.push({ id: "wayfarer", icon: "🧭", name: "Wayfarer", desc: "Visit every lookout tower, wayside shrine and weathered tablet in the wilds.", test: s => POI_IDS.every(id => (s.poi || {})[id]) });
+for (const zid in ZONES) { const z = ZONES[zid]; if ((z.theme || "field") === "field" && !z.safe && !z.indoor && z.w) NPCS["wayshrine_" + zid] = { name: "Wayside Shrine", prop: "wayshrine", talk: "talkWayshrine" }; }
 const CAMP_NAMES = { hollow: "Meadow Camp", hollow_lake: "Mirror Lake Camp", hollow_ruins: "Ruins Camp", frost: "Frostspire Camp", marsh: "Mire Camp" };
 for (const zid of ["hollow", "hollow_lake", "hollow_ruins", "frost", "marsh"]) {
   const z = ZONES[zid], L = z.landmarks || [], lm = L[Math.floor(L.length / 2)] || { x: z.w / 2, y: z.h / 2, r: 200 };
@@ -3043,6 +3045,27 @@ for (const zid in ZONES) {
     NPCS[id] = { name: "Signpost", prop: "sign", talk: "talkSign", signTo: e.to };
     z.npcs.push({ id, x: Math.round(inner.x + (horiz ? 0 : off)), y: Math.round(inner.y + (horiz ? off : 0)) });
   });
+}
+const CAMP_MODELS = { goblin: 1, orc: 1, fishfolk: 1, birdfolk: 1, chieftain: 1 };
+for (const zid in ZONES) {
+  const z = ZONES[zid];
+  if ((z.theme || "field") !== "field" || z.safe || z.indoor || !z.w) continue;
+  const hum = (z.spawns || []).filter(sp => FAMILIES[sp.fam] && CAMP_MODELS[FAMILIES[sp.fam].model] && !sp.nmOnly);
+  const used = new Set(), r = seeded(hashStr(zid + "camps"));
+  z.camps = [];
+  for (const sp of hum) {
+    if (used.has(sp) || z.camps.length >= 2) continue;
+    const model = FAMILIES[sp.fam].model, grp = hum.filter(q => !used.has(q) && FAMILIES[q.fam].model === model && Math.hypot(q.x - sp.x, q.y - sp.y) < 420);
+    grp.forEach(q => used.add(q));
+    const cx = grp.reduce((a, q) => a + q.x, 0) / grp.length, cy = grp.reduce((a, q) => a + q.y, 0) / grp.length;
+    let at = null;
+    for (let k = 0; k < 60 && !at; k++) { const a = k * 2.4, rr = (k % 12) * 25, x = Math.round(cx + Math.cos(a) * rr), y = Math.round(cy + Math.sin(a) * rr); if (x > 260 && y > 260 && x < z.w - 260 && y < z.h - 260 && pathGap(z, x, y) > 150 && !(z.exits || []).some(e => Math.hypot(x - e.x - e.w / 2, y - e.y - e.h / 2) < 400) && !(z.water || []).some(w => Math.hypot(x - w.x, y - w.y) < w.r + 160) && !(z.walls || []).some(w => x > w.x - 140 && x < w.x + w.w + 140 && y > w.y - 140 && y < w.y + w.h + 140) && !(z.landmarks || []).some(l => l.clear && Math.hypot(x - l.x, y - l.y) < l.clear) && !(z.npcs || []).some(n => Math.hypot(x - n.x, y - n.y) < 220)) at = { x, y }; }
+    if (!at) continue;
+    const camp = { x: at.x, y: at.y, model, tents: 2 + Math.floor(r() * 2), seed: Math.floor(r() * 1e6) };
+    z.camps.push(camp);
+    grp.forEach((q, i) => { const a = i / Math.max(3, grp.length + 1) * Math.PI * 2 + r(), rr = 110 + r() * 60; q.x = Math.round(at.x + Math.cos(a) * rr); q.y = Math.round(at.y + Math.sin(a) * rr); q.camp = 1; });
+    for (let i = grp.length; i < 3; i++) { const base = grp[i % grp.length], a = (i + 0.5) / 3 * Math.PI * 2 + r(), rr = 110 + r() * 60; z.spawns.push(Object.assign({}, base, { x: Math.round(at.x + Math.cos(a) * rr), y: Math.round(at.y + Math.sin(a) * rr), camp: 1, nm: undefined })); }
+  }
 }
 const WARP_STONES = {};
 for (const zid of ["outpost", "harbor", "ironvale"]) { WARP_STONES[zid] = {}; for (const d of ZONES[zid].districts) WARP_STONES[zid][d.id] = [Math.round(d.x + d.w / 2), Math.round(d.y + d.h / 2)]; }

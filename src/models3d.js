@@ -548,6 +548,22 @@ function propView(n) {
     g.add(post);
     for (let i = 0; i < 2; i++) { const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.24, 0.05), std({ color: 0x9a7448, roughness: 0.9 })); arm.position.set(i ? -0.35 : 0.35, 1.75 - i * 0.35, 0.06); arm.rotation.y = i ? 0.4 : -0.3; arm.castShadow = true; g.add(arm); }
     v.meta.headTop = 2.3;
+  } else if (n.prop === "wayshrine") {
+    const moss = std({ color: 0x6a7a58, roughness: 1 }), pale = std({ color: 0xb8b2a6, roughness: 0.9 }), wax = std({ color: 0xf2ead4, roughness: 0.6 }), petal = [0xf2d24a, 0xe890a8, 0xffffff, 0xc890e8].map(c => std({ color: c, roughness: 0.8 }));
+    const add = (geo, m, x, y, z, ry, rx) => { const o = new THREE.Mesh(geo, m); o.position.set(x || 0, y || 0, z || 0); o.rotation.set(rx || 0, ry || 0, 0); o.castShadow = true; o.receiveShadow = true; g.add(o); return o; };
+    add(new THREE.CylinderGeometry(1.6, 1.75, 0.22, 16), stone, 0, 0.11); add(new THREE.CylinderGeometry(1.25, 1.35, 0.22, 16), pale, 0, 0.33); add(new THREE.CylinderGeometry(0.9, 1.0, 0.2, 12), stone, 0, 0.54);
+    for (let i = 0; i < 7; i++) { const a = i * 0.9; add(new THREE.SphereGeometry(0.22, 6, 4).scale(1.4, 0.35, 1), moss, Math.sin(a) * 1.5, 0.2, Math.cos(a) * 1.5, a); }
+    add(new THREE.CylinderGeometry(0.28, 0.36, 1.7, 4), pale, 0, 1.49, 0, Math.PI / 4);
+    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2; add(new THREE.BoxGeometry(0.22, 0.6, 0.03), new THREE.MeshBasicMaterial({ color: 0xffe2a0 }), Math.sin(a) * 0.27, 1.55, Math.cos(a) * 0.27, a); }
+    add(new THREE.ConeGeometry(0.42, 0.5, 4), stone, 0, 2.6, 0, Math.PI / 4);
+    const orb = add(new THREE.SphereGeometry(0.17, 12, 10), new THREE.MeshBasicMaterial({ color: 0xffe8a0 }), 0, 3.05);
+    for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2, r = 0.78, h = 0.12 + (i % 3) * 0.07; add(new THREE.CylinderGeometry(0.035, 0.04, h, 6), wax, Math.sin(a) * r, 0.64 + h / 2, Math.cos(a) * r); add(new THREE.SphereGeometry(0.028, 5, 4).scale(1, 1.6, 1), new THREE.MeshBasicMaterial({ color: 0xffc860 }), Math.sin(a) * r, 0.68 + h, Math.cos(a) * r); }
+    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; add(new THREE.CylinderGeometry(0.05, 0.06, 1.3, 6), stone, Math.sin(a) * 1.45, 0.85, Math.cos(a) * 1.45); add(new THREE.BoxGeometry(0.2, 0.24, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd080 }), Math.sin(a) * 1.45, 1.6, Math.cos(a) * 1.45, a); add(new THREE.ConeGeometry(0.18, 0.16, 4), stone, Math.sin(a) * 1.45, 1.8, Math.cos(a) * 1.45, Math.PI / 4); }
+    for (let i = 0; i < 6; i++) { const a = i * 1.05 + 0.4; add(new THREE.IcosahedronGeometry(0.07, 0), petal[i % 4], Math.sin(a) * 0.55, 0.69, Math.cos(a) * 0.55); }
+    const L = new THREE.PointLight(0xffd080, 5, 10, 1.6); L.position.set(0, 1.6, 0); g.add(L);
+    v.orb = orb; v.orbY = 3.05; v.light = L; v.meta.headTop = 3.4;
+  } else if (n.prop === "statue" && NPCS[n.id] && NPCS[n.id].warpstone) {
+    warpStoneView(g, n, v, stone);
   } else if (n.prop === "statue") {
     const pale = std({ color: 0xc9c7d1, roughness: 0.85 });
     const pl = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 1.05, 0.7, 8), stone); pl.position.y = 0.35; pl.castShadow = pl.receiveShadow = true;
@@ -639,7 +655,8 @@ function syncNpc(n, dt) {
       v.light.intensity = lit ? 8 + Math.sin(S.time * 11) * 2 : 0;
     }
     if (v.delivGlow) { const on = deliveryWaiting(), k = on ? 0.6 + Math.sin(S.time * 3) * 0.4 : 0; v.delivGlow.halo.material.opacity = 0.22 * k; v.delivGlow.L.intensity = 6 * k; v.delivGlow.metal.emissive.setHex(on ? 0xffb030 : 0); v.delivGlow.metal.emissiveIntensity = 0.6 * k; }
-    if (v.orb) { v.orb.rotation.y += dt * 0.9; v.orb.position.y = 2.78 + Math.sin(S.time * 1.5 + n.x) * 0.08; }
+    if (v.orb) { v.orb.rotation.y += dt * 0.9; v.orb.position.y = (v.orbY || 2.78) + Math.sin(S.time * 1.5 + n.x) * 0.08; }
+    if (v.rings) v.rings.forEach((r, i) => { r.rotation.x += dt * (0.4 + i * 0.25); r.rotation.z += dt * (0.3 - i * 0.2); });
     if (v.campFire) { const k = 0.85 + Math.sin(S.time * 9 + n.x) * 0.12; v.campFire.scale.set(k, 0.9 + Math.sin(S.time * 7) * 0.15, k); v.light.intensity = 5 + Math.sin(S.time * 11) * 1.5; }
     if (v.bob) {
       const b = Math.sin(S.time * 3 + n.x) * 0.05;
@@ -712,6 +729,49 @@ function syncDecor(dt) {
   poseRaptor(VIEW.decor, 0, dt);
 }
 
+function warpStoneView(g, n, v, stone) {
+  const d = NPCS[n.id], Z = ZONES[d.warpZone] || S.zone, dd = (Z && (Z.districts || []).find(q => q.id === d.warpDistrict)) || null;
+  const acc = new THREE.Color(dd && dd.color || "#60e0ff"), glow = acc.clone().lerp(new THREE.Color(0xffffff), 0.35);
+  const variant = hashStr(n.id) % 6, pale = std({ color: 0xd4d0da, roughness: 0.8 }), dark = std({ color: 0x4a4852, roughness: 0.9 }), gold = std({ color: 0xc8a040, metalness: 0.7, roughness: 0.35 });
+  const crystalM = new THREE.MeshStandardMaterial({ color: glow, emissive: acc, emissiveIntensity: 1.1, roughness: 0.08, metalness: 0.1, transparent: true, opacity: 0.9 });
+  const runeM = new THREE.MeshBasicMaterial({ color: glow });
+  const add = (geo, m, x, y, z, rx, ry, rz) => { const o = new THREE.Mesh(geo, m); o.position.set(x || 0, y || 0, z || 0); o.rotation.set(rx || 0, ry || 0, rz || 0); o.castShadow = true; o.receiveShadow = true; g.add(o); return o; };
+  const step = (r, h, y, m) => add(new THREE.CylinderGeometry(r, r * 1.06, h, 10), m || stone, 0, y + h / 2, 0);
+  const runes = (r, y, n2) => { for (let i = 0; i < n2; i++) { const a = i / n2 * Math.PI * 2; add(new THREE.BoxGeometry(0.05, 0.22, 0.02), runeM, Math.sin(a) * r, y, Math.cos(a) * r, 0, a, (i % 3 - 1) * 0.4); } };
+  let orbY = 2.8, crystal;
+  step(1.25, 0.25, 0); step(1.0, 0.25, 0.25, pale); runes(1.02, 0.38, 14);
+  if (variant === 0) {
+    add(new THREE.CylinderGeometry(0.28, 0.45, 2.6, 4), stone, 0, 1.8, 0, 0, Math.PI / 4);
+    runes(0.4, 1.2, 4); runes(0.33, 2.0, 4);
+    add(new THREE.ConeGeometry(0.3, 0.5, 4), gold, 0, 3.35, 0, 0, Math.PI / 4);
+    crystal = add(new THREE.OctahedronGeometry(0.32, 0).scale(1, 1.6, 1), crystalM, 0, 4.1, 0); orbY = 4.1;
+  } else if (variant === 1) {
+    for (const sx of [-1, 1]) { add(new THREE.BoxGeometry(0.42, 3.0, 0.42), stone, sx * 0.75, 2.0, 0); add(new THREE.BoxGeometry(0.55, 0.2, 0.55), pale, sx * 0.75, 3.6, 0); }
+    add(new THREE.TorusGeometry(0.75, 0.13, 6, 16, Math.PI), pale, 0, 3.6, 0);
+    crystal = add(new THREE.OctahedronGeometry(0.3, 0).scale(1, 1.5, 1), crystalM, 0, 2.3, 0); orbY = 2.3;
+  } else if (variant === 2) {
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI * 2, h = 1.3 + (i % 2) * 0.5; add(new THREE.BoxGeometry(0.26, h, 0.18), stone, Math.sin(a) * 0.85, 0.5 + h / 2, Math.cos(a) * 0.85, 0, a, (i % 3 - 1) * 0.05); add(new THREE.BoxGeometry(0.05, 0.2, 0.02), runeM, Math.sin(a) * 0.94, 0.5 + h * 0.6, Math.cos(a) * 0.94, 0, a); }
+    crystal = add(new THREE.IcosahedronGeometry(0.4, 0), crystalM, 0, 1.9, 0); orbY = 1.9;
+  } else if (variant === 3) {
+    add(new THREE.CylinderGeometry(0.22, 0.32, 2.2, 8), pale, 0, 1.6, 0);
+    add(new THREE.CylinderGeometry(0.5, 0.3, 0.35, 8), gold, 0, 2.85, 0);
+    crystal = add(new THREE.DodecahedronGeometry(0.34, 0), crystalM, 0, 3.4, 0); orbY = 3.4;
+    v.rings = [0, 1].map(i => add(new THREE.TorusGeometry(0.62 + i * 0.18, 0.03, 4, 28), gold, 0, 3.4, 0, i * 1.2, 0, 0.6));
+  } else if (variant === 4) {
+    const rock = std({ color: 0x6a6872, roughness: 0.95 });
+    for (let i = 0; i < 5; i++) { const a = i / 5 * Math.PI * 2 + 0.3, h = 1.2 + (i * 37 % 7) / 7 * 1.2; add(new THREE.CylinderGeometry(0.06, 0.2, h, 5), crystalM, Math.sin(a) * 0.35, 0.5 + h / 2, Math.cos(a) * 0.35, Math.cos(a) * 0.35, 0, -Math.sin(a) * 0.35); }
+    add(new THREE.DodecahedronGeometry(0.6, 0), rock, 0, 0.7, 0);
+    crystal = add(new THREE.OctahedronGeometry(0.28, 0).scale(1, 2, 1), crystalM, 0, 2.6, 0); orbY = 2.6;
+  } else {
+    add(new THREE.BoxGeometry(0.9, 0.9, 0.9), stone, 0, 0.95, 0, 0, Math.PI / 4);
+    add(new THREE.BoxGeometry(0.7, 1.6, 0.7), pale, 0, 2.15, 0, 0, Math.PI / 4);
+    for (const a of [0, Math.PI / 2, Math.PI, Math.PI * 1.5]) add(new THREE.BoxGeometry(0.06, 1.2, 0.02), runeM, Math.sin(a + Math.PI / 4) * 0.5, 2.15, Math.cos(a + Math.PI / 4) * 0.5, 0, a + Math.PI / 4);
+    add(new THREE.ConeGeometry(0.6, 0.6, 4), dark, 0, 3.25, 0, 0, Math.PI / 4);
+    crystal = add(new THREE.OctahedronGeometry(0.26, 0), crystalM, 0, 3.95, 0); orbY = 3.95;
+  }
+  const L = new THREE.PointLight(acc.getHex(), 4, 12, 1.6); L.position.y = orbY; g.add(L);
+  v.orb = crystal; v.orbY = orbY; v.meta.headTop = orbY + 0.8;
+}
 const THUMBS = { cache: new Map(), queue: [], busy: false, studio: null };
 
 function thumbStudio() {
