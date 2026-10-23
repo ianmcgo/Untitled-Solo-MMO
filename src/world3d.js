@@ -230,6 +230,7 @@ function* buildFieldSteps(zone) {
       if (f.t === "dais") { hgt += daisLift(f, px, py) * f.h; continue; }
       if (f.t === "terrace") { const dx = Math.max(0, Math.abs(px - f.x) - f.hw), dy = Math.max(0, Math.abs(py - f.y) - f.hh); hgt += f.lift * (1 - sstep(0, f.ramp, Math.hypot(dx, dy))); continue; }
       if (f.t === "plateau") { const d = Math.hypot(px - f.x, py - f.y) + (NOISE.value(px * 0.02, py * 0.02, 0, 411) - 0.5) * f.r * 0.25; hgt += sstep(f.r, f.r * 0.62, d) * f.h * (1 - pw * 0.8); }
+      else if (f.t === "moat") { let d = 1e9; for (let i = 0; i < f.pts.length - 1; i++) d = Math.min(d, distToSeg(px, py, f.pts[i][0], f.pts[i][1], f.pts[i + 1][0], f.pts[i + 1][1])); hgt -= sstep(f.w, f.w * 0.45, d) * f.d; }
       else if (f.t === "ravine") { let d = 1e9; for (let i = 0; i < f.pts.length - 1; i++) d = Math.min(d, distToSeg(px, py, f.pts[i][0], f.pts[i][1], f.pts[i + 1][0], f.pts[i + 1][1])); hgt -= sstep(f.w, f.w * 0.25, d) * f.d * (1 - pw); }
     }
     const e = edgeE(px, py);
@@ -2356,6 +2357,7 @@ function buildCityBuildings(field, root) {
       const vert = g.side === "e" || g.side === "w", ex = g.side === "e" ? z.w - L0 : g.side === "w" ? L0 : 0, ey = g.side === "s" ? z.h - L0 : g.side === "n" ? L0 : 0;
       for (const sd of [-1, 1]) tower(vert ? ex : g.c + sd * (g.half + 30), vert ? g.c + sd * (g.half + 30) : ey, 11);
       const gx = vert ? ex : g.c, gyy = vert ? g.c : ey, gy = field.heightAt(gx, gyy), span = (g.half * 2 + 60) * U;
+      if ((z.moat || "").includes(g.side)) drawbridge(bt, M, field, z, g, gx, gyy, gy);
       gateHouse(root, gx + (g.side === "e" ? -1.5 : g.side === "w" ? 1.5 : 0), gyy + (g.side === "s" ? -1.5 : g.side === "n" ? 1.5 : 0), gy, !vert, (g.half + 30) * U - 1.7, 7.0 - ((g.half + 30) * U - 1.7), 3.2, texBricks(), M.roof[0], false);
       bt.add(stone, uvBox(vert ? 2.6 : span, 2.0, vert ? span : 2.6, 2.4), new THREE.Matrix4(), gx * U, gy + 8.0, gyy * U);
       bt.add(M.trim, box(vert ? 3.0 : span + 0.4, 0.3, vert ? span + 0.4 : 3.0), new THREE.Matrix4(), gx * U, gy + 9.1, gyy * U);
@@ -2665,6 +2667,36 @@ function updateCityAnim() {
   }
 }
 
+function drawbridge(bt, M, field, z, g, gx, gy0, gy) {
+  const ox = g.side === "e" ? 1 : g.side === "w" ? -1 : 0, oy = g.side === "s" ? 1 : g.side === "n" ? -1 : 0, len = (150 + 14) * U, wid = Math.min(6.5, g.half * U * 0.95);
+  const yaw = Math.atan2(ox, oy), B = new THREE.Matrix4().makeRotationY(yaw).setPosition((gx + ox * 2) * U, gy + 0.05, (gy0 + oy * 2) * U), box = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+  bt.add(M.planks, box(wid, 0.28, len), B, 0, 0.05, len / 2);
+  for (let k = 0; k < Math.floor(len / 0.5); k++) bt.add(M.beam, box(wid + 0.02, 0.02, 0.04), B, 0, 0.2, 0.25 + k * 0.5);
+  for (const sx of [-1, 1]) { bt.add(M.beam, box(0.3, 0.42, len), B, sx * (wid / 2 + 0.1), 0.12, len / 2); bt.add(M.iron, box(0.06, 0.06, len), B, sx * (wid / 2 + 0.1), 0.36, len / 2); }
+  for (let k = 1; k <= 3; k++) bt.add(M.iron, box(wid + 0.3, 0.05, 0.12), B, 0, 0.21, len * k / 4);
+  for (const sx of [-1, 1]) {
+    const x = sx * (wid / 2 + 0.05), y1 = 6.2, z1 = -0.4, y2 = 0.4, z2 = len - 0.4, L = Math.hypot(y1 - y2, z2 - z1), a = Math.atan2(z2 - z1, y1 - y2), n = Math.floor(L / 0.32);
+    for (let k = 0; k < n; k++) { const f = (k + 0.5) / n; bt.add(M.iron, new THREE.TorusGeometry(0.12, 0.03, 4, 8), B, x, y1 + (y2 - y1) * f, z1 + (z2 - z1) * f, k % 2 ? Math.PI / 2 : 0, -a + Math.PI / 2, 0); }
+    bt.add(M.iron, new THREE.CylinderGeometry(0.12, 0.12, 0.3, 8), B, x, 0.45, len - 0.4, 0, 0, Math.PI / 2);
+    bt.add(M.beam, box(0.5, 1.2, 0.5), B, sx * (wid / 2 + 0.55), -0.3, len + 0.1);
+  }
+}
+function buildMoats(field, root) {
+  const z = field.zone;
+  if (!z.moat) return;
+  const nm = texWaterNormals().clone(); nm.needsUpdate = true; nm.repeat.set(8, 1);
+  const mat = new THREE.MeshStandardMaterial({ color: z.palette === "snow" ? 0x9ab8c8 : 0x3a6672, roughness: 0.12, metalness: 0.25, normalMap: nm, normalScale: new THREE.Vector2(0.35, 0.35), transparent: true, opacity: 0.92 });
+  W3.waterFx = W3.waterFx || [];
+  for (const f of z.features || []) {
+    if (f.t !== "moat") continue;
+    const [a, b] = f.pts, horiz = a[1] === b[1], L = Math.hypot(b[0] - a[0], b[1] - a[1]);
+    let bank = 1e9;
+    for (let t = 0; t <= 1; t += 0.05) { const x = a[0] + (b[0] - a[0]) * t, y = a[1] + (b[1] - a[1]) * t; for (const sd of [-1, 1]) bank = Math.min(bank, field.heightAt(x + (horiz ? 0 : sd * 75), y + (horiz ? sd * 75 : 0))); }
+    const geo = new THREE.PlaneGeometry(horiz ? L * U : f.w * 1.6 * U, horiz ? f.w * 1.6 * U : L * U).rotateX(-Math.PI / 2);
+    const m = new THREE.Mesh(geo, mat); m.position.set((a[0] + b[0]) / 2 * U, bank - 1.3, (a[1] + b[1]) / 2 * U); m.receiveShadow = true; m.renderOrder = 1; root.add(m);
+  }
+  W3.waterFx.push({ kind: "moat", tex: nm });
+}
 function gateHouse(root, x, y, gy, alongZ, R, spring, D, bricks, roofMat, roofed) {
   const G = new THREE.Group(), sw = std({ map: bricks.map, normalMap: bricks.normalMap, color: 0xc8c0b0, roughness: 0.92, side: THREE.DoubleSide });
   const wood = std({ color: 0x5a3a22, roughness: 0.85 }), iron = std({ color: 0x3a3a40, metalness: 0.6, roughness: 0.5 });
@@ -3372,6 +3404,7 @@ function fallTex(kind) {
 function updateWaterFx(dt) {
   for (const f of W3.waterFx || []) {
     if (f.kind === "foam") { f.m.material.map.offset.x += dt * 0.01; f.m.material.opacity = (f.m.material.userData.base || (f.m.material.userData.base = f.m.material.opacity)) * (0.75 + 0.25 * Math.sin(S.time * 0.8 + f.ph)); }
+    else if (f.kind === "moat") { f.tex.offset.x += dt * 0.004; f.tex.offset.y += dt * 0.002; }
     else if (f.kind === "fall") {
       f.tex.offset.y += dt * 0.7; if (f.tex2) f.tex2.offset.y += dt * 1.3;
       f.mist.material.opacity = 0.28 + Math.sin(S.time * 2) * 0.06;
@@ -3680,6 +3713,7 @@ function* buildZone3DSteps() {
   buildHedges(field, root);
   buildExits(field, root);
   buildWater(field, root);
+  if (themeOf(z) === "town") buildMoats(field, root);
   buildBackdrop(field, root);
   buildExitBackdrops(field, root);
   buildCaveMouths(field, root);

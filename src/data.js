@@ -3551,6 +3551,8 @@ function splitTown(src) {
     const nz = { name: Z.city + " " + p.d.name.replace(/^The /, ""), w: p.x1 - p.x0, h: p.y1 - p.y0, area: src, id: p.id, splitFrom: src, town: src, off: [ox, oy], band: null };
     for (const k of TOWN_COPY_KEYS) if (Z[k] != null) nz[k] = Z[k];
     nz.outerWall = [["n", p.y0 === 0], ["e", p.x1 === W], ["s", p.y1 === H], ["w", p.x0 === 0]].filter(([s, edge]) => (!edge || sideOn(s)) && !(p.d.open || "").includes(s)).map(q => q[0]).join("");
+    { const ms = [["n", p.y0 === 0], ["e", p.x1 === W], ["s", p.y1 === H], ["w", p.x0 === 0]].filter(([sd, edge]) => edge && sideOn(sd) && !(p.d.open || "").includes(sd)).map(q => q[0]).join("");
+      if (ms) { nz.moat = ms; const o = 82, ext = 420; nz.features = (nz.features || []).concat([...ms].map(sd => ({ t: "moat", side: sd, w: 62, d: 5.5, pts: sd === "n" ? [[-ext, -o], [nz.w + ext, -o]] : sd === "s" ? [[-ext, nz.h + o], [nz.w + ext, nz.h + o]] : sd === "e" ? [[nz.w + o, -ext], [nz.w + o, nz.h + ext]] : [[-o, -ext], [-o, nz.h + ext]] }))); } }
     nz.districts = [Object.assign({}, p.d, { x: 0, y: 0, w: nz.w, h: nz.h })];
     const hk = [];
     nz.houses = (Z.houses || []).map((h, i) => [h, i]).filter(([h]) => mine(h.x, h.y)).map(([h, i]) => { hk.push(i); return mv(h); });

@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.55.0", date: "2026-10-23", title: "Moats and drawbridges", items: [
+    "<b>Moats.</b> Every walled city now has a water-filled moat running outside its outer walls, with grassy banks sloping down to the water. Saltreach's sea-facing sides stay open to the harbour.",
+    "<b>Drawbridges.</b> Every gate out of a city now crosses the moat on a lowered drawbridge: a heavy plank deck with iron bands and side rails, chains running up to the gatehouse and posts on the far bank.",
+  ] },
   { v: "19.54.0", date: "2026-10-23", title: "Wayside shrines, war camps and cave mouths", items: [
     "<b>Wayside shrines.</b> Round stone shrines, open on every side with candles, lanterns and flowers, now appear at random in the wilds and move every few game hours. Pray once and one fades away for a while, granting one of five blessings: +10% experience, +15% defence, health and mana restored with slow healing after, +25 accuracy or +10% attack.",
     "<b>War camps.</b> Goblins, orcs, fishfolk and birdfolk now gather in camps: two or three tents around a crackling campfire with a spit roast, smoke and firelight, log seats, a tribal totem (skulls, horns, fish or feathers) and a spear rack. Each camp's warriors spawn as a group around the fire.",
@@ -4614,6 +4618,7 @@ function tabHelp() {
     "<b>Delivery box:</b> crystals from your auction sales, withdrawn lots and online sales wait here (or at any auction house) until you collect them. The box at your residence glows gold while anything is waiting.",
     "<b>Top right box:</b> the signal arrows and percentage show your connection quality, 👥 shows players online out of the server limit, and S / R count messages sent and received.",
     "<b>Party HP and MP:</b> the bottom-right panel lists each party member with an HP row and an MP row; the number to the right of each bar is the current value.",
+    "<b>City defences:</b> the three cities are ringed by walls and a moat; you leave through a gatehouse and over a lowered drawbridge.",
     "<b>Wayside shrines and camps:</b> look for round candlelit shrines in the wilds; each gives one random blessing and then fades away for a while. Goblins, orcs, fishfolk and birdfolk camp in groups around tents and campfires, so expect to fight several at once.",
     "<b>Wildlife:</b> birds fly and land to feed; bats and owls come out at night (bats live in caves all day); mice, rats and beetles scurry about, more at night. Mushrooms grow near logs and stumps, and more spring up for a few hours after rain. Wildflowers grow in new places each game week.",
     "<b>Farms:</b> stablemasters keep their raptors in a paddock beside a barn by each town gate, and every city has a farmyard with cows, a chicken yard and beehives in its most residential district.",
