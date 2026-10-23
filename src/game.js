@@ -4891,9 +4891,19 @@ function exitEdgeAngle(ex, z) {
   return null;
 }
 
+function exitDest(ex) {
+  if (ex.to === "residence") {
+    const cx = ex.x + ex.w / 2, cy = ex.y + ex.h / 2, h = (S.zone.houses || []).reduce((b, q) => !b || Math.hypot(q.x - cx, q.y - cy) < Math.hypot(b.x - cx, b.y - cy) ? q : b, null);
+    const dx = h ? cx - h.x : 0, dy = h ? cy - h.y : 1, d = Math.hypot(dx, dy) || 1;
+    save.resReturn = { zone: S.zoneId, x: Math.round(cx + dx / d * 34), y: Math.round(cy + dy / d * 34) };
+    return { to: ex.to, tx: ex.tx, ty: ex.ty };
+  }
+  if (ex.resExit && save.resReturn && ZONES[save.resReturn.zone]) return { to: save.resReturn.zone, tx: save.resReturn.x, ty: save.resReturn.y };
+  return { to: ex.to, tx: ex.tx, ty: ex.ty };
+}
 function startExitWalk(ex) {
   const a0 = exitEdgeAngle(ex, S.zone), a = a0 != null ? a0 : player.mounted ? null : player.face || 0;
-  if (a == null || typeof zoneFadeOut !== "function" || !player.alive) { enterZone(ex.to, ex.tx, ex.ty); return true; }
+  if (a == null || typeof zoneFadeOut !== "function" || !player.alive) { const d = exitDest(ex); enterZone(d.to, d.tx, d.ty); return true; }
   S.exitWalk = { ex, a, t: 0 };
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
   standUp(player, true);
@@ -5583,7 +5593,7 @@ function step(dt) {
   }
   for (const p of S.party) regen(p, dt);
   S.zoneCooldown = Math.max(0, S.zoneCooldown - dt);
-  if (S.exitWalk && S.exitWalk.t >= CONFIG.exitWalkTime) { const ex = S.exitWalk.ex; S.exitWalk = null; enterZone(ex.to, ex.tx, ex.ty, { walkIn: true }); return; }
+  if (S.exitWalk && S.exitWalk.t >= CONFIG.exitWalkTime) { const ex = S.exitWalk.ex; S.exitWalk = null; const d = exitDest(ex); enterZone(d.to, d.tx, d.ty, { walkIn: true }); return; }
   if (S.zoneCooldown <= 0 && player.alive && !S.exitWalk) {
     let onAsk = null;
     for (const ex of S.zone.exits) if (circleRect(player, ex, 8) && (!ex.weather || weatherMatch(ex.weather))) {

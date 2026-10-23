@@ -2,11 +2,11 @@ const H = require('./harness.js'); const { G, tick } = H; const S = G.S; const P
 let fails = 0; const ok = (c, m) => { if (!c) fails++; console.log((c ? 'PASS ' : 'FAIL ') + m); };
 const run = sec => { for (let i = 0; i < sec * 60; i++) tick(1000 / 60); };
 const parts = G.areaZones('outpost');
-ok(parts.length === 5 && ['outpost', 'outpost_gov', 'outpost_res', 'outpost_ind', 'outpost_gate'].every(id => parts.includes(id)), 'the Outpost is five district zones');
+ok(parts.length === 6 && ['outpost', 'outpost_gov', 'outpost_res', 'outpost_ind', 'outpost_gate', 'outpost_hgate'].every(id => parts.includes(id)), 'the Outpost is six district zones');
 ok(parts.every(id => G.ZONES[id].districts.length === 1 && G.ZONES[id].town === 'outpost' && G.ZONES[id].safe), 'each zone is one safe district of the Outpost');
 ok(G.ZONES.outpost.districts[0].id === 'market' && G.ZONES.outpost_gov.districts[0].id === 'gov', 'the Market keeps the outpost id; Government is outpost_gov');
 const gates = parts.flatMap(id => G.ZONES[id].exits.filter(e => e.gate).map(e => [id, e]));
-ok(gates.length === 8 && gates.every(([id, e]) => G.ZONES[e.to].exits.some(b => b.gate && b.to === id)), 'four gates join the Market to the other four districts, paired both ways');
+ok(gates.length === 10 && gates.every(([id, e]) => G.ZONES[e.to].exits.some(b => b.gate && b.to === id)), 'five gates join the districts, paired both ways');
 ok(parts.every(id => !G.ZONES[id].cityWalls && typeof G.ZONES[id].outerWall === 'string' && G.ZONES[id].outerWall.length >= 3), 'each district is walled on its own edges');
 ok(G.ZONES.outpost.outerWall === 'nesw' && G.ZONES.harbor_docks.outerWall.indexOf('s') < 0, 'inner sides are walled; the harbor stays open to the sea');
 G.enterZone('outpost'); run(0.6);

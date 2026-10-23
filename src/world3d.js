@@ -1775,7 +1775,7 @@ function buildCityBuildings(field, root) {
           bt.add(roofM, roofGeo(1.0, 1.35, 0.5), B, sx * (xf - 0.55), y0 + 1.25, zz, Math.PI / 2);
         }
       }
-      if (n >= 2 && !T.bigdoor && !T.portico && (vr >> 8) % 10 < 3) {
+      if (n >= 2 && !T.bigdoor && !T.portico && !hs.home && !hs.sign && (vr >> 8) % 10 < 3) {
         const by = PL + FH, bwid = Math.min(bw * 0.5, 3.4);
         bt.add(M.planks, box(bwid, 0.12, 0.95), B, 0, by + 0.04, bd / 2 + 0.48);
         for (const sx of [-1, 1]) bt.add(M.beam, box(0.1, 0.5, 0.1), B, sx * bwid * 0.42, by - 0.25, bd / 2 + 0.75, 0, -0.7);

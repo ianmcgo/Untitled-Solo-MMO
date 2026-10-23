@@ -1038,7 +1038,7 @@ const ZONES = {
   outpost: {},
   residence: {
     name: "Your Residence", w: 400, h: 320, safe: true, theme: "house", indoor: true,
-    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 2050, ty: 2750, label: "Outpost", kind: "door", ask: "Leave your residence?", yes: "Leave" }],
+    exits: [{ x: 176, y: 296, w: 48, h: 24, to: "outpost", tx: 2050, ty: 2750, label: "Town", kind: "door", ask: "Leave your residence?", yes: "Leave", resExit: true }],
     npcs: [{ id: "pip", x: 60, y: 60 }, { id: "delivery_box", x: 340, y: 70 }],
     spawns: [],
     start: { x: 200, y: 250 },
@@ -1281,9 +1281,10 @@ const OUTPOST_PLAN = {
     dressing: [{ t: "cart", x: 1000, y: 1080, rot: 1.2 }, { t: "cart", x: 1450, y: 700, rot: -0.4 }, { t: "hay", x: 560, y: 1080 }, { t: "hay", x: 600, y: 1110 }],
     ambient: []
   },
+  hgate: gateDistrict({ off: [4800, 500], side: "e", name: "Highgate", color: "#9a8ac8", guard: "guard_high", stable: "stable_highgate", flag: "#7e6ab0", exit: { to: "highlands", tx: 160, ty: 2510, label: "Windreach Foothills" } }),
   gate: gateDistrict({ off: [4800, 2300], side: "e", name: "Eastgate", guard: "guard_east", stable: "ysolde", quest: "rhea", exit: { to: "hollow", tx: 120, ty: 1100, label: "Rocky Hollow" } })
 };
-const OUTPOST_GATES = [{ x: 2400, y: 2700, a: "res", b: "market" }, { x: 4800, y: 2700, a: "market", b: "gate" }, { x: 3600, y: 1800, a: "gov", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "ind", horiz: true }];
+const OUTPOST_GATES = [{ x: 4800, y: 900, a: "gov", b: "hgate" }, { x: 2400, y: 2700, a: "res", b: "market" }, { x: 4800, y: 2700, a: "market", b: "gate" }, { x: 3600, y: 1800, a: "gov", b: "market", horiz: true }, { x: 3600, y: 3600, a: "market", b: "ind", horiz: true }];
 const FILLER_MENUS = {
   res: ["garden", "garden", "garden", "laundry", "laundry", "courtyard", "courtyard", "crates", "well", "shrine"],
   market: ["cart", "cart", "cart", "crates", "crates", "courtyard", "courtyard", "laundry", "well", "shrine"],
@@ -1506,10 +1507,12 @@ const HARBOR_PLAN = {
       { key: "fishhall", x: 1000, y: 640, w: 240, h: 120, type: "markethall", sign: "Fish Market", signCol: "#4fa0c8" },
       { key: "smokehouse", x: 1700, y: 650, w: 200, h: 110, type: "hall", sign: "Smokehouse", signCol: "#c98a50" },
       { key: "marnhouse", x: 330, y: 1130, w: 130, h: 90, type: "home" },
+      { key: "residence", x: 850, y: 500, w: 140, h: 110, type: "home", tint: 1, floors: 2, rot: 2, fixed: true, home: true, signCol: "#f1cf73" },
       { key: "netloft", x: 1650, y: 1150, w: 220, h: 110, type: "warehouse", sign: "Net Loft" },
       { key: "chandlery", x: 2150, y: 1130, w: 150, h: 90, type: "shop", sign: "Chandlery", awning: "#2a6a9a" }
     ],
     npcs: [{ id: "marn", x: 1180, y: 811, home: "marnhouse", sleep: [20.5, 4.5] }],
+    exits: [{ x: 830, y: 410, w: 40, h: 26, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }],
     stalls: [{ x: 1180, y: 820, color: "#0277bd" }, { x: 1420, y: 820, color: "#1565c0" }, { x: 1180, y: 980, color: "#2e7d32" }, { x: 1420, y: 980, color: "#b5651d" }],
     props: [{ type: "crates", x: 560, y: 1330, rot: 0.4, r: 26 }, { type: "barrels", x: 1450, y: 1330, rot: 0.8, r: 26 }, { type: "crates", x: 2080, y: 1320, rot: 0.2, r: 26 }],
     docks: [[560, 1410, 60, 260], [1120, 1410, 60, 280], [1740, 1410, 60, 260]],
@@ -1868,8 +1871,10 @@ const IRONVALE_PLAN = {
     stalls: [{ x: 1330, y: 300, color: "#c0392b", sign: "Barber", pole: true }],
     houses: [
       { key: "hearth", x: 750, y: 700, w: 200, h: 110, type: "hall", floors: 2, sign: "Hearthstone Inn", signCol: "#e0a050" },
-      { key: "grain", x: 1650, y: 1400, w: 220, h: 110, type: "warehouse", floors: 2, sign: "Grain Store" }
+      { key: "grain", x: 1650, y: 1400, w: 220, h: 110, type: "warehouse", floors: 2, sign: "Grain Store" },
+      { key: "residence", x: 700, y: 400, w: 140, h: 110, type: "home", tint: 2, floors: 2, rot: 0, fixed: true, home: true, signCol: "#f1cf73" }
     ],
+    exits: [{ x: 680, y: 462, w: 40, h: 26, to: "residence", tx: 200, ty: 250, label: "Your Residence", kind: "door", ask: "Enter your residence?" }],
     props: [{ type: "barrels", x: 560, y: 760, rot: 0.4, r: 26 }, { type: "crates", x: 1850, y: 1380, rot: 0.2, r: 26 }],
     dressing: [{ t: "well", x: 900, y: 1000 }, { t: "cart", x: 1450, y: 700, rot: -0.4 }, { t: "hay", x: 560, y: 1080 }, { t: "hay", x: 600, y: 1110 }],
     ambient: [{ type: "dog", x: 900, y: 1000, n: 1, r: 120, col: 0x5a4a3a }]
@@ -2803,6 +2808,13 @@ for (const town in VENDOR_TOWNS) {
     ZONES[town].npcs.push({ id, x: sp.x, y: sp.y + sp.h / 2 + 34 });
   });
 }
+{
+  const H = ZONES.highlands, F = ZONES.frost;
+  H.exits.push({ x: H.w - 24, y: 450, w: 24, h: 120, to: "frost", tx: Math.round(F.w / 2), ty: 260, label: "Frostspire Pass" }, { x: 0, y: 450, w: 24, h: 120, to: "outpost", tx: 5560, ty: 900, label: "Ashenreach Highgate" });
+  H.paths.push({ w: 34, pts: [[-150, 510], [500, 520], [950, 470], [1300, 420], [2000, 470]] }, { w: 34, pts: [[2000, 470], [2700, 430], [3400, 520], [H.w + 150, 510]] });
+  F.exits.push({ x: Math.round(F.w / 2) - 70, y: 0, w: 140, h: 24, to: "highlands", tx: H.w - 160, ty: 510, label: "Windreach Foothills" });
+  (F.paths = F.paths || []).push({ w: 40, pts: [[Math.round(F.w / 2), -150], [Math.round(F.w / 2), 500], [Math.round(F.w / 2) - 160, 1000], [Math.round(F.w / 2) - 60, 1400], [Math.round(F.w / 2) - 100, 1680]] });
+}
 function exitSide(z, e) { return e.x <= 1 ? "w" : e.x + e.w >= z.w - 1 ? "e" : e.y <= 1 ? "n" : e.y + e.h >= z.h - 1 ? "s" : null; }
 function exitInner(z, e) {
   const L = e.hall || 0, cx = e.x + e.w / 2, cy = e.y + e.h / 2, sd = exitSide(z, e);
@@ -3313,6 +3325,8 @@ Object.assign(NPCS, {
 });
 const RENAME_COST = 10000;
 VENDOR_WORK.stable_ironvale_s = "work"; VENDOR_WORK.stable_harbor_e = "work"; VENDOR_WORK.registrar_outpost = "read"; VENDOR_WORK.registrar_ironvale = "read"; VENDOR_WORK.merc_harbor = "read"; VENDOR_WORK.merc_ironvale = "read";
+NPCS.guard_high = { name: "Gate Guard Mirelle", model: "guard", talk: "talkGuard" }; VENDOR_WORK.guard_high = "guard";
+NPCS.stable_highgate = { name: "Rowan, Stablemaster", model: "ysolde_b", talk: "talkYsolde" }; VENDOR_WORK.stable_highgate = "work";
 ACHIEVEMENTS.push({ id: "spire", icon: "🗼", name: "Top of the Spire", desc: "Defeat the Spire Warden at the summit of the Red Spire.", test: s => !!(s.nmKilled && s.nmKilled.spire_warden) });
 WEATHER.highlands = [["clear", 5], ["wind", 4], ["cloudy", 3], ["rain", 1.5], ["storm", 1]];
 SHOPS.essa = ["potion", "hi_potion", "ether", "herb_bread", "carp_stew", "bait", "fishing_rod"].filter(id => ITEMS[id]);
@@ -3650,6 +3664,7 @@ const DEPTH_ZONES = {
   outpost_res: { role: "res", pieces: ["spire"] },
   outpost_ind: { role: "work", pieces: ["chimney", "chimney"] },
   outpost_gate: { role: "gate", pieces: ["beacon"] },
+  outpost_hgate: { role: "gate", pieces: ["beacon"] },
   harbor: { role: "market", pieces: ["belltower"], terrace: 0.8 },
   harbor_fish: { role: "docks", pieces: ["spire"] },
   harbor_yard: { role: "work", pieces: ["crane"] },

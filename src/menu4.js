@@ -601,11 +601,11 @@ function drawZoneMap() {
   g.beginPath(); g.moveTo(12, 0); g.lineTo(-8, -8); g.lineTo(-3, 0); g.lineTo(-8, 8); g.closePath(); g.fillStyle = "#fff"; g.fill(); g.lineWidth = 2; g.strokeStyle = "#000"; g.stroke();
   g.restore();
 }
-const ATLAS_POS = { highlands: [300, 40], residence: [60, 140], outpost: [150, 140], hollow: [300, 140], den: [460, 140], crypt: [600, 190], depths: [150, 260], marsh: [300, 260], verdant: [460, 260], underdeep: [600, 300], harbor: [300, 370], gullisle: [140, 450], frost: [460, 370], ironvale: [610, 380], sunscar: [600, 470], cinder: [730, 420], spire: [740, 520] };
+const ATLAS_POS = { highlands: [300, 40], residence: [60, 140], outpost: [150, 140], hollow: [300, 140], den: [420, 170], crypt: [560, 210], depths: [150, 260], marsh: [300, 260], verdant: [460, 260], underdeep: [600, 300], harbor: [300, 370], gullisle: [140, 450], frost: [560, 80], ironvale: [700, 250], sunscar: [600, 470], cinder: [730, 420], spire: [740, 520] };
 function atlasNode(id) { return areaOf(id); }
 function atlasLinks() {
   const out = new Set();
-  for (const id in ZONES) for (const e of ZONES[id].exits || []) { const a = atlasNode(id), b = atlasNode(e.to); if (a !== b && ATLAS_POS[a] && ATLAS_POS[b]) out.add([a, b].sort().join("|") + (e.kind === "door" ? "|door" : "")); }
+  for (const id in ZONES) for (const e of ZONES[id].exits || []) { const a = atlasNode(id), b = atlasNode(e.to); if (a !== b && ATLAS_POS[a] && ATLAS_POS[b] && !((a === "residence" || b === "residence") && a !== "outpost" && b !== "outpost")) out.add([a, b].sort().join("|") + (e.kind === "door" ? "|door" : "")); }
   out.add("gullisle|harbor|ferry");
   return [...out].map(k => k.split("|"));
 }
@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.51.0", date: "2026-10-23", title: "Highgate and a home in every city", items: [
+    "<b>A home in every city.</b> Saltreach (Fish Market) and Ironvale (South Ward) now each have a house with a gold Home sign and a door to your residence. All three doors open into the same residence, so your storage, furniture, garden and delivery box are always waiting. When you leave you come out of the same door you went in by.",
+    "<b>Highgate.</b> Ashenreach has a new gate district off the east side of the Government District, with a gate guard, a stablemaster, a barn and a raptor paddock, a warp stone and a road out to <b>Windreach Foothills</b>.",
+    "<b>New roads.</b> Windreach Foothills now has roads west to Ashenreach Highgate and east to <b>Frostspire Pass</b>, and the pass has a new road north to the Foothills. Every city is now at most three wild areas from the others: Ashenreach to Ironvale or Saltreach is two (Foothills, then the Pass), and Saltreach to Ironvale is one.",
+    "The world map was re-laid out so the new roads don't run through other places.",
+  ] },
   { v: "19.50.0", date: "2026-10-23", title: "Wings, critters and smarter walking", items: [
     "<b>Birds really fly.</b> Birds now spread their wings, flap to climb and glide on the level, bank into slow turns and drift up and down instead of hanging in one spot. Now and then a flock swoops down to land, hops about pecking, then takes off again, sooner if you walk up to them. Saltreach's gulls do the same.",
     "<b>Night fliers.</b> Harmless bats flit about in zigzags after dark, and owls glide over fields and towns at night and sometimes land. Bats also live in caves and crypts all day.",
@@ -4133,6 +4139,7 @@ function tabHelp() {
     "Only buildings that do something carry a sign: Mercenary Hall, Hall of Records, Adventurers' Guild, Job Master, Furnishings, Auction House, Smithy, Mythrilsmith, Council Hall and Stables, plus the vendor shops (Provisions, Scrolls, Jewels, Armory, Arms, Supplies). A sign always faces the street and names what the vendor sells. Unsigned buildings are homes. The clock on City Hall shows the time of day in Leid'anav hours, and the windmill turns all day. Streets have lamps, trees, planters, wells, carts and hay.",
     "Saltreach adds a Mercenary Hall and Job Master of its own and Ironvale a Council Hall; every gate zone has a Stables. Buildings that used to wear a sign for nothing (Barracks, Chapel, Market Hall, tavern, Woodworkers, Fish Market, Customs and the like) are now plain houses.",
     "<b>Open spaces:</b> about half of the empty houses were cleared and the gaps hold little scenes: gardens, courtyards with a tree and benches, wells, shrines, market carts, stacked crates and barrels, laundry lines, an open-air forge and a watchtower stub; Saltreach adds net racks and a boat ramp, Ironvale mine carts and woodpiles. You can walk between them but not through them.",
+    "<b>Travel between cities:</b> every city is at most three wild areas from the others. Ashenreach to Saltreach: Windreach Foothills and Frostspire Pass (or West Meadows, Mirror Lake and Ashen Marsh). Ashenreach to Ironvale: Windreach Foothills and Frostspire Pass. Saltreach to Ironvale: Frostspire Pass. Leave Ashenreach for the Foothills by Highgate, off the Government District.",
     "<b>Your residence:</b> the house in the Residential District has a sign reading Home of and your name (it changes if you rename), a gold house marker on the map and the minimap, and the first time you enter the district a title card and log line point it out.",
     "<b>Nothing stands in the roads.</b> Trees, people, stalls, benches, lamps, carts and every other object are kept off the streets and footpaths, in the cities and in the wilds.",
     "<b>Changing your name:</b> the Registrar in the Hall of Records (Ashenreach Government District) or the Council Hall (Ironvale Keep) enters a new name for " + RENAME_COST.toLocaleString() + " crystals: 2 to 12 letters, not already taken. Online, the game server checks the name and takes the crystals.",
@@ -4487,7 +4494,7 @@ function tabHelp() {
     "The <b>Stats</b> tab inside Achievements counts what you have done: play time, job levels, craft and gather skills, creatures defeated by kind, distance walked and ridden, monsters defeated, damage dealt and taken, your biggest hit, spells cast, abilities and items used, crafting, gathering, fishing, trading, auction sales and distance ridden. Damage, spell, ability and item counts begin at version 18.16."
   ]));
   h += sec("🏠 Your residence", ul([
-    "The door is on the west cottage of Ashenreach Outpost; walking into it asks if you want to go in. <b>Pip the Nubbin</b> lives there.",
+    "You have a door to your residence in every city: Ashenreach's Residential District, Saltreach's Fish Market and Ironvale's South Ward. Each has a gold Home sign. All three doors open into the same home, so your storage, furniture and delivery box are always there. When you leave, you come out of the door you went in by. <b>Pip the Nubbin</b> lives there.",
     "<b>Storage:</b> Pip keeps " + CONFIG.storageBase + " slots of items, plus 10 for a placed Storage Chest, 5 for a Bookshelf and 15 for a Wardrobe. Stored items don't count against your bag.",
     "<b>Furniture:</b> Odette by the west wall sells it. Ask Pip to arrange: pick a piece, tap a tile on the 10×8 grid; tap a placed piece to rotate or pack it away. The door tiles and Pip's corner are blocked; rugs can sit under other pieces.",
     "Odette's quest <i>Make It Home</i> rewards a potted plant for placing two pieces."
