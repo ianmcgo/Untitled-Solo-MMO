@@ -1754,9 +1754,9 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
   }
   if (covered && st !== "mohawk" && st !== "spiky" && st !== "curly") {
     R.add(gHairShell(HP, hc, hr, st, Math.PI * 0.4), "head", c, "hair");
-    for (const lk of gHairLocks(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
   } else if (covered && (st === "spiky" || st === "curly")) R.add(gHairShell(HP, hc, hr, "short", Math.PI * 0.4), "head", c, "hair");
   if (!covered) {
+    R.add(gPartSphere(V3(0, hc, 0.003), hr * 0.985, 0, Math.PI * 0.36, HEAD_SCALE[0], HEAD_SCALE[1], HEAD_SCALE[2], 18), "head", c, "hair");
     R.add(gHairShell(HP, hc, hr, st, HAIR_DEF[st] && HAIR_DEF[st].crown), "head", c, "hair");
     for (const lk of gHairClumps(HP, hc, hr, st)) R.add(lk, "head", c, "hair");
     if (st === "spiky") {
@@ -1777,22 +1777,25 @@ function hairPieces(R, H, hc, hr, covered, tailBone, HP) {
     R.add(gRing(V3(0, hc - hr * 2.1, -hr * 1.4), hr * 0.11, hr * 0.04, "y", 8), TB, 0x8a2a2a, "cloth");
   }
   if (st === "twintails") for (const s of [-1, 1]) {
-    R.add(gBall(V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45), hr * 0.24, 1, 1, 1, 8), "head", c, "hair");
+    if (!covered) R.add(gBall(V3(s * hr * 0.85, hc + hr * 0.25, -hr * 0.45), hr * 0.24, 1, 1, 1, 8), "head", c, "hair");
     R.add(gTaper(V3(s * hr * 0.95, hc + hr * 0.15, -hr * 0.55), V3(s * hr * 1.35, hc - hr * 1.5, -hr * 0.75), hr * 0.26, hr * 0.06, 8), TB, c, "hair");
   }
   if (st === "curly" && !covered) for (let k = 0; k < 60; k++) { const ph = k * 2.399, th = Math.acos(1 - (k + 0.5) / 60 * 1.15); if (Math.abs(Math.atan2(Math.sin(ph - Math.PI / 2), Math.cos(ph - Math.PI / 2))) < 0.7 && th > 0.9) continue; const p = hairPoint(HP, hc, hr, ph, th, 0.13); R.add(gBall(p, hr * 0.2, 1, 1, 1, 7), "head", c, "hair"); }
   if (st === "dreads") for (let k = 0; k < 16; k++) { const a = Math.PI / 2 + Math.PI * (0.35 + 1.3 * k / 15), p0 = hairPoint(HP, hc, hr, a, Math.PI / 2 + 0.1, 0.06), ln = hr * (1.4 + 0.3 * Math.sin(k * 1.7)); const out = V3(Math.sign(p0.x) * 0.15, 0, -0.3).normalize(); R.add(gTaper(p0, p0.clone().add(V3(out.x * hr * 0.3, -ln, out.z * hr * 0.4)), hr * 0.07, hr * 0.05, 6), Math.abs(a - Math.PI * 1.5) < 1.0 ? TB : "head", c, "hair"); }
   if (st === "long" || st === "wavy") {
-    R.add(gBall(V3(0, hc - hr * 0.95, -hr * 0.66), hr * 0.85, 1.0, 1.75, 0.38, 12), TB, c, "hair");
-    for (let k = 0; k < 7; k++) {
-      const f = k / 6 - 0.5, ln = hr * (1.9 + 0.25 * Math.cos(k * 1.7));
-      R.add(gTaper(V3(f * hr * 1.5, hc + hr * 0.1, -hr * 0.95), V3(f * hr * 1.9, hc + hr * 0.1 - ln, -hr * (0.95 + 0.12 * Math.abs(f))), hr * 0.26, hr * 0.05, 5, 0.3), TB, c, "hair");
+    const N = 9, th0 = covered ? 1.3 : 0.45;
+    for (let k = 0; k < N; k++) {
+      const f = k / (N - 1) - 0.5, phi = -Math.PI / 2 + f * 2.4;
+      const p0 = hairPoint(HP, hc, hr, phi, th0, 0.04), p1 = hairPoint(HP, hc, hr, phi, Math.max(th0 + 0.1, 1.2), 0.07), p2 = hairPoint(HP, hc, hr, phi, 1.78, 0.11);
+      hairStrip(R, HP, hc, hr, c, "head", [p0, p1, p2], hr * 0.3, hr * 0.27, 0.42);
+      const ln = hr * (1.75 + 0.25 * Math.cos(k * 1.7)), p3 = V3(p2.x * 1.06, p2.y - ln * 0.5, p2.z - hr * 0.1), p4 = V3(p2.x * 1.1, p2.y - ln, p2.z - hr * 0.06);
+      hairStrip(R, HP, hc, hr, c, TB, [p2, p3, p4], hr * 0.27, hr * 0.07, 0.4);
     }
     if (st === "wavy") for (let k = 0; k < 8; k++) { const f = k / 7 - 0.5; let p = V3(f * hr * 1.7, hc - hr * 0.2, -hr * (0.95 + 0.1 * Math.abs(f))); for (let j = 0; j < 4; j++) { const q = p.clone().add(V3((j % 2 ? 1 : -1) * hr * 0.12, -hr * 0.45, -hr * 0.03)); R.add(gTaper(p, q, hr * (0.16 - j * 0.025), hr * (0.13 - j * 0.025), 5, 0.45), TB, c, "hair"); p = q; } }
   }
   if (st === "ponytail") {
-    R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
-    R.add(gTaper(V3(0, hc + hr * 0.15, -hr * 1.08), V3(0, hc - hr * 1.6, -hr * 1.35), hr * 0.3, hr * 0.08, 8), TB, c, "hair");
+    if (!covered) R.add(gBall(V3(0, hc + hr * 0.2, -hr * 0.98), hr * 0.3, 1, 1, 1, 8), "head", c, "hair");
+    R.add(gTaper(V3(0, hc + hr * (covered ? -0.35 : 0.15), -hr * 1.08), V3(0, hc - hr * 1.6, -hr * 1.35), hr * 0.3, hr * 0.08, 8), TB, c, "hair");
   }
   hairExtras(R, HP, st, hc, hr, c, TB, covered);
 }

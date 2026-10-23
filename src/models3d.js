@@ -149,7 +149,7 @@ function weaponPose(v, drawn) {
     const th = WEAPON_HALF_T[k] || 0.02;
     if (k === "staff") { pos.set(0, -0.1, bz - th); rot.set(0, 0, 1.2); }
     else if (k === "greataxe" || k === "scythe" || k === "gkatana" || k === "polearm" || k === "gsword") { pos.set(0, 0.0, bz - th); rot.set(0, 0, 0.78); }
-    else if (HIP_KINDS[k] != null && v.bones.hips) { const hx = v.bones.thighL ? v.bones.thighL.position.x : 0.1; pos.set(hx + 0.07, -0.03, 0.0); rot.set(HIP_KINDS[k], 0, Math.PI + 0.14); }
+    else if (HIP_KINDS[k] != null && v.bones.hips) { const hx = v.bones.thighL ? v.bones.thighL.position.x : 0.1; pos.set(hx + 0.06, -0.03, 0.0); rot.set(HIP_KINDS[k], Math.PI / 2, Math.PI + 0.1); }
     else { pos.set(0.04, 0.0, bz - th); rot.set(0, 0, Math.PI + 0.55); }
   }
   return { pos, quat: new THREE.Quaternion().setFromEuler(rot), rot };
@@ -204,6 +204,35 @@ function placeWeapon(v, e) {
   }
 }
 
+const TWO_HAND_GRIP = { gsword: -0.21, greataxe: -0.24, scythe: -0.26, gkatana: -0.2, polearm: -0.3, staff: -0.28 };
+const _ik = { S: new THREE.Vector3(), E: new THREE.Vector3(), W: new THREE.Vector3(), T: new THREE.Vector3(), d: new THREE.Vector3(), n: new THREE.Vector3(), p: new THREE.Vector3(), q: new THREE.Quaternion(), q2: new THREE.Quaternion() };
+function aimBone(bone, child, target) {
+  bone.updateMatrixWorld(true);
+  const bp = bone.getWorldPosition(new THREE.Vector3()), cur = child.getWorldPosition(new THREE.Vector3()).sub(bp).normalize(), want = target.clone().sub(bp).normalize();
+  if (cur.lengthSq() < 1e-6 || want.lengthSq() < 1e-6) return;
+  const nq = new THREE.Quaternion().setFromUnitVectors(cur, want).multiply(bone.getWorldQuaternion(new THREE.Quaternion()));
+  bone.quaternion.copy(bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(nq));
+  bone.updateMatrixWorld(true);
+}
+function twoHandGrip(v, e) {
+  const w = v.weapon, B = v.bones;
+  if (!w || !v.weaponDrawn || w.parent !== B.handR || !B.upArmL || !B.foreArmL || !B.handL || e.alive === false) return;
+  const off = TWO_HAND_GRIP[w.userData.kind];
+  if (off == null) return;
+  v.group.updateMatrixWorld(true);
+  const S = B.upArmL.getWorldPosition(_ik.S), E = B.foreArmL.getWorldPosition(_ik.E), Wp = B.handL.getWorldPosition(_ik.W);
+  const l1 = S.distanceTo(E), l2 = E.distanceTo(Wp), T = w.localToWorld(_ik.T.set(0, off, 0));
+  const dist = S.distanceTo(T);
+  if (dist > (l1 + l2) * 1.6) return;
+  const d = Math.min(l1 + l2 - 1e-3, Math.max(1e-3, dist)), dir = _ik.d.copy(T).sub(S).normalize();
+  const pole = _ik.p.set(0.5, -1, -0.4).applyQuaternion(v.group.getWorldQuaternion(_ik.q)).normalize();
+  const n = _ik.n.crossVectors(dir, pole);
+  if (n.lengthSq() < 1e-6) return;
+  n.normalize();
+  const a = Math.acos(clamp((l1 * l1 + d * d - l2 * l2) / (2 * l1 * d), -1, 1)), el = dir.clone().applyAxisAngle(n, a).multiplyScalar(l1).add(S);
+  aimBone(B.upArmL, B.foreArmL, el);
+  aimBone(B.foreArmL, B.handL, T);
+}
 const TOOL_MATS = {};
 function toolMat(c) { return TOOL_MATS[c] || (TOOL_MATS[c] = new THREE.MeshLambertMaterial({ color: c })); }
 function toolPart(geo, col, x, y, z, rx, ry, rz) { const m = new THREE.Mesh(geo, toolMat(col)); m.position.set(x, y, z); m.rotation.set(rx || 0, ry || 0, rz || 0); m.castShadow = true; return m; }
@@ -389,6 +418,7 @@ function syncEntity(e, dt) {
   else if (v.kind === "bulb") poseBulb(v, e, dt);
   else if (v.kind === "fish") poseFish(v, e, dt);
   placeWeapon(v, e);
+  twoHandGrip(v, e);
   placeTool(v, e);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;

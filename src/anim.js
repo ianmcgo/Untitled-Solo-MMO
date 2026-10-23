@@ -1130,11 +1130,12 @@ function clothSprings(v, e, an, dt, t) {
   const turn = clamp(dy / Math.max(dt, 0.001) * 0.12, -0.5, 0.5);
   const bob = Math.abs(Math.cos(an.ph)) * (walk + run) * 0.06, dead = e.alive === false;
   if (B.cape) {
-    const lift = dead ? 0 : 0.04 + 0.38 * run + 0.14 * walk + acc * 0.7 + Math.sin(t * 9 + an.ph) * 0.05 * run;
+    const legPush = Math.max(0, B.thighL ? -B.thighL.rotation.x : 0, B.thighR ? -B.thighR.rotation.x : 0) * 0.35 + Math.max(0, B.thighL ? B.thighL.rotation.x : 0, B.thighR ? B.thighR.rotation.x : 0) * 0.25;
+    const lift = dead ? 0 : 0.04 + 0.38 * run + 0.14 * walk + acc * 0.7 + Math.sin(t * 9 + an.ph) * 0.05 * run + legPush * 0.4;
     const c1 = sprAx(st, "c1", lift, dt, 55, 7), z1 = sprAx(st, "cz", -turn * 0.6, dt, 40, 6);
     B.cape.rotation.set(c1, 0, z1);
     if (B.cape2) B.cape2.rotation.set(sprAx(st, "c2", c1 * 0.2 + bob + Math.sin(t * 11 + 1) * 0.06 * run, dt, 45, 5), 0, sprAx(st, "cz2", -turn * 0.3, dt, 35, 5));
-    if (B.cape3) B.cape3.rotation.set(sprAx(st, "c3", c1 * 0.15 + bob * 1.4 + Math.sin(t * 13 + 2) * 0.08 * run, dt, 38, 4), 0, sprAx(st, "cz3", -turn * 0.3, dt, 30, 4));
+    if (B.cape3) B.cape3.rotation.set(sprAx(st, "c3", c1 * 0.15 + bob * 1.4 + Math.sin(t * 13 + 2) * 0.08 * run + legPush * 0.6, dt, 38, 4), 0, sprAx(st, "cz3", -turn * 0.3 + Math.sin(t * 2.1 + an.ph) * 0.04, dt, 30, 4));
   }
   if (B.hairTail) {
     const hx = sprAx(st, "h1", 0.08 + 0.45 * run + 0.12 * walk + acc * 0.8 + bob, dt, 50, 6), hz = sprAx(st, "hz", -turn * 0.8 + Math.sin(an.ph) * 0.08 * (walk + run), dt, 40, 5);

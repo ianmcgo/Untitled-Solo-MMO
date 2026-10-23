@@ -1844,6 +1844,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.56.0", date: "2026-10-23", title: "Two-handed grips, first-person blades and better hair", items: [
+    "<b>Two hands on the hilt.</b> Great swords, great axes, scythes, great katanas, polearms and staves are now gripped with both hands whenever they're drawn, by heroes and monsters alike. The off hand reaches down the handle and follows every swing.",
+    "<b>Casters fight back.</b> Mage companions now draw their weapon and fight in melee between spells whenever it's safe, instead of standing idle at range.",
+    "<b>Hip weapons lie flat.</b> Swords, daggers, axes, clubs and katanas carried at the hip now hang with the flat of the blade against your leg instead of the edge.",
+    "<b>First person.</b> You can now see your jump in first-person view (V or \\): the camera rises and dips with it. With a weapon drawn, your weapon is shown at the bottom right of the screen and swings when you attack or use a weapon skill.",
+    "<b>Hair.</b> Long and wavy hair now grows from the crown and falls smoothly over the back of the head to the shoulders instead of hanging as tubes. A layer of hair now covers the scalp so skin doesn't show through when hair moves. Under helmets, fringe locks, ponytail knots and twin-tail ties no longer poke through, and long hair starts below the rim.",
+    "<b>Capes.</b> Capes now get pushed by your legs as you walk and run, and ripple gently in the wind.",
+  ] },
   { v: "19.55.0", date: "2026-10-23", title: "Moats and drawbridges", items: [
     "<b>Moats.</b> Every walled city now has a water-filled moat running outside its outer walls, with grassy banks sloping down to the water. Saltreach's sea-facing sides stay open to the harbour.",
     "<b>Drawbridges.</b> Every gate out of a city now crosses the moat on a lowered drawbridge: a heavy plank deck with iron bands and side rails, chains running up to the gatehouse and posts on the far bank.",

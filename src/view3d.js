@@ -269,7 +269,8 @@ function updateCamera(dt) {
   VIEW.camTarget.lerp(tgt, Math.min(1, dt * 12));
   const cam = W3.camera;
   if (VIEW.first) {
-    cam.position.set(VIEW.camTarget.x, VIEW.camTarget.y + 0.1, VIEW.camTarget.z);
+    const jp = jumpPhase(player), jh = jp && jp.phase !== "done" ? jp.air * (player.mounted ? 1.1 : 0.9) - (jp.phase === "windup" ? 0.08 * jp.k : jp.phase === "land" ? 0.1 * (1 - jp.k) : 0) : 0;
+    cam.position.set(VIEW.camTarget.x, VIEW.camTarget.y + 0.1 + jh, VIEW.camTarget.z);
     const f = camForward();
     cam.lookAt(cam.position.x + f.x, cam.position.y - Math.sin(VIEW.pitch - 0.34), cam.position.z + f.y);
   } else {
@@ -293,6 +294,23 @@ function updateCamera(dt) {
     cam.lookAt(VIEW.camTarget);
   }
   if (S.shake > 0) { cam.position.x += rand(-0.08, 0.08); cam.position.y += rand(-0.08, 0.08); }
+  updateViewModel(cam);
+}
+function updateViewModel(cam) {
+  const v = VIEW.views.get(player);
+  const show = VIEW.first && v && v.weapon && v.weaponDrawn && player.alive !== false && !player.mounted;
+  if (!show) { if (VIEW.vm) VIEW.vm.visible = false; return; }
+  const key = v.weapon.userData.kind + "|" + v.weapon.geometry.uuid;
+  if (!VIEW.vm || VIEW.vm.userData.key !== key || VIEW.vm.parent !== W3.scene) { if (VIEW.vm && VIEW.vm.parent) VIEW.vm.parent.remove(VIEW.vm); const m = new THREE.Mesh(v.weapon.geometry, v.weapon.material); m.userData.key = key; m.frustumCulled = false; VIEW.vm = m; W3.scene.add(m); }
+  const m = VIEW.vm, an = v.an || {}, t1 = S.time - (an.aStart != null ? an.aStart : -9), t2 = S.time - (an.wsStart != null ? an.wsStart : -9);
+  let sw = 0;
+  if (t1 >= 0 && t1 < 0.5) sw = Math.sin(t1 / 0.5 * Math.PI);
+  if (t2 >= 0 && t2 < 1.0) sw = Math.max(sw, Math.sin(t2 * Math.PI));
+  const bob = player.moving ? Math.sin(S.time * 9) * 0.015 : Math.sin(S.time * 1.5) * 0.005;
+  m.visible = true;
+  m.position.set(0.3 - sw * 0.28, -0.34 + bob + sw * 0.14, -0.58 - sw * 0.12).applyQuaternion(cam.quaternion).add(cam.position);
+  m.quaternion.copy(cam.quaternion).multiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.9 - sw * 1.7, 0.35 + sw * 0.6, Math.PI - 0.25 + sw * 0.5)));
+  m.scale.setScalar(v.weapon.scale.x || 1);
 }
 
 function canvasXY(ev) {

@@ -4877,7 +4877,7 @@ function nukerAI(a, tgt, dt) {
   }
   const dbf = acts.find(x => x.kind === "ma" && (SPELLS[x.id].kind === "debuff" || SPELLS[x.id].kind === "dot") && !tgt.buffs[x.id] && a.mp > a.maxMp * 0.15);
   if (dbf && tgt.state === "combat" && allyTry(a, dbf, tgt)) return;
-  if (a.mp <= a.maxMp * 0.1 && meleeIfSafe(a, tgt, dt, acts)) return;
+  if (!a.casting && meleeIfSafe(a, tgt, dt, acts)) return;
   a.engaged = false; a.attackTarget = null;
   keepCasterRange(a, tgt, dt);
 }
