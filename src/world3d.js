@@ -509,9 +509,31 @@ function shroomClusterGeo() {
   }
   return THREE.mergeGeometries(parts);
 }
+function roughen(g, amt, f, seed) {
+  const n = g.index ? g.toNonIndexed() : g, p = n.attributes.position;
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); p.setXYZ(i, x + (NOISE.value(y * f + seed, z * f, 0, 671) - 0.5) * amt, y + (NOISE.value(x * f + z * f * 0.7, seed, 0, 673) - 0.5) * amt * 0.5, z + (NOISE.value(x * f + seed * 2, y * f, 0, 677) - 0.5) * amt); }
+  n.computeVertexNormals();
+  return n;
+}
+function logPiece(a, b, r0, r1, sides, seed, sag) {
+  const d = b.clone().sub(a), L = d.length(), g = new THREE.CylinderGeometry(r1, r0, L, sides, 6).translate(0, L / 2, 0), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) { const y = p.getY(i), t = y / L, k = 1 + (NOISE.value(Math.atan2(p.getZ(i), p.getX(i)) * 1.5 + seed, y * 4, 0, 681) - 0.5) * 0.35; p.setX(i, p.getX(i) * k + Math.sin(t * Math.PI) * (sag || 0)); p.setZ(i, p.getZ(i) * k + Math.sin(t * 5 + seed) * 0.008); }
+  g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize())).translate(a.x, a.y, a.z);
+  return g;
+}
 function fenceGeo() {
-  const parts = [new THREE.BoxGeometry(0.12, 1.55, 0.12).translate(-1.2, 0.33, 0), new THREE.BoxGeometry(0.12, 1.55, 0.12).translate(1.2, 0.33, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.8, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.42, 0).rotateZ(0.03)];
-  return THREE.mergeGeometries(parts.map(g => g.toNonIndexed()));
+  return propGeo("fence2", () => {
+    const V = (x, y, z) => new THREE.Vector3(x, y, z), parts = [];
+    for (const [sx, sd] of [[-1.2, 1], [1.2, 2]]) {
+      parts.push(logPiece(V(sx, -0.45, 0), V(sx + sd * 0.01, 1.04, 0.01), 0.075, 0.06, 7, sd * 3, 0));
+      const cap = new THREE.ConeGeometry(0.062, 0.08, 7).rotateZ(sd === 1 ? 0.35 : -0.3).translate(sx + sd * 0.01, 1.08, 0.01); parts.push(cap);
+      parts.push(logPiece(V(sx + 0.02, 0.62, 0.05), V(sx + 0.1, 0.72, 0.09), 0.02, 0.008, 5, sd, 0));
+    }
+    parts.push(logPiece(V(-1.25, 0.8, 0.04), V(1.25, 0.78, 0.035), 0.05, 0.042, 6, 5, 0.025));
+    parts.push(logPiece(V(-1.25, 0.43, 0.04), V(1.25, 0.46, 0.04), 0.047, 0.05, 6, 9, 0.03));
+    for (const [x, y] of [[-1.2, 0.8], [1.2, 0.78], [-1.2, 0.43], [1.2, 0.46]]) parts.push(new THREE.TorusGeometry(0.07, 0.01, 4, 10).rotateY(Math.PI / 2).rotateZ(0.3).translate(x, y, 0.02));
+    return roughen(mergeNI(parts), 0.012, 9, 3);
+  });
 }
 function cartGeo() {
   const parts = [new THREE.BoxGeometry(1.6, 0.12, 1.0).translate(0, 0.62, 0), new THREE.BoxGeometry(1.6, 0.4, 0.06).translate(0, 0.86, 0.5), new THREE.BoxGeometry(1.6, 0.4, 0.06).translate(0, 0.86, -0.5), new THREE.BoxGeometry(0.06, 0.4, 1.0).translate(-0.8, 0.86, 0), new THREE.BoxGeometry(1.6, 0.06, 0.06).translate(1.5, 0.6, 0.3), new THREE.BoxGeometry(1.6, 0.06, 0.06).translate(1.5, 0.6, -0.3)];
@@ -636,7 +658,18 @@ function wagonMats(z) {
 }
 const WAGON_KINDS = ["hay", "rocks", "barrels", "cover", "empty"];
 function stumpGeo() {
-  return THREE.mergeGeometries([new THREE.CylinderGeometry(0.3, 0.42, 0.55, 9).translate(0, 0.27, 0).toNonIndexed(), new THREE.CylinderGeometry(0.06, 0.1, 0.5, 5).rotateZ(1.2).translate(0.35, 0.12, 0).toNonIndexed(), new THREE.CylinderGeometry(0.05, 0.09, 0.45, 5).rotateZ(-1.3).rotateY(2).translate(-0.2, 0.1, 0.25).toNonIndexed()]);
+  return propGeo("stump2", () => {
+    const g = new THREE.CylinderGeometry(0.32, 0.4, 0.62, 12, 6).translate(0, 0.31, 0), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), a = Math.atan2(z, x), t = y / 0.62, flare = Math.pow(Math.max(0, Math.cos(a * 5 + 0.4)), 3) * 0.16 * Math.pow(1 - t, 3), k = 1 + flare + (NOISE.value(a * 2 + 3, y * 6, 0, 691) - 0.5) * 0.18;
+      const top = y > 0.6 ? -0.08 * Math.max(0, Math.cos(a - 0.8)) - (NOISE.value(a * 4, 1, 0, 693) * 0.06) + (Math.abs(Math.sin(a * 3)) < 0.25 ? 0.05 : 0) : 0;
+      p.setXYZ(i, x * k, y + top, z * k);
+    }
+    const parts = [g];
+    for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2 + 0.4, b0 = new THREE.Vector3(Math.cos(a) * 0.3, 0.12, Math.sin(a) * 0.3), b1 = new THREE.Vector3(Math.cos(a + 0.2) * (0.62 + (k % 2) * 0.15), -0.05, Math.sin(a + 0.2) * (0.62 + (k % 2) * 0.15)); parts.push(logPiece(b0, b1, 0.09, 0.025, 6, k, 0.02)); }
+    parts.push(logPiece(new THREE.Vector3(0.18, 0.45, 0.1), new THREE.Vector3(0.36, 0.62, 0.18), 0.035, 0.012, 5, 7, 0));
+    return roughen(mergeNI(parts), 0.015, 7, 5);
+  });
 }
 function skullGeo() {
   return THREE.mergeGeometries([new THREE.SphereGeometry(0.28, 9, 7).scale(1.1, 0.8, 1.3).translate(0, 0.18, 0).toNonIndexed(), new THREE.CylinderGeometry(0.035, 0.05, 0.9, 5).rotateZ(Math.PI / 2).translate(0.6, 0.06, 0.2).toNonIndexed(), new THREE.CylinderGeometry(0.03, 0.045, 0.7, 5).rotateZ(Math.PI / 2).rotateY(0.8).translate(-0.3, 0.05, 0.6).toNonIndexed()]);
@@ -1894,9 +1927,9 @@ function pearGeo() { return propGeo("pear", () => { const pts = [[0, -0.1], [0.0
 function basketGeo() { return propGeo("basket", () => { const pts = [[0, 0], [0.2, 0.01], [0.27, 0.08], [0.3, 0.16], [0.28, 0.165], [0.25, 0.09], [0.18, 0.03], [0, 0.03]].map(([x, y]) => new THREE.Vector2(x, y)); const rim = new THREE.TorusGeometry(0.295, 0.02, 5, 18).rotateX(Math.PI / 2).translate(0, 0.165, 0); return mergeNI([new THREE.LatheGeometry(pts, 14), rim]); }); }
 function clothGeo(w, h) { return propGeo("cloth" + w + h, () => { const g = new THREE.BoxGeometry(w, h, 0.025, 8, 6, 1), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), f = (0.5 - y / h) * 0.6 + 0.4; p.setZ(i, p.getZ(i) + Math.sin(x / w * Math.PI * 3) * 0.035 * f); p.setX(i, x * (1 + (0.5 - y / h) * 0.12)); } g.computeVertexNormals(); return g; }); }
 function boltGeo() { return propGeo("bolt", () => mergeNI([new THREE.CylinderGeometry(0.11, 0.11, 0.62, 12).rotateZ(Math.PI / 2), new THREE.CylinderGeometry(0.03, 0.03, 0.7, 6).rotateZ(Math.PI / 2)])); }
-function barrelGeo() { return propGeo("barrel", () => { const pts = []; for (let i = 0; i <= 8; i++) { const t = i / 8; pts.push(new THREE.Vector2(0.27 + Math.sin(t * Math.PI) * 0.06, t * 0.82)); } pts.push(new THREE.Vector2(0.24, 0.82), new THREE.Vector2(0, 0.8)); return new THREE.LatheGeometry(pts, 14); }); }
+function barrelGeo() { return propGeo("barrel2", () => { const pts = [new THREE.Vector2(0, 0.015), new THREE.Vector2(0.25, 0.015)]; for (let i = 0; i <= 8; i++) { const t = i / 8; pts.push(new THREE.Vector2(0.27 + Math.sin(t * Math.PI) * 0.06, t * 0.82)); } pts.push(new THREE.Vector2(0.255, 0.82), new THREE.Vector2(0.24, 0.79), new THREE.Vector2(0, 0.79)); const g = new THREE.LatheGeometry(pts, 28), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), a = Math.atan2(z, x), r = Math.hypot(x, z); if (r < 0.2) continue; const st = Math.floor((a + Math.PI) / (Math.PI * 2) * 14), k = 1 + (Math.abs(Math.sin(a * 7)) < 0.18 ? -0.025 : 0) + (NOISE.hash2(st, 5) - 0.5) * 0.03 + (NOISE.value(a * 3, y * 6, 0, 697) - 0.5) * 0.02; p.setX(i, x * k); p.setZ(i, z * k); } g.computeVertexNormals(); return g; }); }
 function hoopGeo() { return propGeo("hoop", () => mergeNI([0.1, 0.28, 0.54, 0.72].map(y => new THREE.TorusGeometry(0.29 + Math.sin(y / 0.82 * Math.PI) * 0.06, 0.018, 4, 16).rotateX(Math.PI / 2).translate(0, y, 0)))); }
-function crateGeo() { return propGeo("crate", () => { const L = []; L.push(new THREE.BoxGeometry(0.9, 0.9, 0.9)); for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { L.push(new THREE.BoxGeometry(0.1, 0.96, 0.1).translate(a * 0.45, 0, b * 0.45)); L.push(new THREE.BoxGeometry(0.96, 0.1, 0.1).translate(0, a * 0.45, b * 0.45)); L.push(new THREE.BoxGeometry(0.1, 0.1, 0.96).translate(a * 0.45, b * 0.45, 0)); } for (const sd of [-1, 1]) { L.push(new THREE.BoxGeometry(1.15, 0.09, 0.04).rotateZ(Math.PI / 4).translate(0, 0, sd * 0.47)); L.push(new THREE.BoxGeometry(0.04, 0.09, 1.15).rotateX(Math.PI / 4).translate(sd * 0.47, 0, 0)); } return mergeNI(L); }); }
+function crateGeo() { return propGeo("crate2", () => { const L = [], r = seeded(707); L.push(new THREE.BoxGeometry(0.86, 0.86, 0.86, 3, 3, 3)); for (const ax of [0, 1, 2]) for (const sd of [-1, 1]) for (let k = 0; k < 4; k++) { const w = 0.205, off = -0.3075 + k * 0.205, g = new THREE.BoxGeometry(ax === 0 ? 0.025 : w - 0.012, ax === 1 ? 0.025 : (ax === 0 ? w - 0.012 : 0.88), ax === 2 ? 0.025 : (ax === 0 ? 0.88 : 0.88)); if (ax === 0) g.translate(sd * 0.44, off, 0); else if (ax === 1) g.translate(off, sd * 0.44, 0); else g.translate(off, 0, sd * 0.44); g.rotateX((r() - 0.5) * 0.012).rotateZ((r() - 0.5) * 0.012); L.push(g); } for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) { L.push(new THREE.BoxGeometry(0.1, 0.96, 0.1).translate(a * 0.45, 0, b * 0.45)); L.push(new THREE.BoxGeometry(0.96, 0.1, 0.1).translate(0, a * 0.45, b * 0.45)); L.push(new THREE.BoxGeometry(0.1, 0.1, 0.96).translate(a * 0.45, b * 0.45, 0)); } for (const sd of [-1, 1]) { L.push(new THREE.BoxGeometry(1.15, 0.09, 0.04).rotateZ(Math.PI / 4).translate(0, 0, sd * 0.47)); L.push(new THREE.BoxGeometry(0.04, 0.09, 1.15).rotateX(Math.PI / 4).translate(sd * 0.47, 0, 0)); } for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) for (const yy of [-0.45, 0.45]) L.push(new THREE.BoxGeometry(0.03, 0.03, 0.03).translate(a * 0.5, yy, b * 0.5)); return roughen(mergeNI(L), 0.012, 6, 11); }); }
 function bucketGeo() { return propGeo("bucket", () => { const pts = [[0, 0], [0.13, 0], [0.15, 0.24], [0.13, 0.24], [0.115, 0.02], [0, 0.02]].map(([x, y]) => new THREE.Vector2(x, y)); return mergeNI([new THREE.LatheGeometry(pts, 12), new THREE.TorusGeometry(0.143, 0.01, 4, 14).rotateX(Math.PI / 2).translate(0, 0.06, 0), new THREE.TorusGeometry(0.15, 0.01, 4, 14).rotateX(Math.PI / 2).translate(0, 0.2, 0)]); }); }
 function handleGeo() { return propGeo("bhandle", () => new THREE.TorusGeometry(0.15, 0.008, 4, 12, Math.PI).translate(0, 0.24, 0)); }
 function lanternGeo() { return propGeo("lantern", () => { const L = [new THREE.CylinderGeometry(0.16, 0.18, 0.06, 4, 1).rotateY(Math.PI / 4), new THREE.ConeGeometry(0.22, 0.2, 4).rotateY(Math.PI / 4).translate(0, 0.42, 0), new THREE.CylinderGeometry(0.04, 0.04, 0.06, 6).translate(0, 0.55, 0), new THREE.TorusGeometry(0.05, 0.012, 4, 10).translate(0, 0.61, 0)]; for (const [a, b] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) L.push(new THREE.BoxGeometry(0.03, 0.34, 0.03).translate(a * 0.12, 0.2, b * 0.12)); L.push(new THREE.CylinderGeometry(0.14, 0.14, 0.04, 4).rotateY(Math.PI / 4).translate(0, 0.32, 0)); return mergeNI(L); }); }

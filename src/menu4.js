@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.79.0", date: "2026-10-27", title: "Rough-hewn fences, stumps, crates and barrels", items: [
+    "<b>Split-rail fences.</b> Fences are now made of knobbly, slightly crooked posts with whittled tops and a broken-off branch, carrying two sagging split rails lashed on with rope. No more square boards.",
+    "<b>Tree stumps.</b> Stumps flare into five gnarled roots, have a jagged, slanted cut top and a dead twig, and are lumpy all round.",
+    "<b>Crates and barrels.</b> Crates are built from separate, slightly crooked boards with nail heads at the corners. Barrels show their individual staves with grooves between them, a recessed lid and slightly uneven sides.",
+  ] },
   { v: "19.78.0", date: "2026-10-27", title: "Draped tabards", items: [
     "<b>Tabards look like cloth.</b> Tabards worn by guards, soldiers and undead now follow the curve of the chest (and bust) instead of standing out as a flat board. They are cinched by a belt with a buckle, then flare into a skirt with soft vertical folds that dips to a point at the hem.",
     "<b>Trim and emblem.</b> Coloured trim runs down both edges and along the hem, small tassels hang from the hem, and a round emblem sits on the chest. The back panel matches the front.",
