@@ -25,7 +25,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.70 | Mandrake, rabbit, treant remodels; aprons | done |
 | 19.71 | Monster KO poses, fishing rod prop, staff cast glow | done |
 | 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | done |
-| 19.73 | Build next zone during the walk (second scene root) | |
+| 19.73 | Build next zone during the walk (second scene root) | partial: field prebuilt during the walk; terrain/props still built in the fade |
 | 19.74 | File size budget: audio as separate cached files | |
 | 19.75 | Painted foliage style, banded sky gradient | |
 | 19.76 | Mercenary sell-off server work (SQL run by the user) | |

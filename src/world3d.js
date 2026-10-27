@@ -3931,7 +3931,9 @@ function* buildZone3DSteps() {
   W3.grassMats = []; W3.torchLights = []; W3.windowMats = []; W3.lampLights = []; W3.lampGlows = []; W3.spinners = []; W3.clocks = []; W3.cityFx = [];
   const root = new THREE.Group();
   W3.zoneRoot = root;
-  const field = yield* scaleSteps(buildFieldSteps(z), 0, 0.3, "Shaping the land…");
+  const pf = W3.preField && ZONES[W3.preField.id] === z ? W3.preField : null;
+  W3.preField = null;
+  const field = pf && pf.field ? pf.field : yield* scaleSteps(pf && pf.gen ? pf.gen : buildFieldSteps(z), pf ? pf.p * 0.3 : 0, 0.3, "Shaping the land…");
   W3.field = field;
   const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
   terrain.material.map.userData.zone = true;

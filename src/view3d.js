@@ -468,9 +468,16 @@ function zoneFadeTo(op, secs) {
 }
 function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 1.0); }
 function prefetchZone(id) {
+  if (ZONES[id] && typeof buildFieldSteps === "function") { try { W3.preField = { id, gen: buildFieldSteps(ZONES[id]), field: null, p: 0 }; } catch (e) { W3.preField = null; } }
   if (!W3.renderer || typeof cacheGet !== "function") return;
   const key = "t|" + id + "|" + terrainSize();
   W3.terrainFetch = { key, p: cacheGet(key).then(cacheImage).catch(() => null) };
+}
+function tickPreField() {
+  const pf = W3.preField;
+  if (!pf || pf.field || !pf.gen) return;
+  const t0 = performance.now();
+  try { while (performance.now() - t0 < 6) { const r = pf.gen.next(); if (r.done) { pf.field = r.value; pf.gen = null; break; } pf.p = typeof r.value === "number" ? r.value : pf.p; } } catch (e) { W3.preField = null; }
 }
 function loaderHide() {
   const el = $("loading");
@@ -736,6 +743,7 @@ function initView() {
 function draw(dt) {
   dt = dt || 1 / 60;
   perfTick(dt);
+  if (W3.preField && S.exitWalk) tickPreField();
   updateCamera(dt);
   updateSky(false);
   for (const p of S.party) syncEntity(p, dt);

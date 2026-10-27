@@ -1844,6 +1844,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.73.0", date: "2026-10-27", title: "Shaping the land on the way out", items: [
+    "<b>Faster zone changes.</b> While you walk out of an area, the game now starts shaping the next area's land in the background, a few milliseconds each frame, so less is left to do behind the loading fade. The stored ground image for the next area is still fetched at the same time.",
+  ] },
   { v: "19.72.0", date: "2026-10-27", title: "Impact and fade", items: [
     "<b>Weapon skills hit harder.</b> When a weapon skill lands, you and your target freeze for a split second and the target squashes from the blow, on top of the screen shake.",
     "<b>Monsters pop in.</b> Newly spawned monsters spring up from small to full size with a little overshoot, instead of appearing instantly.",
