@@ -2481,18 +2481,54 @@ function humanEntryBase(L) {
   }
   if (L.collar && !L.skull) R.add(gRing(V3(0, neckY - 0.035, 0), 0.1 * gi, 0.045, "y", 16), "chest", L.collar, "fur");
   if (t === "tabard") {
-    const ty0 = chestY + 0.19, ty1 = chestY - 0.43;
+    const Wt = (sw0 / 0.195) * (L.doll ? 0.8 : 1), ty0 = chestY + (neckY - chestY) * 0.72, bY0 = hipsY + 0.035, ty1 = Math.max(knee + 0.06, hipsY - (hipsY - knee) * 0.62), trim = top.trim || 0xd8c070, cl = top.color2;
+    const rings = BODY.up || null;
+    const surf = (y, x, fz) => {
+      if (!rings) return 0.13 * gi + 0.01;
+      const yy = Math.max(y, rings[0].y);
+      let i = 0; while (i < rings.length - 2 && rings[i + 1].y < yy) i++;
+      const A = rings[i], B2 = rings[i + 1], f = clamp((yy - A.y) / Math.max(1e-6, B2.y - A.y), 0, 1), L2 = (k) => A[k] * (1 - f) + B2[k] * f;
+      const rx = L2("rx"), rz = L2("rz"), fr = fz > 0 ? (A.f || 1) * (1 - f) + (B2.f || 1) * f : (A.b || 1) * (1 - f) + (B2.b || 1) * f, zo = (A.z || 0) * (1 - f) + (B2.z || 0) * f, pw = L2("p") || 2.1;
+      const q = Math.min(0.98, Math.abs(x) / Math.max(1e-4, rx)), d = rz * fr * Math.pow(1 - Math.pow(q, pw), 1 / pw);
+      let z = fz > 0 ? d + zo : d - zo;
+      if (fz > 0 && BODY.bust) { const k = clamp(1 - Math.hypot(Math.abs(x) - 0.054 * gi, (y - BODY.bust.y) * 0.8) / (BODY.bust.r * 1.6), 0, 1); z = Math.max(z, BODY.bust.front * (0.75 + 0.25 * k) * (k > 0 ? 1 : 0)); }
+      return z;
+    };
+    const wAt = y => y > bY0 ? (0.2 + 0.03 * clamp((y - bY0) / (ty0 - bY0), 0, 1)) * Wt * gi : (0.2 + 0.07 * clamp((bY0 - y) / (bY0 - ty1), 0, 1)) * Wt * gi;
     for (const [fz, bn] of [[1, "tabF"], [-1, "tabB"]]) {
       R.bone(bn, "hips", 0, hipsY - 0.02, fz * 0.13 * gi);
-      const tg = new THREE.PlaneGeometry(0.2, ty0 - ty1, 2, 10);
-      tg.translate(0, (ty0 + ty1) / 2, fz * (0.125 * gi + 0.006));
-      if (fz < 0) tg.rotateY(Math.PI).translate(0, 0, 0);
-      const tp = tg.attributes.position;
-      for (let i = 0; i < tp.count; i++) { const y = tp.getY(i); if (y > hipsY) tp.setZ(i, tp.getZ(i) + fz * 0.02 * clamp((y - hipsY) / (ty0 - hipsY), 0, 1) * gi); }
+      const NU = 10, NV = 26, tg = new THREE.PlaneGeometry(1, 1, NU, NV), tp = tg.attributes.position, zBelt = surf(bY0, 0, fz) + 0.012;
+      const edgeL = [], edgeR = [], hemP = [];
+      for (let i = 0; i < tp.count; i++) {
+        const u = tp.getX(i), v = tp.getY(i) + 0.5, hemDrop = (0.5 - Math.abs(u)) * 0.07 * Wt, y0e = ty1 - hemDrop, y = y0e + (ty0 - y0e) * v, w = wAt(y), x = u * w;
+        let z;
+        if (y >= bY0) z = Math.max(surf(y, x, fz) + 0.01, y < bY0 + 0.05 ? zBelt - 0.004 : 0);
+        else { const k = (bY0 - y) / Math.max(1e-4, bY0 - ty1); z = Math.max(zBelt - Math.abs(u) * 0.02, surf(bY0, x, fz) + 0.01) + k * k * 0.035 + Math.sin(u * Math.PI * 3.2 + fz) * 0.009 * k + Math.sin(u * Math.PI * 7 + 1.3) * 0.003 * k; }
+        z += Math.sin(v * 11 + u * 5) * 0.0015;
+        tp.setXYZ(i, x, y, fz * z);
+      }
+      if (fz < 0) { const ix = tg.index.array; for (let k = 0; k < ix.length; k += 3) { const t2 = ix[k + 1]; ix[k + 1] = ix[k + 2]; ix[k + 2] = t2; } }
       tg.computeVertexNormals();
-      R.addW(tg, "chest", top.color2, "cloth", (x, y) => y > hipsY + 0.06 ? [["chest", 1]] : y > hipsY - 0.02 ? [["chest", (y - hipsY + 0.02) / 0.08], [bn, 1 - (y - hipsY + 0.02) / 0.08]] : [[bn, 1]]);
-      R.add(gBox(V3(0, ty1 + 0.015, fz * (0.125 * gi + 0.01)), 0.2, 0.025, 0.006), bn, top.trim || 0xd8c070, "trim");
+      R.addW(tg, "chest", cl, "cloth", (x, y) => y > hipsY + 0.06 ? [["chest", 1]] : y > hipsY - 0.02 ? [["chest", (y - hipsY + 0.02) / 0.08], [bn, 1 - (y - hipsY + 0.02) / 0.08]] : [[bn, 1]]);
+      const pt = (u, v) => { const k = u * (NU + 1) + 0, idx = Math.round((1 - v) * NV) * (NU + 1) + Math.round((u + 0.5) * NU); return V3(tp.getX(idx), tp.getY(idx), tp.getZ(idx)); };
+      for (let j = 0; j <= NV; j += 2) { edgeL.push(pt(-0.5, j / NV)); edgeR.push(pt(0.5, j / NV)); }
+      for (let j = 0; j <= NU; j++) hemP.push(pt(-0.5 + j / NU, 0));
+      const lift = q => q.clone().add(V3(0, 0, fz * 0.004));
+      const below = q => q.y < hipsY - 0.02, bw = (q) => below(q) ? bn : "chest";
+      const tr = (arr) => { const a1 = arr.filter(q => !below(q)), a2 = arr.filter(q => below(q)); if (a1.length > 1) R.add(boneTube(a1.map(lift), 0.006, 0.006, a1.length * 2), "chest", trim, "trim"); if (a2.length > 1) R.add(boneTube(a2.map(lift), 0.006, 0.006, a2.length * 2), bn, trim, "trim"); };
+      tr(edgeL); tr(edgeR);
+      R.add(boneTube(hemP.map(lift), 0.007, 0.007, 24), bn, trim, "trim");
+      for (let j = 1; j < NU; j += 2) { const h = hemP[j]; R.add(gBall(h.clone().add(V3(0, -0.012, fz * 0.003)), 0.012, 0.8, 1.2, 0.35, 6), bn, trim, "trim"); }
+      if (fz > 0) {
+        const ey = chestY + (ty0 - chestY) * 0.15, ez = surf(ey, 0, 1) + 0.016;
+        R.add(gBall(V3(0, ey, ez), 0.05 * Wt * gi, 1, 1.25, 0.12, 12), "chest", trim, "trim");
+        R.add(gBall(V3(0, ey, ez + 0.004), 0.034 * Wt * gi, 1, 1.25, 0.1, 10), "chest", new THREE.Color(cl).multiplyScalar(0.6).getHex(), "cloth");
+        R.add(gBox(V3(0, ey, ez + 0.008), 0.012 * Wt, 0.05 * Wt, 0.004, 0, 0, Math.PI / 4), "chest", trim, "trim");
+      }
     }
+    const bR = rings ? Math.max(rings[0].rx, rings[0].rz * (rings[0].f || 1)) + 0.016 : 0.17 * gi;
+    R.add(gRing(V3(0, bY0, rings ? (rings[0].z || 0) : 0), bR, 0.012, "y", 22).scale(1, 1, rings ? (rings[0].rz * ((rings[0].f || 1) + (rings[0].b || 1)) / 2) / rings[0].rx + 0.08 : 0.8), "hips", L.belt || 0x4a3020, "leather");
+    R.add(gBox(V3(0, bY0, surf(bY0, 0, 1) + 0.028), 0.045 * Wt, 0.035, 0.01), "hips", 0xc8a040, "metal");
   }
   if (t === "apron" || L.apron) {
     const ac = L.apron || top.color2, ad = new THREE.Color(ac).multiplyScalar(0.72).getHex(), Wd = (sw0 / 0.195) * (L.doll ? 0.78 : 1), fz = (BODY.up ? Math.max(...BODY.up.slice(0, 5).map(r => r.rz * (r.f || 1) + (r.z || 0))) : 0.152 * gi * 0.72) + 0.012, sk = Math.max(0.12, (hipsY - knee) * 0.95);

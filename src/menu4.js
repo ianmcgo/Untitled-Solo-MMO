@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.78.0", date: "2026-10-27", title: "Draped tabards", items: [
+    "<b>Tabards look like cloth.</b> Tabards worn by guards, soldiers and undead now follow the curve of the chest (and bust) instead of standing out as a flat board. They are cinched by a belt with a buckle, then flare into a skirt with soft vertical folds that dips to a point at the hem.",
+    "<b>Trim and emblem.</b> Coloured trim runs down both edges and along the hem, small tassels hang from the hem, and a round emblem sits on the chest. The back panel matches the front.",
+  ] },
   { v: "19.77.0", date: "2026-10-27", title: "A lighter page: sound streams in", items: [
     "<b>Loads much faster.</b> The game page is now about 3.5 MB instead of 9.6 MB. Music and sound effects are no longer built into the page; each sound downloads the first time it's needed and is then saved on your device, so later visits play it straight away, even offline.",
     "<b>Note:</b> a copy of index.html opened straight from your computer has no sound unless the audio folder is next to it. Play from the website for full sound.",
