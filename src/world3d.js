@@ -284,23 +284,27 @@ function* buildFieldSteps(zone) {
 
 function std(params) { return new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, params)); }
 const NOFLAT_GLSL = "varying vec3 vNfW;\nfloat nfH(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }\nfloat nfN(vec3 x) { vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(mix(mix(nfH(i), nfH(i + vec3(1.0, 0.0, 0.0)), f.x), mix(nfH(i + vec3(0.0, 1.0, 0.0)), nfH(i + vec3(1.0, 1.0, 0.0)), f.x), f.y), mix(mix(nfH(i + vec3(0.0, 0.0, 1.0)), nfH(i + vec3(1.0, 0.0, 1.0)), f.x), mix(nfH(i + vec3(0.0, 1.0, 1.0)), nfH(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z); }\nvec3 nfVar(vec3 p) { float n = nfN(p * 1.3) * 0.5 + nfN(p * 4.1 + 3.1) * 0.3 + nfN(p * 13.0 + 7.7) * 0.2; float w = nfN(p * 0.55 + 11.0); return vec3(0.84 + 0.32 * n) * mix(vec3(1.04, 0.99, 0.94), vec3(0.95, 1.0, 1.05), w); }\n";
-function noFlatOn(m) {
-  if (!m || m.map || (m.userData && m.userData.flat) || m.wireframe) return false;
-  if (m.transparent && m.opacity < 0.6) return false;
-  if (m.emissive && m.emissiveIntensity > 0.4 && m.emissive.r + m.emissive.g + m.emissive.b > 0.3) return false;
-  return true;
+function noFlatMode(m) {
+  if (!m || (m.userData && m.userData.flat) || m.wireframe) return 0;
+  if (m.transparent && m.opacity < 0.6) return 0;
+  if (m.emissive && m.emissiveIntensity > 0.4 && m.emissive.r + m.emissive.g + m.emissive.b > 0.3) return 0;
+  return m.map ? 1 : 2;
 }
-function noFlatHook(sh) {
-  if (!noFlatOn(this)) return;
-  sh.vertexShader = "varying vec3 vNfW;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\n#ifdef USE_INSTANCING\nvNfW = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvNfW = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif");
-  sh.fragmentShader = NOFLAT_GLSL + sh.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\ndiffuseColor.rgb *= nfVar(vNfW);");
+function noFlatOn(m) { return noFlatMode(m) === 2; }
+function noFlatInject(sh, mode, opt) {
+  if (!mode) return;
+  const o = opt || {};
+  sh.vertexShader = "varying vec3 vNfW;\nvarying vec3 vNfN;\nvarying float vNfH;\nvarying float vNfD;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\n#ifdef USE_INSTANCING\nmat4 nfM = modelMatrix * instanceMatrix;\nvNfH = (nfM * vec4(transformed, 1.0)).y - (nfM * vec4(0.0, 0.0, 0.0, 1.0)).y;\n#else\nmat4 nfM = modelMatrix;\nvNfH = " + (o.height ? "transformed.y" : "-1.0") + ";\n#endif\nvNfW = (nfM * vec4(transformed, 1.0)).xyz;\nvNfN = mat3(nfM) * objectNormal;\nvNfD = -mvPosition.z;");
+  const body = (mode === 2 ? "diffuseColor.rgb *= nfVar(vNfW);\n" : "") + "{ float nfG = (nfN(vNfW * 61.0) - 0.5) * 0.2 + (nfN(vNfW * 23.0 + 5.0) - 0.5) * 0.14 + (nfN(vNfW * 7.0 + 9.0) - 0.5) * 0.08; nfG *= (1.0 - smoothstep(7.0, 30.0, vNfD)) * " + (mode === 2 ? "1.0" : (o.grain || 0.75).toFixed(2)) + "; float nfU = clamp(-normalize(vNfN).y, 0.0, 1.0); float nfA = 1.0 - " + (o.under || 0.34).toFixed(2) + " * nfU * nfU; if (vNfH >= 0.0) nfA *= mix(" + (o.foot || 0.58).toFixed(2) + ", 1.0, smoothstep(0.0, " + (o.footH || 0.7).toFixed(2) + ", vNfH)); diffuseColor.rgb *= (1.0 + nfG) * nfA; }";
+  sh.fragmentShader = NOFLAT_GLSL.replace("varying vec3 vNfW;\n", "varying vec3 vNfW;\nvarying vec3 vNfN;\nvarying float vNfH;\nvarying float vNfD;\n") + sh.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\n" + body);
 }
+function noFlatHook(sh) { noFlatInject(sh, noFlatMode(this)); }
 (function installNoFlat() {
   for (const C of [THREE.MeshStandardMaterial, THREE.MeshLambertMaterial, THREE.MeshPhongMaterial]) {
     if (!C || C.prototype.__noFlat) continue;
     C.prototype.__noFlat = true;
     C.prototype.onBeforeCompile = noFlatHook;
-    C.prototype.customProgramCacheKey = function () { return this.onBeforeCompile.toString() + (noFlatOn(this) ? "|nf" : ""); };
+    C.prototype.customProgramCacheKey = function () { return this.onBeforeCompile.toString() + "|nf" + noFlatMode(this); };
   }
 })();
 

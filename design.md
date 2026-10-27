@@ -3158,3 +3158,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - The cache key adds "|nf" so lit and unlit decisions never share a program. addWind now chains any previous onBeforeCompile (as addSeason already did), so instance hooks keep the noise. Materials that set their own hook without chaining (character atlas, terrain detail) all have maps.
 - rig.js CLASSIC_PAINT: skin gets fbm mottling plus fine grain (0.8 + 0.08n + ...), face gets subtle fbm and grain under the painted features, plain gets fbm patches (0.9 +- 0.035) instead of a flat 0.96.
 - Rule: new materials need no special handling; set material.userData.flat = true only for things that must stay a clean colour (UI-like markers).
+
+## 19.84.0 Grain and shade
+- noFlatMode(m): 0 = skip (userData.flat, wireframe, see-through, strongly emissive), 1 = has a map, 2 = no map. The cache key appends "|nf<mode>". noFlatInject(sh, mode, opt) adds world position, world normal (mat3(model * instance) * objectNormal), height above the instance origin (instanced) or transformed.y (opt.height) and view depth. Fragment: mode 2 keeps nfVar; all modes get grain at 61, 23 and 7 per metre (+-0.21 total), faded out over 7-30 m and scaled by opt.grain (0.75 for mapped); underside shade 1 - under * N.y-^2 (default 0.34); foot shade mix(foot, 1, smoothstep(0, footH, h)) with defaults 0.58 / 0.7 m (instanced only unless opt.height).
+- Characters (classicCharMaterial) call noFlatInject(sh, 1, { grain 0.55, under 0.3, foot 0.75, footH 0.5, height: true }).

@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.84.0", date: "2026-10-27", title: "Grain and shade", items: [
+    "<b>More grain.</b> Every surface, textured or not (props, buildings, trees, rocks, characters and monsters), now has fine painted grain at three sizes. It fades out with distance so faraway things don't shimmer.",
+    "<b>More shading.</b> Undersides of things are darker (the bottoms of crates, the undersides of branches, rails and arms), and objects grow darker toward the ground where they meet it: tree trunks, stumps, posts, rocks, grass and the feet and legs of characters and monsters. Everything sits in the world more solidly.",
+  ] },
   { v: "19.83.0", date: "2026-10-27", title: "No flat colours", items: [
     "<b>Nothing is one flat colour any more.</b> Every surface in the world that had no texture (metal fittings, painted wood, stone trim, cloth, glassware, props, monsters' plain parts and more) now has soft painted variation: light and dark patches at several sizes with a slight warm-to-cool shift, so it looks hand-painted instead of flat. Glowing and see-through things keep their clean colour.",
     "<b>Skin and faces.</b> Character skin now has gentle mottling and fine grain, faces have subtle tone variation under the painted features, and plain-coloured parts of characters and monsters carry soft patchiness too.",

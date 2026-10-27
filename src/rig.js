@@ -431,6 +431,7 @@ function classicCharMaterial() {
   m.onBeforeCompile = sh => {
     sh.uniforms.clLift = CLASSIC.lift; sh.uniforms.clMetal = CLASSIC.metal; sh.uniforms.clMR = { value: RIG.atlas.mr };
     sh.fragmentShader = "uniform float clLift;\nuniform float clMetal;\nuniform sampler2D clMR;\n" + sh.fragmentShader.replace("#include <opaque_fragment>", "{ float dl = max(dot(diffuseColor.rgb, vec3(0.3333)), 0.04); float ll = dot(outgoingLight, vec3(0.3333)); float r = ll / dl; float qn = floor(r * 3.0 + 0.5) / 3.0; vec4 mrs = texture2D(clMR, vMapUv); float rr = mix(r, qn, mrs.r > 0.5 ? 0.2 : 0.0); outgoingLight *= rr / max(r, 0.001); outgoingLight = max(outgoingLight, diffuseColor.rgb * clLift); float mt = mrs.b; vec3 nn = normalize(normal); float sp = pow(max(dot(nn, normalize(vec3(-0.35, 0.65, 0.68))), 0.0), 14.0); outgoingLight += diffuseColor.rgb * mt * sp * clMetal * 2.0; }\n#include <opaque_fragment>");
+    if (typeof noFlatInject === "function") noFlatInject(sh, 1, { grain: 0.55, under: 0.3, foot: 0.75, footH: 0.5, height: true });
   };
   m.customProgramCacheKey = () => "classicChar";
   return m;
