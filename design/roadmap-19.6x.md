@@ -16,7 +16,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.61 | Trees: clumped faceted canopies, branches, root flare, variants | done |
 | 19.62 | Waterfall: layered flow, foam, mist, plunge pool, rocks | done |
 | 19.63 | Crafting and harvesting animations; remote players show work poses | done |
-| 19.64 | Skeletons with real ribcage, spine, pelvis, limb bones (no tube) | |
+| 19.64 | Skeletons with real ribcage, spine, pelvis, limb bones (no tube) | done |
 | 19.65 | Hay bales and wagon cargo detail | |
 | 19.66 | Two-handed weapons held by both hands (off hand floats) | |
 | 19.67 | Faces and clothes better painted and sculpted | |

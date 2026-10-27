@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.64.0", date: "2026-10-27", title: "Real skeletons", items: [
+    "<b>Skeletons are all bone.</b> Skeleton monsters no longer have a tube for a body. They now have a curved spine of separate vertebrae, a ribcage of curved ribs joined to a breastbone, collarbones, shoulder blades and a pelvis.",
+    "<b>Limbs and extremities.</b> Arms have a ball-jointed upper bone and two forearm bones. Legs have a curved thigh bone, a kneecap and two shin bones. Hands have finger bones and feet have toe bones.",
+    "<b>Tattered cloth.</b> Plain skeletons wear torn strips of cloth on a cord instead of a solid skirt. Armoured undead keep their armour over the new bones.",
+  ] },
   { v: "19.63.0", date: "2026-10-27", title: "Hands at work", items: [
     "<b>Gathering looks like work.</b> Mining is a full overhead pickaxe swing that bends your knees on the strike. Logging is a sideways hatchet chop that twists through the hips. Harvesting drops you into a crouch to sweep the sickle and pull the crop.",
     "<b>Every craft has its own motion and tool.</b> Smithing hammers in a steady rhythm, woodworking saws back and forth, clothcraft draws a needle and thread, alchemy shakes a glowing flask and cooking stirs with a ladle. You lean over your work with knees softly bent.",
