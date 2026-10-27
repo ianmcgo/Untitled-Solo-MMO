@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.77.0", date: "2026-10-27", title: "A lighter page: sound streams in", items: [
+    "<b>Loads much faster.</b> The game page is now about 3.5 MB instead of 9.6 MB. Music and sound effects are no longer built into the page; each sound downloads the first time it's needed and is then saved on your device, so later visits play it straight away, even offline.",
+    "<b>Note:</b> a copy of index.html opened straight from your computer has no sound unless the audio folder is next to it. Play from the website for full sound.",
+  ] },
   { v: "19.76.0", date: "2026-10-27", title: "Painted bark, stone, wood and cloth", items: [
     "<b>Bark.</b> Tree trunks, logs and stumps have hand-painted bark: wavy vertical plates split by deep dark fissures, warm and cool patches and grey-green lichen, at double resolution.",
     "<b>Stone.</b> Rocks, boulders and cliffs show layered strata, dark cracks, light chipped edges, speckles, warm and cool tints and patches of lichen.",
@@ -4730,6 +4734,7 @@ function tabHelp() {
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
+    "<b>Sound:</b> music and effects download the first time they play and are saved on your device after that. Opened as a local file without its audio folder, the game runs silently.",
     "<b>Working:</b> gathering, crafting and fishing each have their own animation and tool, and other players can see you at work.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Hedges are lumpy clumps of leaves that vary in length and height, fallen logs are bent, ridged and mossy, and broadleaf trees come as oaks, birches and bushy trees. Hedges are lumpy clumps of leaves that vary in length and height. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",

@@ -46,3 +46,4 @@ Minified game JS and named three imports: 6.39 MB to 5.83 MB. The 25 to 40% targ
 | Version | Size MB | Title ms | Cached icons ms |
 |---|---|---|---|
 | 18.26.0 | 5.57 | 1993 | 1267 |
+| 19.77.0 | 3.52 | n/a | n/a |

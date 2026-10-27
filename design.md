@@ -3118,3 +3118,8 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - texPlanks: plankInfo per board (32 px rows): a seeded knot (dk ellipse, 55% of boards), grain sine warped by fbm and bent around the knot, nail heads every 128 px at the board ends, worn lighter edges, per-board tint.
 - texCloth: adds soft diagonal fold relief, darker seams at the stripe edges and fbm fading.
 - Version numbers: textures planned as 19.78 shipped as 19.76. Mercenary SQL (was 19.76) and deferred spells (was 19.77) take the next numbers when done.
+
+## 19.77.0 A lighter page: sound streams in
+- build.mjs no longer embeds audio as base64 JSON (#audioData). It emits `const AUDIO_FILES = { name: "audio/out/<name>.mp3?v=<md5-8>" }` next to AUDIO_LOOP. The hash busts the browser and IndexedDB caches when a file changes. The page went from 9.66 to 3.52 MB, so release-check passes (budget 6.2).
+- audio.js: audioUrl(name) prefers the legacy embedded base64 if #audioData exists, otherwise AUDIO_FILES. audioBytes(name) tries cacheGet("a|" + url) (IndexedDB blob), else fetches and calls cachePut. decodeClip decodes the bytes and forgets a failed decode so it can retry. The HTML-audio fallback and the music/ambience fallback use the URL. SFX still pre-decode on audio unlock (46 of 47 in a headless test; music_battle decoded in 85 ms over HTTP).
+- Deploy: GitHub Pages serves audio/out from the repo root (already committed). Without the folder (e.g. index.html opened as a file) fetch fails and sounds are skipped quietly.

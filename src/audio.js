@@ -94,18 +94,31 @@ function applyVolumes() {
   set(AUDIO.bus.ui, s.ui);
 }
 
+function audioUrl(name) {
+  const b64 = audioData()[name];
+  if (b64) return "data:audio/mpeg;base64," + b64;
+  return typeof AUDIO_FILES !== "undefined" && AUDIO_FILES[name] ? AUDIO_FILES[name] : null;
+}
+function audioBytes(name) {
+  const b64 = audioData()[name];
+  if (b64) return Promise.resolve(b64ToBytes(b64).buffer);
+  const url = audioUrl(name);
+  if (!url) return Promise.resolve(null);
+  const key = "a|" + url, hasCache = typeof cacheGet === "function" && typeof cachePut === "function";
+  const net = () => fetch(url).then(r => r.ok ? r.arrayBuffer() : null).then(buf => { if (buf && hasCache) cachePut(key, new Blob([buf], { type: "audio/mpeg" })).catch(() => {}); return buf; }).catch(() => null);
+  if (!hasCache) return net();
+  return cacheGet(key).then(row => row && row.blob ? row.blob.arrayBuffer() : net()).catch(() => net());
+}
 function decodeClip(name) {
   if (AUDIO.buffers[name]) return Promise.resolve(AUDIO.buffers[name]);
   if (AUDIO.decoding[name]) return AUDIO.decoding[name];
-  const b64 = audioData()[name];
-  if (!b64 || !AUDIO.ctx) return Promise.resolve(null);
-  const bytes = b64ToBytes(b64).buffer;
-  const p = new Promise(res => {
+  if (!AUDIO.ctx || !audioUrl(name)) return Promise.resolve(null);
+  const p = audioBytes(name).then(bytes => bytes ? new Promise(res => {
     try {
       const r = AUDIO.ctx.decodeAudioData(bytes, buf => { AUDIO.buffers[name] = buf; res(buf); }, () => res(null));
       if (r && r.catch) r.catch(() => res(null));
     } catch (e) { res(null); }
-  });
+  }) : null).then(buf => { if (!buf) delete AUDIO.decoding[name]; return buf; });
   AUDIO.decoding[name] = p;
   return p;
 }
@@ -333,7 +346,8 @@ function playHtml(file, v) {
   let a = pool.find(x => x.paused || x.ended);
   if (!a) {
     if (pool.length >= 4) return;
-    a = new Audio("data:audio/mpeg;base64," + audioData()[file]);
+    const u = audioUrl(file); if (!u) return;
+    a = new Audio(u);
     pool.push(a);
   }
   const s = AUDIO.settings;
@@ -370,7 +384,8 @@ function startLoop(slot, name, bus, fade) {
   const entry = { name, src: null, gain: null };
   AUDIO[slot] = entry;
   if (AUDIO.fallback) {
-    const el = new Audio("data:audio/mpeg;base64," + audioData()[name]);
+    const u = audioUrl(name); if (!u) return;
+    const el = new Audio(u);
     el.loop = true; el.volume = 0;
     entry.el = el;
     const p = el.play(); if (p && p.catch) p.catch(() => {});

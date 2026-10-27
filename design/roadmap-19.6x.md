@@ -26,9 +26,9 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.71 | Monster KO poses, fishing rod prop, staff cast glow | done |
 | 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | done |
 | 19.73 | Build next zone during the walk (second scene root) | partial: field prebuilt during the walk; terrain/props still built in the fade |
-| 19.74 | File size budget: audio as separate cached files | waiting on user (breaks single-file index.html) |
+| 19.77 | File size budget: audio as separate cached files | done (page 9.66 -> 3.52 MB) |
 | 19.75 | Painted foliage style, banded sky gradient | done |
-| next | Mercenary sell-off server work: SQL and client already written (sql/m5d-run.sql, 18.35); needs the user's OK to run on Supabase | waiting on user |
+| next | Mercenary sell-off server work: SQL and client already written (sql/m5d-run.sql, 18.35); user approved, but the game's Supabase project (mztqrqgtlvviwwftrqhs) is not visible to the connector; user to run sql/m5d-run.sql in its SQL editor | waiting on user |
 | - | Deferred spells (see design.md 17.2 list) | already in game (Thorns, Edges, Laments etc.); stale item closed |
 | 19.76 | Higher-quality painted textures (bark, leaf, rock, ground, planks, cloth) | done (leaf in 19.75) |
 

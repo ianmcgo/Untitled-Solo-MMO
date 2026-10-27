@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { execFileSync } from "child_process";
+import crypto from "crypto";
 
 const root = path.dirname(new URL(import.meta.url).pathname);
 const phase = process.argv[2] || "2";
@@ -16,22 +17,21 @@ const builds = {
 let AUDIO_JSON = null;
 function audioData() {
   const dir = path.join(root, "audio", "out");
-  const data = {}, loop = {};
+  const files = {}, loop = {};
   for (const f of fs.readdirSync(dir).sort()) {
     if (!f.endsWith(".mp3")) continue;
-    const name = f.slice(0, -4);
-    data[name] = fs.readFileSync(path.join(dir, f)).toString("base64");
+    const name = f.slice(0, -4), buf = fs.readFileSync(path.join(dir, f));
+    files[name] = "audio/out/" + f + "?v=" + crypto.createHash("md5").update(buf).digest("hex").slice(0, 8);
     const wav = path.join(dir, name + ".wav");
     if ((name.startsWith("music_") || name.startsWith("amb_")) && fs.existsSync(wav)) {
-      const b = fs.readFileSync(wav);
-      const rate = b.readUInt32LE(24), bytesPerSec = b.readUInt32LE(28);
+      const w = fs.readFileSync(wav);
+      const bytesPerSec = w.readUInt32LE(28);
       let off = 12, size = 0;
-      while (off < b.length - 8) { const id = b.toString("ascii", off, off + 4); const sz = b.readUInt32LE(off + 4); if (id === "data") { size = sz; break; } off += 8 + sz + (sz & 1); }
+      while (off < w.length - 8) { const id = w.toString("ascii", off, off + 4); const sz = w.readUInt32LE(off + 4); if (id === "data") { size = sz; break; } off += 8 + sz + (sz & 1); }
       loop[name] = Math.round(size / bytesPerSec * 10000) / 10000;
     }
   }
-  AUDIO_JSON = JSON.stringify(data);
-  return "const AUDIO_LOOP = " + JSON.stringify(loop) + ";";
+  return "const AUDIO_LOOP = " + JSON.stringify(loop) + ";\nconst AUDIO_FILES = " + JSON.stringify(files) + ";";
 }
 
 const b = builds[phase];
