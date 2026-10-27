@@ -29,7 +29,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.74 | File size budget: audio as separate cached files | waiting on user (breaks single-file index.html) |
 | 19.75 | Painted foliage style, banded sky gradient | done |
 | next | Mercenary sell-off server work: SQL and client already written (sql/m5d-run.sql, 18.35); needs the user's OK to run on Supabase | waiting on user |
-| next | Deferred spells (see design.md 17.2 list) | |
+| - | Deferred spells (see design.md 17.2 list) | already in game (Thorns, Edges, Laments etc.); stale item closed |
 | 19.76 | Higher-quality painted textures (bark, leaf, rock, ground, planks, cloth) | done (leaf in 19.75) |
 
 Suggested model: Sonnet for scenery props (19.60, 19.62, 19.65, 19.74); Opus for rigs, animation, faces and systems (19.63, 19.64, 19.66, 19.67, 19.73, 19.76, 19.77).

@@ -1690,7 +1690,7 @@ World systems:
 - Monster statuses: tpMove `status: [buffKey, seconds, pow]` applied in `execTpMove` via `inflictStatus` (poison ticks 1 + floor(lv/5) every 3 s). Assigned: Final Sting and Spore Cloud poison, Tongue Lash paralyze, Sand Spit blind, Shrieking Chant and Drowning Tide silence.
 - Mercenary healers: `healerSupport` cures statuses first, then keeps Protect and Shell (party version preferred) on the party while fighting at over 50% MP.
 - Mass Protect uses Protect's +15 (LandSandBoat lists 20; Protect itself uses 15 in the game, kept consistent).
-- Deferred to 17.2: Healing Rain, Gleamfall, Smitefall, Rockfall, Floodwave, Spikes, En- spells, Arc Burn/Grinding Blight/Throttle, Hunter's Dirge, Threnodies, Skipping Reel, Greenwood Air, Minstrel's Ballad, Silence.
+- Deferred to 17.2, all since added: Healing Rain, Gleamfall, Smitefall, Rockfall, Floodwave, Spikes (Ember/Frost Thorns), En- spells (Storm/Stone/Zephyr Edge), Arc Burn/Grinding Blight/Throttle, Hunter's Dirge, Threnodies (Laments), Skipping Reel, Greenwood Air, Minstrel's Ballad, Silence (checked 2026-10-27).
 - Tests: test/p56unit.js.
 
 ## Elementals and mob casters (v17.2.0)
