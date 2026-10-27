@@ -3219,26 +3219,47 @@ function shroomEntry(col, cap) {
 
 function fishEntry(col, belly) {
   const R = new RigBuilder();
-  const Y = 0.4;
+  const Y = 0.42;
   R.bone("root", null, 0, 0, 0);
   R.bone("body", "root", 0, Y, 0);
   R.bone("tail", "body", 0, Y, -0.3);
-  R.bone("tail2", "tail", 0, Y, -0.5);
-  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("fin" + sd, "body", s * 0.14, Y - 0.04, 0.08);
-  const dark = new THREE.Color(col).multiplyScalar(0.6).getHex(), light = belly || new THREE.Color(col).lerp(new THREE.Color(0xf0f4f0), 0.55).getHex();
-  R.add(gBall(V3(0, Y, 0), 0.2, 0.75, 1.15, 1.9, 14), "body", col, "scale");
-  R.add(gBall(V3(0, Y - 0.06, 0.02), 0.17, 0.65, 0.7, 1.7, 10), "body", light, "scale");
-  R.add(gBall(V3(0, Y + 0.18, -0.05), 0.12, 0.25, 1.4, 1.2, 8), "body", dark, "skin");
-  R.add(gBall(V3(0, Y + 0.02, 0.34), 0.07, 0.9, 0.6, 1, 8), "body", light, "skin");
+  R.bone("tail2", "tail", 0, Y, -0.52);
+  for (const [s, sd] of [[1, "L"], [-1, "R"]]) R.bone("fin" + sd, "body", s * 0.15, Y - 0.05, 0.08);
+  const dark = new THREE.Color(col).multiplyScalar(0.55).getHex(), deep = new THREE.Color(col).multiplyScalar(0.32).getHex(), light = belly || new THREE.Color(col).lerp(new THREE.Color(0xe8eee0), 0.5).getHex(), bone = 0xe8e0c8, maw = 0x4a1018;
+  R.add(gBall(V3(0, Y + 0.01, -0.02), 0.21, 0.78, 1.12, 1.9, 16), "body", col, "scale");
+  R.add(gBall(V3(0, Y + 0.08, 0.02), 0.17, 0.7, 0.9, 1.6, 12), "body", dark, "scale");
+  R.add(gBall(V3(0, Y - 0.07, 0.03), 0.17, 0.66, 0.66, 1.7, 12), "body", light, "scale");
+  R.add(gBall(V3(0, Y + 0.03, 0.27), 0.165, 0.88, 0.95, 0.95, 14), "body", dark, "skin");
+  R.add(gBall(V3(0, Y + 0.1, 0.3), 0.12, 0.95, 0.5, 0.95, 10), "body", deep, "scale");
+  R.add(gBall(V3(0, Y + 0.035, 0.39), 0.105, 0.95, 0.42, 0.75, 10), "body", dark, "skin");
+  R.add(gBall(V3(0, Y - 0.1, 0.38), 0.115, 1.0, 0.36, 0.95, 10), "body", dark, "skin");
+  R.add(gBall(V3(0, Y - 0.03, 0.39), 0.085, 0.9, 0.55, 0.6, 10), "body", maw, "plain");
+  for (let k = 0; k < 9; k++) { const t = (k / 8 - 0.5) * 2.3, x = Math.sin(t) * 0.085, z = 0.39 + Math.cos(t) * 0.065, big = k === 2 || k === 6, h = big ? 0.075 : 0.035 + (k % 2) * 0.012; R.add(gTaper(V3(x, Y + 0.012, z), V3(x * 1.05, Y + 0.012 - h, z + 0.012), big ? 0.013 : 0.008, 0.001, 5), "body", bone, "bone"); }
+  for (let k = 0; k < 10; k++) { const t = (k / 9 - 0.5) * 2.4, x = Math.sin(t) * 0.1, z = 0.4 + Math.cos(t) * 0.075, big = k === 1 || k === 8, h = big ? 0.085 : 0.03 + (k % 3) * 0.01; R.add(gTaper(V3(x, Y - 0.075, z), V3(x * 1.04, Y - 0.075 + h, z + 0.018), big ? 0.015 : 0.008, 0.001, 5), "body", bone, "bone"); }
   for (const s of [-1, 1]) {
-    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.25), 0.04, 1, 1.1, 0.6, 8), "body", 0xffe082, "glow", true);
-    R.add(gBall(V3(s * 0.11, Y + 0.05, 0.27), 0.02, 1, 1, 0.6, 5), "body", 0x111111, "plain");
-    R.add(gBall(V3(s * 0.14, Y - 0.04, 0.08), 0.055, 1, 1, 1, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
-    R.add(gBall(V3(s * 0.21, Y - 0.04, 0.04), 0.16, 0.18, 0.55, 1.15, 8), "fin" + (s > 0 ? "L" : "R"), dark, "skin");
+    const fn = "fin" + (s > 0 ? "L" : "R");
+    R.add(gBall(V3(s * 0.112, Y + 0.08, 0.31), 0.042, 0.8, 1, 0.9, 10), "body", 0xffb300, "glow", true);
+    R.add(gBox(V3(s * 0.142, Y + 0.08, 0.318), 0.006, 0.05, 0.012), "body", 0x0a0606, "plain");
+    R.add(gBox(V3(s * 0.1, Y + 0.13, 0.31), 0.08, 0.025, 0.07, 0, -s * 0.35, s * 0.45), "body", deep, "scale");
+    R.add(gBall(V3(s * 0.06, Y + 0.155, 0.22), 0.05, 1, 0.6, 1.4, 7), "body", deep, "scale");
+    for (let k = 0; k < 3; k++) R.add(gRing(V3(s * 0.135, Y - 0.005, 0.17 - k * 0.04), 0.075 - k * 0.005, 0.006, "x", 10, Math.PI * 0.8, [0, 0, Math.PI * 0.1]), "body", deep, "plain");
+    const bb = V3(s * 0.07, Y - 0.015, 0.43);
+    R.add(boneTube([bb, V3(s * 0.11, Y - 0.06, 0.47), V3(s * 0.14, Y - 0.14, 0.45), V3(s * 0.15, Y - 0.2, 0.41)], 0.008, 0.003, 8), "body", dark, "skin");
+    R.add(gBall(V3(s * 0.16, Y - 0.05, 0.08), 0.06, 1, 1, 1, 8), fn, dark, "skin");
+    R.add(gBall(V3(s * 0.25, Y - 0.06, 0.03), 0.17, 0.12, 0.5, 1.2, 9), fn, deep, "skin");
+    for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * 0.17, Y - 0.05, 0.09 - k * 0.02), V3(s * 0.38, Y - 0.08 - k * 0.025, 0.02 - k * 0.07), 0.009, 0.002, 4), fn, bone, "bone");
+    for (let k = 0; k < 2; k++) R.add(gBox(V3(s * 0.16, Y + 0.05 - k * 0.06, -0.08 + k * 0.12), 0.006, 0.008, 0.12, 0.3 - k * 0.6, 0, 0), "body", 0xb8b0a0, "plain");
   }
-  R.add(gTaper(V3(0, Y, -0.3), V3(0, Y, -0.5), 0.1, 0.05, 8), "tail", col, "scale");
-  R.add(gBall(V3(0, Y, -0.62), 0.17, 0.2, 1.3, 0.9, 8), "tail2", dark, "skin");
-  R.meta = { kind: "fish", headTop: 0.7 };
+  for (let k = 0; k < 8; k++) { const z = 0.16 - k * 0.07, h = 0.2 - Math.abs(k - 2.5) * 0.025; R.add(gTaper(V3(0, Y + 0.16 - k * 0.006, z), V3(0, Y + 0.18 + h, z - 0.06), 0.012, 0.002, 5), "body", bone, "bone"); }
+  R.add(gBall(V3(0, Y + 0.2, -0.06), 0.14, 0.07, 0.75, 1.75, 10), "body", deep, "skin");
+  for (let k = 0; k < 6; k++) R.add(gBox(V3(0, Y - 0.21 + Math.abs(k - 2.5) * 0.008, 0.15 - k * 0.07), 0.07, 0.012, 0.05, 0.1, 0, 0), "body", light, "scale");
+  R.add(gTaper(V3(0, Y, -0.28), V3(0, Y + 0.02, -0.52), 0.11, 0.045, 10), "tail", col, "scale");
+  for (let k = 0; k < 3; k++) R.add(gTaper(V3(0, Y + 0.08 - k * 0.005, -0.3 - k * 0.07), V3(0, Y + 0.15, -0.38 - k * 0.07), 0.008, 0.002, 4), "tail", bone, "bone");
+  for (const s of [-1, 1]) {
+    R.add(gTaper(V3(0, Y + 0.02, -0.54), V3(0, Y + 0.02 + s * 0.24, -0.78), 0.06, 0.012, 8, 0.25), "tail2", deep, "skin");
+    for (let k = 0; k < 4; k++) R.add(gTaper(V3(0, Y + 0.02 + s * 0.02, -0.54), V3(0, Y + 0.02 + s * (0.1 + k * 0.05), -0.72 - k * 0.02), 0.006, 0.002, 4), "tail2", dark, "bone");
+  }
+  R.meta = { kind: "fish", headTop: 0.8 };
   return R.finish();
 }
 

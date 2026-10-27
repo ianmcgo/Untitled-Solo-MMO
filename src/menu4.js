@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.69.0", date: "2026-10-27", title: "Fish with teeth", items: [
+    "<b>Fish monsters are scary now.</b> They have a gaping underbite full of uneven bone-white teeth with long fangs and a dark red maw, glowing amber eyes with slit pupils under scowling brow plates, an armoured skull and drooping barbels.",
+    "<b>More detail.</b> Gill slits, scars, a darker back over a pale belly with belly plates, a spiny dorsal fin with a membrane, pectoral fins with bony rays and a forked, ribbed tail.",
+  ] },
   { v: "19.68.0", date: "2026-10-27", title: "Towering longnecks", items: [
     "<b>Longnecks are huge now.</b> Marsh Longnecks stand about half again as tall, with longer legs, a deeper body and a long stride, and they take up more room in a fight.",
     "<b>Sculpted neck.</b> The neck is a thick, S-curved column that swells at the shoulders and narrows toward the head, with a dark mane down the back, a ridged throat, spots and a muscled shoulder hump.",

@@ -3081,3 +3081,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 ## 19.68.0 Towering longnecks
 - longneckEntry: bodyY 1.85, bodyR 0.55, bodyLen 1.95, leg 1.6, hip 0.28, neckUp 1.85, neckFwd 0.8, neckR 0.15, headR 0.18, tailLen 0.8, tailDrop 0.55, stride 3.1, patches = col * 0.62, long: true. Data: longneck radius 20 to 30.
 - quadEntry o.long: the neck is a boneTube through 5 Catmull-Rom points (S-curve, radius neckR * 1.55 at the base to 0.78 at the top), plus a shoulder hump ball. Along the curve: a mane of 14 boxes on the back normal (dark, fur region, radius matched to the tube) and 6 throat ridge balls (light). Head: two ossicone tapers with dark knobs and a brow bump. Neck spots: 12 flattened balls on the sides in the patch colour. Tail tuft for long: 7 dark strands instead of the big ball.
+
+## 19.69.0 Fish with teeth
+- fishEntry rebuilt on the same bones (body, tail, tail2, finL/R) and meta (kind fish, headTop 0.8), so poseFish is unchanged. Layered body: scale, dark back and light belly. Head: dark skull, deep crown plate, upper jaw and an underbite lower jaw around a dark red maw. Teeth: an upper arc of 9 (2 fangs) and a lower arc of 10 (2 fangs).
+- Per side: glow eye (0xffb300) with a black slit pupil, angled brow plate, crown lump, 3 gill arcs, a boneTube barbel, pectoral fin (deep membrane plus 4 bone rays) and 2 pale scars. Back: 8 dorsal spines plus a membrane; 6 belly plates. Tail: tapered peduncle with 3 spines, forked fin (two flattened tapers) with 4 rays per lobe. Colours: dark = col * 0.55, deep = col * 0.32.
