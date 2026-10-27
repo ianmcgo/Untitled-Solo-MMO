@@ -3,7 +3,7 @@
 ## Art direction (applies to every phase)
 - Lots of detail. Nothing is flat or perfectly straight, nothing is a perfect circle or perfectly smooth, nothing is one solid colour.
 - Shapes: break silhouettes with lumps, bends, tapers, chips and noise. Faceted low-poly is fine; clean primitives are not.
-- Colour: every surface gets variation (vertex colour gradients, darker crevices and undersides, lighter tops and edges, patches, per-instance tint).
+- Colour: every surface gets variation (vertex colour gradients, darker crevices and undersides, lighter tops and edges, patches, per-instance tint). Enforced in 19.83 by the global no-flat shader hook for untextured materials.
 - Textures: hand-painted look, higher resolution and more detail than the current procedural textures.
 
 One version per phase. Each phase updates Help, the Updates list, the title stamp (via build) and design.md.

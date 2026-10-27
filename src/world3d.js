@@ -283,6 +283,26 @@ function* buildFieldSteps(zone) {
 }
 
 function std(params) { return new THREE.MeshStandardMaterial(Object.assign({ roughness: 0.9, metalness: 0 }, params)); }
+const NOFLAT_GLSL = "varying vec3 vNfW;\nfloat nfH(vec3 p) { p = fract(p * 0.3183099 + 0.1); p *= 17.0; return fract(p.x * p.y * p.z * (p.x + p.y + p.z)); }\nfloat nfN(vec3 x) { vec3 i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(mix(mix(nfH(i), nfH(i + vec3(1.0, 0.0, 0.0)), f.x), mix(nfH(i + vec3(0.0, 1.0, 0.0)), nfH(i + vec3(1.0, 1.0, 0.0)), f.x), f.y), mix(mix(nfH(i + vec3(0.0, 0.0, 1.0)), nfH(i + vec3(1.0, 0.0, 1.0)), f.x), mix(nfH(i + vec3(0.0, 1.0, 1.0)), nfH(i + vec3(1.0, 1.0, 1.0)), f.x), f.y), f.z); }\nvec3 nfVar(vec3 p) { float n = nfN(p * 1.3) * 0.5 + nfN(p * 4.1 + 3.1) * 0.3 + nfN(p * 13.0 + 7.7) * 0.2; float w = nfN(p * 0.55 + 11.0); return vec3(0.84 + 0.32 * n) * mix(vec3(1.04, 0.99, 0.94), vec3(0.95, 1.0, 1.05), w); }\n";
+function noFlatOn(m) {
+  if (!m || m.map || (m.userData && m.userData.flat) || m.wireframe) return false;
+  if (m.transparent && m.opacity < 0.6) return false;
+  if (m.emissive && m.emissiveIntensity > 0.4 && m.emissive.r + m.emissive.g + m.emissive.b > 0.3) return false;
+  return true;
+}
+function noFlatHook(sh) {
+  if (!noFlatOn(this)) return;
+  sh.vertexShader = "varying vec3 vNfW;\n" + sh.vertexShader.replace("#include <project_vertex>", "#include <project_vertex>\n#ifdef USE_INSTANCING\nvNfW = (modelMatrix * instanceMatrix * vec4(transformed, 1.0)).xyz;\n#else\nvNfW = (modelMatrix * vec4(transformed, 1.0)).xyz;\n#endif");
+  sh.fragmentShader = NOFLAT_GLSL + sh.fragmentShader.replace("#include <color_fragment>", "#include <color_fragment>\ndiffuseColor.rgb *= nfVar(vNfW);");
+}
+(function installNoFlat() {
+  for (const C of [THREE.MeshStandardMaterial, THREE.MeshLambertMaterial, THREE.MeshPhongMaterial]) {
+    if (!C || C.prototype.__noFlat) continue;
+    C.prototype.__noFlat = true;
+    C.prototype.onBeforeCompile = noFlatHook;
+    C.prototype.customProgramCacheKey = function () { return this.onBeforeCompile.toString() + (noFlatOn(this) ? "|nf" : ""); };
+  }
+})();
 
 function buildTerrain(field) { return runSteps(buildTerrainSteps(field)); }
 
@@ -1159,8 +1179,9 @@ function mtx(x, y, z, sx, sy, sz, ry, rx, rz) {
 }
 
 function addWind(mat, strength, gb) {
-  const tb = W3.terrainBox, gm = gb && W3.terrainMap && tb;
-  mat.onBeforeCompile = sh => {
+  const tb = W3.terrainBox, gm = gb && W3.terrainMap && tb, prevW = mat.onBeforeCompile;
+  mat.onBeforeCompile = function (sh, r) {
+    if (prevW) prevW.call(mat, sh, r);
     sh.uniforms.uTime = { value: 0 };
     mat.userData.shader = sh;
     let pre = "uniform float uTime;\n", body = "#include <begin_vertex>\nvec4 wp0 = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);\nfloat sway = sin(uTime * 1.7 + wp0.x * 0.35 + wp0.z * 0.27) * " + strength.toFixed(3) + " * max(position.y, 0.0);\ntransformed.x += sway;\ntransformed.z += sway * 0.6;";

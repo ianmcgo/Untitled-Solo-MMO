@@ -272,8 +272,8 @@ function paintFaceFor(race, g, ox, oy, v, fem) {
 
 const PST = (x, n) => { const m = n * 2 + 1; return Math.floor(clamp(x, 0, 0.9999) * m) / (m - 1); };
 const CLASSIC_PAINT = {
-  skin(u, v, o) { const n = NOISE.fbm(u * 3, v * 3, 2, 3, 11); o[0] = 0.84 + 0.05 * n + 0.012 * (NOISE.value(u * 40, v * 40, 40, 13) - 0.5); o[1] = 0; o[2] = 0.9; o[3] = 0; },
-  face(u, v, o) { o[0] = 0.86; o[1] = 0; o[2] = 0.9; o[3] = 0; },
+  skin(u, v, o) { const n = NOISE.fbm(u * 3, v * 3, 2, 3, 11), m = NOISE.fbm(u * 9, v * 9, 3, 9, 14); o[0] = 0.8 + 0.08 * n + 0.05 * (m - 0.5) + 0.02 * (NOISE.value(u * 40, v * 40, 40, 13) - 0.5) + 0.012 * (NOISE.value(u * 110, v * 110, 110, 15) - 0.5); o[1] = 0; o[2] = 0.9; o[3] = 0; },
+  face(u, v, o) { const n = NOISE.fbm(u * 4, v * 4, 3, 4, 17); o[0] = 0.84 + 0.035 * (n - 0.5) + 0.012 * (NOISE.value(u * 90, v * 90, 90, 19) - 0.5); o[1] = 0; o[2] = 0.9; o[3] = 0; },
   cloth(u, v, o, X) {
     const ev = Math.min(v, 1 - v), w = NOISE.fbm(u * 3, v * 2, 2, 3, 23), w2 = NOISE.fbm(u * 2, v * 3, 2, 2, 27);
     const f = Math.sin((u * 5 + w * 0.35) * Math.PI * 2), crease = f < -0.93 ? 1 : 0, hi = f > 0.82 ? 1 : 0;
@@ -351,7 +351,7 @@ const CLASSIC_PAINT = {
     o[0] = a; o[1] = 0; o[2] = 0.9; o[3] = 0;
   },
   glow(u, v, o) { o[0] = 1; o[1] = 0; o[2] = 1; o[3] = 0; },
-  plain(u, v, o) { o[0] = 0.96; o[1] = 0; o[2] = 0.6; o[3] = 0; },
+  plain(u, v, o) { o[0] = 0.9 + 0.07 * (NOISE.fbm(u * 5, v * 5, 3, 5, 91) - 0.5) + 0.03 * (NOISE.value(u * 48, v * 48, 48, 93) - 0.5); o[1] = 0; o[2] = 0.6; o[3] = 0; },
   chain(u, v, o, x, y) {
     const cs = 10, row = Math.floor(y / cs), ox = row % 2 ? cs / 2 : 0;
     const gx = ((x + ox) % cs) - cs / 2, gy = (y % cs) - cs / 2, dr = Math.abs(Math.hypot(gx, gy * 1.2) - 3.3);
