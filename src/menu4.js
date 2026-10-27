@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.66.0", date: "2026-10-27", title: "Both hands on the haft", items: [
+    "<b>Fixed: floating off hand.</b> With a great axe, scythe, great sword, great katana, polearm or staff drawn, your off hand now really grips the haft instead of hovering beside it. If the usual spot is out of reach, the hand slides along the haft, your chest turns slightly into the swing and your weapon hand draws in toward your middle. This also works for small races like Pipkins.",
+    "<b>Steadier grip.</b> The two-handed grip no longer creeps or shakes from frame to frame.",
+  ] },
   { v: "19.65.0", date: "2026-10-27", title: "Hay bales and loaded wagons", items: [
     "<b>Proper hay bales.</b> Bales have rounded, slightly bulging edges, straw streaks in light and dark gold, chopped stalk ends, wisps of straw sticking out and two twine bands that wrap all the way round. Hay wagons carry a loose, lumpy heap under the bales, and spilled hay lies on the ground beside them.",
     "<b>Wagon cargo.</b> Stone wagons carry lumpy rocks of mixed size and colour, with gravel. Barrel wagons have slumped burlap sacks tied at the neck and a coiled rope. Covered wagons have a sagging, wrinkled canvas roof tied down with ropes.",

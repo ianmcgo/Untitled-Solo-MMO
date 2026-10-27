@@ -214,16 +214,46 @@ function aimBone(bone, child, target) {
   bone.quaternion.copy(bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(nq));
   bone.updateMatrixWorld(true);
 }
+function ikRestore(v) {
+  const sv = v.ikSaved;
+  if (!sv) return;
+  for (const [o, q] of sv) o.quaternion.copy(q);
+  v.ikSaved = null;
+}
+function ikSave(v, list) { v.ikSaved = list.filter(Boolean).map(o => [o, o.quaternion.clone()]); }
 function twoHandGrip(v, e) {
   const w = v.weapon, B = v.bones;
   if (!w || !v.weaponDrawn || w.parent !== B.handR || !B.upArmL || !B.foreArmL || !B.handL || e.alive === false) return;
   const off = TWO_HAND_GRIP[w.userData.kind];
   if (off == null) return;
+  ikSave(v, [B.upArmL, B.foreArmL, B.chest, B.upArmR, B.foreArmR, w]);
   v.group.updateMatrixWorld(true);
   const S = B.upArmL.getWorldPosition(_ik.S), E = B.foreArmL.getWorldPosition(_ik.E), Wp = B.handL.getWorldPosition(_ik.W);
-  const l1 = S.distanceTo(E), l2 = E.distanceTo(Wp), T = w.localToWorld(_ik.T.set(0, off, 0));
-  const dist = S.distanceTo(T);
-  if (dist > (l1 + l2) * 1.6) return;
+  const l1 = S.distanceTo(E), l2 = E.distanceTo(Wp), reach = (l1 + l2) * 0.97, T = _ik.T;
+  const pick = () => { let best = 1e9, bd = 9; for (let k = 0; k <= 14; k++) { const o = off * (1.4 - k * 0.09), P = w.localToWorld(_ik.d.set(0, o, 0)), dd = B.upArmL.getWorldPosition(_ik.S).distanceTo(P), sc = dd <= reach ? Math.abs(o - off) : 5 + dd; if (sc < best) { best = sc; bd = dd; T.copy(P); } } return bd; };
+  let dist = pick();
+  if (dist > l1 + l2 && B.chest) {
+    const up = _ik.p.set(0, 1, 0), q0 = B.chest.quaternion.clone();
+    let bestA = 0, bestD = dist;
+    for (const a of [-0.15, -0.3, -0.45, 0.15, 0.3]) { B.chest.quaternion.copy(q0).premultiply(new THREE.Quaternion().setFromAxisAngle(up, a)); B.chest.updateMatrixWorld(true); const d2 = pick(); if (d2 < bestD - 1e-3) { bestD = d2; bestA = a; } }
+    B.chest.quaternion.copy(q0).premultiply(new THREE.Quaternion().setFromAxisAngle(up, bestA)); B.chest.updateMatrixWorld(true);
+    dist = pick();
+  }
+  if (dist > l1 + l2 && B.upArmR && B.foreArmR) {
+    const SR = B.upArmR.getWorldPosition(new THREE.Vector3()), SL = B.upArmL.getWorldPosition(new THREE.Vector3()), HR = B.handR.getWorldPosition(new THREE.Vector3()), mid = SL.clone().lerp(SR, 0.62), fwd = HR.clone().sub(mid).setY(0);
+    if (fwd.lengthSq() < 1e-6) fwd.set(0, 0, 1).applyQuaternion(v.group.getWorldQuaternion(_ik.q)); fwd.normalize();
+    const lr1 = SR.distanceTo(B.foreArmR.getWorldPosition(new THREE.Vector3())), lr2 = B.foreArmR.getWorldPosition(new THREE.Vector3()).distanceTo(HR), goal = mid.clone().addScaledVector(fwd, (lr1 + lr2) * 0.62).add(new THREE.Vector3(0, -(lr1 + lr2) * 0.22, 0));
+    const dR = SR.distanceTo(goal), dirR = goal.clone().sub(SR).normalize(), nR = new THREE.Vector3().crossVectors(dirR, new THREE.Vector3(-0.5, -1, -0.4).applyQuaternion(v.group.getWorldQuaternion(_ik.q)).normalize());
+    if (nR.lengthSq() > 1e-6) {
+      nR.normalize();
+      const dd = Math.min(lr1 + lr2 - 1e-3, Math.max(1e-3, dR)), aR = Math.acos(clamp((lr1 * lr1 + dd * dd - lr2 * lr2) / (2 * lr1 * dd), -1, 1)), elR = dirR.clone().applyAxisAngle(nR, -aR).multiplyScalar(lr1).add(SR);
+      const wq = w.getWorldQuaternion(new THREE.Quaternion());
+      aimBone(B.upArmR, B.foreArmR, elR); aimBone(B.foreArmR, B.handR, goal);
+      const hq = B.handR.getWorldQuaternion(new THREE.Quaternion());
+      w.quaternion.copy(hq.invert().multiply(wq)); w.updateMatrixWorld(true);
+      dist = pick();
+    }
+  }
   const d = Math.min(l1 + l2 - 1e-3, Math.max(1e-3, dist)), dir = _ik.d.copy(T).sub(S).normalize();
   const pole = _ik.p.set(0.5, -1, -0.4).applyQuaternion(v.group.getWorldQuaternion(_ik.q)).normalize();
   const n = _ik.n.crossVectors(dir, pole);
@@ -423,6 +453,7 @@ function syncEntity(e, dt) {
     g.rotation.z += (clamp(-(e.bank || 0) * 0.32, -0.55, 0.55) * (up ? 1 : 0) - g.rotation.z) * Math.min(1, dt * 4);
   } else if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
   v.lookTgt = lookTargetOf(e);
+  ikRestore(v);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
   else if (v.kind === "worm") poseWorm(v, e, dt);
