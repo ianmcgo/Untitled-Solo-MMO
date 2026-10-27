@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.62.0", date: "2026-10-27", title: "A livelier waterfall", items: [
+    "<b>Waterfalls pour, not hang.</b> The falling water is now a curved, layered torrent: a deep blue body with white streaks and fast thin strands over it. It curls over the lip, spreads as it drops and has ragged, fading edges instead of a straight sheet.",
+    "<b>Spill and splash.</b> Thin side streams spill down beside the main fall, the plunge pool has an uneven patch of churning foam with lumps of white water, and clouds of mist roll up from the bottom.",
+    "<b>Rocks.</b> The cliff around the fall is lined with boulders of different sizes: darker and wet near the water, mossy on top, with a few half-sunk in the pool.",
+  ] },
   { v: "19.61.0", date: "2026-10-27", title: "Oaks, birches and bushy trees", items: [
     "<b>Three kinds of broadleaf tree.</b> Broad oaks with spreading boughs, tall slender birches with white, dark-flecked bark, and low bushy trees with dense crowns. Each kind has two shapes, and every tree is sized and leaned a little differently.",
     "<b>Leafy crowns.</b> Crowns are built from several faceted clumps of leaves at the ends of real branches you can see under the canopy. Crowns are darker underneath and inside, lighter on top, with clumps of slightly different greens.",

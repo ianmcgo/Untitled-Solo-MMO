@@ -782,7 +782,7 @@ function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 function lumpBlob(r, sx, sy, sz, cx, cy, cz, seed, amt) {
   const g = new THREE.IcosahedronGeometry(r, 1), p = g.attributes.position;
   for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), z = p.getZ(i), n = NOISE.value(x * 5 + seed, y * 5 + seed * 0.7, z * 5, 517) * 2 - 1, k = 1 + n * amt;
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i), n = NOISE.value(x * 5 + z * 3.7 + seed, y * 5 + z * 2.3 + seed * 0.7, 0, 517) * 2 - 1, k = 1 + n * amt;
     p.setXYZ(i, x * k * sx + cx, y * k * sy + cy, z * k * sz + cz);
   }
   return g;
@@ -792,7 +792,7 @@ function logRad(y, sd) { const t = (y + 1.3) / 2.6; return 0.33 - t * 0.07 + Mat
 function logGeo(sd) {
   return propGeo("log" + sd, () => {
     const R = 10, H = 14, half = 1.3, pos = [], col = [];
-    const ring = (y, a) => { const r = logRad(y, sd), [wx, wz] = logWob(y, sd), ridge = Math.pow(Math.abs(Math.sin(a * 5.5 + NOISE.value(y * 0.8, a, sd, 531) * 2.5)), 3) * 0.07, n = (NOISE.value(Math.cos(a) * 2 + sd, Math.sin(a) * 2, y * 0.7, 533) - 0.5) * 0.08, rr = r * (1 + n - ridge); return [Math.cos(a) * rr + wx, y, Math.sin(a) * rr + wz, 0.78 + ridge * 4 + n * 2]; };
+    const ring = (y, a) => { const r = logRad(y, sd), [wx, wz] = logWob(y, sd), ridge = Math.pow(Math.abs(Math.sin(a * 5.5 + NOISE.value(y * 0.8 + sd * 5, a, 0, 531) * 2.5)), 3) * 0.07, n = (NOISE.value(Math.cos(a) * 2 + sd + y * 0.5, Math.sin(a) * 2 + y * 0.7, 0, 533) - 0.5) * 0.08, rr = r * (1 + n - ridge); return [Math.cos(a) * rr + wx, y, Math.sin(a) * rr + wz, 0.78 + ridge * 4 + n * 2]; };
     const V = [];
     for (let j = 0; j <= H; j++) { const y = -half + j * 2 * half / H, row = []; for (let i = 0; i <= R; i++) row.push(ring(y, i / R * Math.PI * 2)); V.push(row); }
     const push = q => { pos.push(q[0], q[1], q[2]); col.push(q[3] * 0.95, q[3] * 0.9, q[3] * 0.85); };
@@ -837,7 +837,7 @@ function treeGeo(kind, sd) {
     const trunk = new THREE.CylinderGeometry(K.r1, K.r0, K.h + 0.4, K.birch ? 12 : 9, K.birch ? 30 : 10, true).translate(0, K.h / 2 + 0.2 - 0.4, 0), tp = trunk.attributes.position;
     for (let i = 0; i < tp.count; i++) {
       const x = tp.getX(i), y = tp.getY(i), zz = tp.getZ(i), a = Math.atan2(zz, x), t = clamp((y + 0.2) / (K.h + 0.2), 0, 1);
-      const base = K.r0 + (K.r1 - K.r0) * t, root = K.flare * Math.exp(-Math.max(0, y) * 3.5) * (0.6 + 0.8 * Math.pow(Math.max(0, Math.cos(a * 4 + sd * 1.7)), 2)), knot = (NOISE.value(Math.cos(a) * 1.5, y * 1.2, sd, 541) - 0.5) * base * 0.25, R = base + root + knot, [ax, az] = axis(Math.max(0, y));
+      const base = K.r0 + (K.r1 - K.r0) * t, root = K.flare * Math.exp(-Math.max(0, y) * 3.5) * (0.6 + 0.8 * Math.pow(Math.max(0, Math.cos(a * 4 + sd * 1.7)), 2)), knot = (NOISE.value(Math.cos(a) * 1.5 + sd * 4, y * 1.2 + Math.sin(a), 0, 541) - 0.5) * base * 0.25, R = base + root + knot, [ax, az] = axis(Math.max(0, y));
       tp.setXYZ(i, Math.cos(a) * R + ax, y, Math.sin(a) * R + az);
     }
     const wood = [trunk], tips = [];
@@ -855,7 +855,7 @@ function treeGeo(kind, sd) {
     const tw = mergeNI(wood);
     if (K.birch) {
       const p = tw.attributes.position, c = new Float32Array(p.count * 3);
-      for (let i = 0; i < p.count; i++) { const y = p.getY(i), a = Math.atan2(p.getZ(i), p.getX(i)), dash = NOISE.value(a * 1.6 + sd, y * 9, 0, 547) > 0.6 ? 0.2 : NOISE.value(a * 3, y * 3, 1, 549) > 0.7 ? 0.5 : 0.92 + (NOISE.value(a, y * 2, 2, 553) - 0.5) * 0.1, low = y < 0.5 ? 0.6 + y * 0.6 : 1; c[i * 3] = dash * low; c[i * 3 + 1] = dash * low * 0.98; c[i * 3 + 2] = dash * low * 0.93; }
+      for (let i = 0; i < p.count; i++) { const y = p.getY(i), a = Math.atan2(p.getZ(i), p.getX(i)), dash = NOISE.value(a * 1.6 + sd, y * 9, 0, 547) > 0.6 ? 0.2 : NOISE.value(a * 3 + 1, y * 3, 0, 549) > 0.7 ? 0.5 : 0.92 + (NOISE.value(a + 2, y * 2, 0, 553) - 0.5) * 0.1, low = y < 0.5 ? 0.6 + y * 0.6 : 1; c[i * 3] = dash * low; c[i * 3 + 1] = dash * low * 0.98; c[i * 3 + 2] = dash * low * 0.93; }
       tw.setAttribute("color", new THREE.BufferAttribute(c, 3));
     }
     tw.computeVertexNormals();
@@ -870,7 +870,7 @@ function treeGeo(kind, sd) {
       const hue = r(), hm = hue < 0.33 ? [1.08, 1.05, 0.82] : hue < 0.66 ? [0.94, 1.0, 1.02] : [1, 1, 1];
       for (let i = 0; i < p.count; i++) {
         const vy = p.getY(i), loc = clamp((vy - y) / rr * 0.5 + 0.5, 0, 1), glob = clamp((vy - cy0) / (cy1 - cy0), 0, 1), out = clamp(Math.hypot(p.getX(i) - x, p.getZ(i) - zz) / rr, 0, 1);
-        const v = 0.5 + loc * 0.32 + glob * 0.3 + out * 0.1 + (NOISE.value(p.getX(i) * 3, vy * 3, p.getZ(i) * 3, 551) - 0.5) * 0.16;
+        const v = 0.5 + loc * 0.32 + glob * 0.3 + out * 0.1 + (NOISE.value(p.getX(i) * 3 + p.getZ(i) * 2.1, vy * 3, 0, 551) - 0.5) * 0.16;
         c[i * 3] = v * hm[0]; c[i * 3 + 1] = v * hm[1]; c[i * 3 + 2] = v * hm[2];
       }
       g.setAttribute("color", new THREE.BufferAttribute(c, 3));
@@ -901,7 +901,7 @@ function hedgeGeo(v, sd) {
     for (let i = 0; i < p.count; i++) {
       const y = Math.max(p.getY(i), 0.04);
       p.setY(i, y);
-      const patch = NOISE.value(p.getX(i) * 2.2 + sd * 9, y * 2.2, p.getZ(i) * 2.2, 523) * 2 - 1, t = Math.min(1, y / 1.1), c = 0.6 + t * 0.4 + patch * 0.12;
+      const patch = NOISE.value(p.getX(i) * 2.2 + p.getZ(i) * 1.7 + sd * 9, y * 2.2, 0, 523) * 2 - 1, t = Math.min(1, y / 1.1), c = 0.6 + t * 0.4 + patch * 0.12;
       col[i * 3] = c; col[i * 3 + 1] = Math.min(1, c * 1.04); col[i * 3 + 2] = c * 0.9;
     }
     geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
@@ -3458,27 +3458,59 @@ function buildWater(field, root) {
     if (FS) {
       const { fx, fy, dirX, dirY, top, base } = FS;
       {
-        const hgt = top - base + 0.5, wid = 8, yaw = Math.atan2(dirX, dirY), px0 = (fx - dirX * 24) * U, pz0 = (fy - dirY * 24) * U;
-        const ft = fallTex(0), ft2 = fallTex(1), layers = [];
-        for (const [tex, w2, op, col, dz] of [[ft, wid, 1, 0x5f98c0, -0.25], [ft2, wid * 0.9, 1, 0xffffff, 0.12], [ft2, wid * 0.55, 0.9, 0xffffff, 0.3]]) {
-          const fg = new THREE.PlaneGeometry(w2, hgt + 0.6, 6, 10), pa = fg.attributes.position;
-          for (let i = 0; i < pa.count; i++) { const yy = pa.getY(i) / (hgt + 0.6) + 0.5, xx = pa.getX(i) / w2; pa.setZ(i, -Math.pow(1 - yy, 2.2) * 2.2 + dz - Math.cos(xx * Math.PI) * 0.25 + (yy < 0.08 ? (0.08 - yy) * 6 : 0)); }
+        const hgt = top - base + 0.5, wid = 8, yaw = Math.atan2(dirX, dirY), px0 = (fx - dirX * 24) * U, pz0 = (fy - dirY * 24) * U, H = hgt + 0.6;
+        const ft = fallTex(0), ft2 = fallTex(1), ft3 = fallTex(2);
+        const sheet = (w2, dz, seed, spread) => {
+          const fg = new THREE.PlaneGeometry(w2, H, 18, 30), pa = fg.attributes.position, col = new Float32Array(pa.count * 4);
+          for (let i = 0; i < pa.count; i++) {
+            const yy = clamp(pa.getY(i) / H + 0.5, 0, 1), xx = pa.getX(i) / w2, edge = Math.abs(xx) * 2, wob = NOISE.value(xx * 3 + seed * 7, yy * 5, 0, 561) - 0.5;
+            pa.setX(i, pa.getX(i) * (1 + (1 - yy) * spread) + wob * (edge > 0.85 ? 0.7 : 0.18));
+            pa.setZ(i, -Math.pow(1 - yy, 2.2) * 2.2 + dz - Math.cos(xx * Math.PI) * 0.25 + (yy < 0.08 ? (0.08 - yy) * 6 : 0) + (yy > 0.9 ? (yy - 0.9) * 3.5 : 0) + Math.sin(yy * 22 + xx * 7 + seed) * 0.04);
+            const al = (1 - sstep(0.72, 1, edge + wob * 0.2)) * sstep(0, 0.07, yy), lit = 0.86 + yy * 0.14 + (yy > 0.88 ? 0.1 : 0);
+            col[i * 4] = lit; col[i * 4 + 1] = lit; col[i * 4 + 2] = Math.min(1, lit * 1.04); col[i * 4 + 3] = al;
+          }
+          fg.setAttribute("color", new THREE.BufferAttribute(col, 4));
           fg.computeVertexNormals();
-          const m = new THREE.Mesh(fg, new THREE.MeshBasicMaterial({ map: tex, color: col, transparent: true, opacity: op, depthWrite: false, side: THREE.DoubleSide, fog: true }));
-          m.position.set(px0, base + (hgt + 0.6) / 2 - 0.3, pz0); m.rotation.y = yaw; m.renderOrder = 3; root.add(m); layers.push(m);
-        }
-        const lipB = new THREE.Matrix4().makeRotationY(yaw).setPosition(px0, top - 0.3, pz0), rk = texRock(), rkM = std({ map: rk.map, normalMap: rk.normalMap, color: 0x7a766e, roughness: 0.95 }), lump = noisyGeo(new THREE.IcosahedronGeometry(1, 1), 0.25, 5), lb = cityBatch();
-        for (const sd of [-1, 1]) for (let k = 0; k < 4; k++) lb.add(rkM, lump, lipB, sd * (wid / 2 + 0.6 + k * 0.5), -k * (hgt / 4), -0.6 - k * 0.3, k, k * 2, 0, 1.2 - k * 0.1, 1.4, 1.1);
-        for (let k = 0; k < 3; k++) lb.add(rkM, lump, lipB, (k - 1) * wid * 0.36, -0.1, 1.3, k, 0, 0, 1.3, 0.6, 1.0);
-        lb.flush(root);
-        const foamM = new THREE.MeshBasicMaterial({ map: foamTex(), color: 0xffffff, transparent: true, opacity: 0.8, depthWrite: false, fog: true }), foam = new THREE.Mesh(new THREE.CircleGeometry(wid * 0.75, 24), foamM);
-        foam.rotation.x = -Math.PI / 2; foam.position.set(px0 + Math.sin(yaw) * -1.6, base + 0.05, pz0 + Math.cos(yaw) * -1.6); foam.renderOrder = 3; root.add(foam);
-        const churn = [], spray = [];
-        for (let k = 0; k < 7; k++) { const c2 = new THREE.Mesh(new THREE.SphereGeometry(0.5, 8, 6), new THREE.MeshBasicMaterial({ color: 0xf4faff, transparent: true, opacity: 0.55, depthWrite: false })); const ox = (k / 6 - 0.5) * wid * 0.9; c2.position.set(px0 + Math.cos(yaw) * ox - Math.sin(yaw) * 1.2, base + 0.1, pz0 - Math.sin(yaw) * ox - Math.cos(yaw) * 1.2); c2.userData = { ph: k * 1.3, y: base + 0.1 }; root.add(c2); churn.push(c2); }
-        for (let k = 0; k < 14; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })); sp.userData = { ph: k / 14, ox: (Math.random() - 0.5) * wid, base: new THREE.Vector3(px0 - Math.sin(yaw) * 1.4, base, pz0 - Math.cos(yaw) * 1.4), yaw }; root.add(sp); spray.push(sp); }
-        const mist = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0.35, depthWrite: false }));
-        mist.scale.set(12, 5, 1); mist.position.set(px0 - Math.sin(yaw) * 2, base + 1.6, pz0 - Math.cos(yaw) * 2); root.add(mist);
-        W3.waterFx.push({ kind: "fall", tex: ft, tex2: ft2, mist, foam: foamM, churn, spray });
+          return fg;
+        };
+        const layer = (tex, w2, op, col, dz, seed, spread, ox) => {
+          const m = new THREE.Mesh(sheet(w2, dz, seed, spread), new THREE.MeshBasicMaterial({ map: tex, color: col, transparent: true, opacity: op, vertexColors: true, depthWrite: false, side: THREE.DoubleSide, fog: true }));
+          m.position.set(px0 + Math.cos(yaw) * ox, base + H / 2 - 0.3, pz0 - Math.sin(yaw) * ox); m.rotation.y = yaw; m.renderOrder = 3; root.add(m);
+        };
+        layer(ft, wid, 0.92, 0xb4d8ee, -0.25, 1, 0.22, 0);
+        layer(ft2, wid * 0.92, 1, 0xffffff, 0.08, 2, 0.28, 0);
+        layer(ft2, wid * 0.8, 0.8, 0xffffff, 0.16, 5, 0.3, -0.4);
+        layer(ft3, wid * 0.72, 0.9, 0xffffff, 0.24, 3, 0.34, 0.3);
+        for (const sd of [-1, 1]) layer(ft3, wid * 0.16, 0.85, 0xf4fbff, -0.1, 4 + sd, 0.6, sd * wid * 0.56);
+        const lipB = new THREE.Matrix4().makeRotationY(yaw).setPosition(px0, top - 0.3, pz0), rk = texRock(), rkM = std({ map: rk.map, normalMap: rk.normalMap, color: 0xa29c92, roughness: 0.95, vertexColors: true });
+        const rr = seeded(hashStr(z.name + "fallrock")), RK = [], dropY = -(top - 0.3 - base);
+        const rock = (x, y, zz, sc, wet) => {
+          const g = lumpBlob(1, 1 + rr() * 0.4, 0.6 + rr() * 0.5, 1 + rr() * 0.3, 0, 0, 0, rr() * 50, 0.32), p = g.attributes.position, c = new Float32Array(p.count * 3);
+          for (let i = 0; i < p.count; i++) { const vy = p.getY(i), n = NOISE.value(p.getX(i) * 2.3 + p.getZ(i) * 1.9 + x, vy * 2.3, 0, 571), moss = vy > 0.25 && n > 0.55 && !wet ? 1 : 0, v = 0.62 + n * 0.3 + vy * 0.12 - (wet ? 0.18 : 0); c[i * 3] = moss ? v * 0.6 : v; c[i * 3 + 1] = moss ? v * 0.85 : v * 0.98; c[i * 3 + 2] = moss ? v * 0.42 : v * 0.95; }
+          g.setAttribute("color", new THREE.BufferAttribute(c, 3));
+          g.applyMatrix4(new THREE.Matrix4().compose(new THREE.Vector3(x, y, zz), new THREE.Quaternion().setFromEuler(new THREE.Euler(rr() * 0.6, rr() * 6.28, rr() * 0.6)), new THREE.Vector3(sc, sc, sc))).applyMatrix4(lipB);
+          const wpos = new THREE.Vector3(x, y, zz).applyMatrix4(lipB), gy = field.heightAt(wpos.x / U, wpos.z / U), cy = gy < base + 0.2 ? Math.max(gy, base - sc * 0.45) : gy - sc * 0.32;
+          g.translate(0, cy - wpos.y, 0);
+          RK.push(g);
+        };
+        for (const sd of [-1, 1]) for (let k = 0; k < 6; k++) rock(sd * (wid / 2 + 0.5 + k * 0.42 + rr() * 0.5), -k * (hgt / 5.5), -0.5 - k * 0.32, 1.25 - k * 0.08 + rr() * 0.4, k > 3);
+        for (const sd of [-1, 1]) for (let k = 0; k < 3; k++) rock(sd * (wid / 2 + 1.6 + rr() * 1.2), -k * (hgt / 3.5) - 0.4, -0.2 - k * 0.5, 0.55 + rr() * 0.4, false);
+        for (let k = 0; k < 5; k++) rock((k - 2) * wid * 0.24 + (rr() - 0.5) * 0.6, -0.15 + rr() * 0.2, 1.2 + rr() * 0.5, 0.6 + rr() * 0.6, false);
+        for (let k = 0; k < 4; k++) rock((rr() - 0.5) * wid * 1.1, dropY + 0.05, -2.6 - rr() * 2, 0.45 + rr() * 0.5, true);
+        const rm = new THREE.Mesh(THREE.mergeGeometries(RK), rkM); rm.geometry.computeVertexNormals(); rm.castShadow = rm.receiveShadow = true; root.add(rm);
+        const foamM = new THREE.MeshBasicMaterial({ map: foamTex(), color: 0xffffff, transparent: true, opacity: 0.85, vertexColors: true, depthWrite: false, fog: true });
+        const fgeo = new THREE.CircleGeometry(wid * 0.8, 48, 0, Math.PI * 2), fp = fgeo.attributes.position, fc = new Float32Array(fp.count * 4);
+        for (let i = 0; i < fp.count; i++) { const x = fp.getX(i), y = fp.getY(i), d = Math.hypot(x, y) / (wid * 0.8), a = Math.atan2(y, x), k = 0.75 + NOISE.value(a * 2.5 + 3, 1, 0, 581) * 0.45; fp.setXY(i, x * k * 1.15, y * k * 0.75); fc[i * 4] = fc[i * 4 + 1] = fc[i * 4 + 2] = 1; fc[i * 4 + 3] = 1 - sstep(0.55, 1, d); }
+        fgeo.setAttribute("color", new THREE.BufferAttribute(fc, 4));
+        const foam = new THREE.Mesh(fgeo, foamM);
+        foam.rotation.x = -Math.PI / 2; foam.rotation.z = yaw; foam.position.set(px0 + Math.sin(yaw) * -1.8, base + 0.05, pz0 + Math.cos(yaw) * -1.8); foam.renderOrder = 3; root.add(foam);
+        const churn = [], spray = [], mists = [], cm = new THREE.MeshBasicMaterial({ color: 0xf4faff, transparent: true, opacity: 0.6, depthWrite: false });
+        for (let k = 0; k < 13; k++) { const c2 = new THREE.Mesh(lumpBlob(0.6 + rr() * 0.45, 1.25, 0.6, 1, 0, 0, 0, k * 7, 0.35), cm); const ox = (k / 10 - 0.5) * wid * 0.95, oz = 0.8 + rr() * 1.2; c2.position.set(px0 + Math.cos(yaw) * ox - Math.sin(yaw) * oz, base + 0.1, pz0 - Math.sin(yaw) * ox - Math.cos(yaw) * oz); c2.rotation.y = rr() * 6; c2.userData = { ph: k * 1.3, y: base + 0.18 }; root.add(c2); churn.push(c2); }
+        for (let k = 0; k < 18; k++) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false })); sp.userData = { ph: k / 18, ox: (Math.random() - 0.5) * wid, base: new THREE.Vector3(px0 - Math.sin(yaw) * 1.4, base, pz0 - Math.cos(yaw) * 1.4), yaw }; root.add(sp); spray.push(sp); }
+        const mist = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xffffff, transparent: true, opacity: 0.3, depthWrite: false }));
+        mist.scale.set(13, 5, 1); mist.position.set(px0 - Math.sin(yaw) * 2, base + 1.6, pz0 - Math.cos(yaw) * 2); root.add(mist);
+        for (let k = 0; k < 4; k++) { const ms = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0xf0f6fa, transparent: true, opacity: 0, depthWrite: false })); ms.userData = { ph: k / 4, ox: (k / 3 - 0.5) * wid * 0.8, base: new THREE.Vector3(px0 - Math.sin(yaw) * 2.4, base + 0.5, pz0 - Math.cos(yaw) * 2.4), yaw }; root.add(ms); mists.push(ms); }
+        W3.waterFx.push({ kind: "fall", tex: ft, tex2: ft2, tex3: ft3, mist, mists, foam: foamM, churn, spray });
       }
     }
   }
@@ -3521,16 +3553,24 @@ function foamTex() {
   return t;
 }
 function fallTex(kind) {
-  const c = document.createElement("canvas"); c.width = 64; c.height = 256;
-  const g = c.getContext("2d");
-  for (let x = 0; x < 64; x++) for (let y = 0; y < 256; y++) {
-    const n = NOISE.fbm(x / 64 * (kind ? 14 : 7), y / 256 * (kind ? 1.2 : 2), 3, kind ? 4 : 6, kind ? 37 : 91), st = Math.pow(n, kind ? 2.2 : 1);
-    const edge = sstep(0, 8, x) * sstep(64, 56, x);
-    const a = Math.min(1, (kind ? Math.max(0, st * 2.2 - 0.1) : 0.7 + n * 0.4) * edge);
-    const v = kind ? 235 + n * 20 : 190 + n * 55;
-    g.fillStyle = "rgba(" + (v * 0.85 | 0) + "," + (v * 0.95 | 0) + "," + (v | 0) + "," + a.toFixed(3) + ")"; g.fillRect(x, y, 1, 1);
+  const W = 128, Hh = 512, c = document.createElement("canvas"); c.width = W; c.height = Hh;
+  const g = c.getContext("2d"), img = g.createImageData(W, Hh), d = img.data;
+  const fx = [5, 12, 26][kind], fy = [1.6, 1.3, 2.6][kind], sd = [91, 37, 113][kind];
+  const T = (x, y, f1, f2, s2, o) => { const t = y / Hh, a = NOISE.fbm(x / W * f1, y / Hh * f2, o, 0, s2), b = NOISE.fbm(x / W * f1, (y - Hh) / Hh * f2, o, 0, s2); return a * (1 - t) + b * t; };
+  for (let y = 0; y < Hh; y++) {
+    const e0 = 3 + T(0, y, 1, 3, sd + 5, 2) * 20, e1 = 3 + T(64, y, 1, 3, sd + 9, 2) * 20;
+    for (let x = 0; x < W; x++) {
+      const n = T(x, y, fx, fy, sd, 3), edge = sstep(e0, e0 + 12, x) * sstep(W - e1, W - e1 - 12, x), i = (y * W + x) * 4;
+      let r, gg, b, a;
+      if (kind === 0) { const hi = sstep(0.52, 0.7, n), lo = 1 - sstep(0.25, 0.45, n); r = 92 + n * 80 + hi * 120 - lo * 30; gg = 148 + n * 60 + hi * 70 - lo * 25; b = 190 + n * 45 + hi * 30; a = (0.78 + n * 0.22) * edge; }
+      else if (kind === 1) { const st = Math.pow(n, 2.3); r = 236 + n * 19; gg = 244 + n * 11; b = 255; a = Math.min(1, Math.max(0, st * 2.6 - 0.12)) * edge; }
+      else { r = 245; gg = 250; b = 255; a = sstep(0.6, 0.74, n) * edge * 0.95; }
+      d[i] = Math.min(255, r); d[i + 1] = Math.min(255, gg); d[i + 2] = Math.min(255, b); d[i + 3] = Math.round(Math.max(0, Math.min(1, a)) * 255);
+    }
   }
+  g.putImageData(img, 0, 0);
   const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   return t;
 }
@@ -3539,7 +3579,8 @@ function updateWaterFx(dt) {
     if (f.kind === "foam") { f.m.material.map.offset.x += dt * 0.01; f.m.material.opacity = (f.m.material.userData.base || (f.m.material.userData.base = f.m.material.opacity)) * (0.75 + 0.25 * Math.sin(S.time * 0.8 + f.ph)); }
     else if (f.kind === "moat") { f.tex.offset.x += dt * 0.004; f.tex.offset.y += dt * 0.002; }
     else if (f.kind === "fall") {
-      f.tex.offset.y += dt * 0.7; if (f.tex2) f.tex2.offset.y += dt * 1.3;
+      f.tex.offset.y += dt * 0.7; if (f.tex2) f.tex2.offset.y += dt * 1.3; if (f.tex3) f.tex3.offset.y += dt * 1.9;
+      for (const ms of f.mists || []) { const u = ms.userData, t = (S.time * 0.12 + u.ph) % 1; ms.position.set(u.base.x + Math.cos(u.yaw) * u.ox, u.base.y + t * 3.5, u.base.z - Math.sin(u.yaw) * u.ox); ms.scale.set(4 + t * 6, 3 + t * 4, 1); ms.material.opacity = 0.32 * Math.sin(t * Math.PI); }
       f.mist.material.opacity = 0.28 + Math.sin(S.time * 2) * 0.06;
       if (f.foam) f.foam.map.offset.x += dt * 0.05;
       for (const c of f.churn || []) { const k = Math.sin(S.time * 3 + c.userData.ph); c.scale.set(1 + k * 0.25, 0.5 + k * 0.2, 1 + k * 0.25); c.position.y = c.userData.y + k * 0.08; }
