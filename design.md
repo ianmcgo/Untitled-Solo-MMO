@@ -3111,3 +3111,10 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - textures.js texFoliage(key, base) is now 256 px, built from leafDabs(x, y, N, C = 14, seed): tileable Worley-style elliptical leaf dabs (2 per cell, random angle; the upper half is brighter), returning [best, second, tone]. Height: dab value or -0.35 in gaps, plus fbm. Colour: gaps 0.38-0.53 with a cool tint, leaves 0.62 + 0.42 * dab +- tone, dark rim where the two nearest dabs nearly tie, and warm highlights above 0.55. Normal strength 5. Same signature, so every caller (trees, hedges, bushes, moss, logs) gets it.
 - Sky: the THREE.Sky fragment shader is patched before gl_FragColor. Luminance l, sqrt(l) * 9 is soft-stepped (smoothstep 0.3-0.7 inside each band) and the colour is scaled toward the banded value at 60%.
 - 19.74 (audio as separate files) is held: it would break playing from the single index.html file. Waiting on the user's choice.
+
+## 19.76.0 Painted bark, stone, wood and cloth
+- texBark is 256x512 from barkH: domain-warped ridged plates (9 columns) minus fissures (a warped sine along x, sstep 0-0.18), plus fine fbm. Colour: fissures 26-50, plates 58 + 75h with a lit-edge bump, warm fbm, lichen sstep(0.68-0.8) toward grey-green.
+- texRock: ridged base plus strata (warped sine along y), cracks (an fbm iso-line at 0.5), dark crevices, highlights over 0.55, speckles, a warm/cool tint and muted lichen on the high parts.
+- texPlanks: plankInfo per board (32 px rows): a seeded knot (dk ellipse, 55% of boards), grain sine warped by fbm and bent around the knot, nail heads every 128 px at the board ends, worn lighter edges, per-board tint.
+- texCloth: adds soft diagonal fold relief, darker seams at the stripe edges and fbm fading.
+- Version numbers: textures planned as 19.78 shipped as 19.76. Mercenary SQL (was 19.76) and deferred spells (was 19.77) take the next numbers when done.

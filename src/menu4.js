@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.76.0", date: "2026-10-27", title: "Painted bark, stone, wood and cloth", items: [
+    "<b>Bark.</b> Tree trunks, logs and stumps have hand-painted bark: wavy vertical plates split by deep dark fissures, warm and cool patches and grey-green lichen, at double resolution.",
+    "<b>Stone.</b> Rocks, boulders and cliffs show layered strata, dark cracks, light chipped edges, speckles, warm and cool tints and patches of lichen.",
+    "<b>Wood.</b> Planks on wagons, crates, barrels and buildings have flowing grain that bends around dark knots, nail heads at the board ends, worn lighter edges and a different tone per board.",
+    "<b>Cloth.</b> Striped cloth (awnings, banners, stalls) has soft folds, seams between the stripes and uneven, faded colour.",
+  ] },
   { v: "19.75.0", date: "2026-10-27", title: "Painted leaves and a banded sky", items: [
     "<b>Painted leaves.</b> Tree crowns, hedges, bushes and moss now use a hand-painted leaf texture: overlapping individual leaves with sunlit tops, darker gaps between them, rim lines and warm highlights, at twice the old resolution.",
     "<b>Banded sky.</b> The sky gradient now falls into soft painted bands of colour from the horizon up, for a more illustrated look at every time of day.",

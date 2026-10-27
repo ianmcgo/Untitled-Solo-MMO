@@ -159,8 +159,8 @@ function texRockDetail() {
 
 function texRock() {
   return texPair("rock", 256, 256,
-    (x, y) => NOISE.ridge(x / 256 * 6, y / 256 * 6, 5, 6, 11) * 0.8 + NOISE.fbm(x / 256 * 24, y / 256 * 24, 2, 24, 5) * 0.2,
-    (x, y, hv, o) => { const n = NOISE.fbm(x / 256 * 10, y / 256 * 10, 3, 10, 2); const v = 85 + hv * 70 + n * 30; setRGB(o, v * 1.02, v * 0.98, v * 0.93); }, 7);
+    (x, y) => { const P = 256, strata = Math.sin((y / P * 6 + NOISE.fbm(x / P * 3, y / P * 3, 2, 3, 13) * 0.9) * Math.PI * 2) * 0.12, crack = 1 - sstep(0.0, 0.06, Math.abs(NOISE.fbm(x / P * 5, y / P * 5, 3, 5, 15) - 0.5)); return NOISE.ridge(x / P * 6, y / P * 6, 5, 6, 11) * 0.75 + NOISE.fbm(x / P * 24, y / P * 24, 2, 24, 5) * 0.18 + strata - crack * 0.4; },
+    (x, y, hv, o) => { const P = 256, n = NOISE.fbm(x / P * 10, y / P * 10, 3, 10, 2), tint = NOISE.fbm(x / P * 3, y / P * 3, 2, 3, 17), lich = sstep(0.7, 0.78, NOISE.fbm(x / P * 14, y / P * 14, 3, 14, 19)) * (hv > 0.2 ? 1 : 0.3), spk = NOISE.value(x / P * 128, y / P * 128, 128, 21) > 0.86 ? 14 : 0; let v = (hv < -0.1 ? 52 : 82) + hv * 72 + n * 28 + spk + (hv > 0.55 ? 16 : 0); setRGB(o, v * (0.96 + tint * 0.12) * (1 - lich * 0.12), v * (0.95 + tint * 0.05) * (1 + lich * 0.04), v * (1.0 - tint * 0.12) * (1 - lich * 0.22)); }, 8);
 }
 
 function texCaveRock() {
@@ -169,10 +169,14 @@ function texCaveRock() {
     (x, y, hv, o) => { const n = NOISE.fbm(x / 256 * 8, y / 256 * 8, 3, 8, 4); const v = 50 + hv * 55 + n * 20; const moss = sstep(0.62, 0.75, n) * 0.6; setRGB(o, v * (1 - moss * 0.3), v * (1 + moss * 0.25), v * (1.05 - moss * 0.3)); }, 7);
 }
 
+function barkH(x, y) {
+  const W = 256, H = 512, wx = x / W + NOISE.fbm(x / W * 3, y / H * 2, 2, 3, 33) * 0.08, plate = NOISE.ridge(wx * 9, y / H * 2.2, 3, 9, 31), fis = 1 - sstep(0.0, 0.18, Math.abs(Math.sin(wx * Math.PI * 9 + NOISE.fbm(x / W * 2, y / H * 4, 2, 2, 35) * 2.2)));
+  return plate * 0.55 + NOISE.fbm(x / W * 24, y / H * 8, 2, 24, 37) * 0.2 - fis * 0.55 + NOISE.value(x / W * 64, y / H * 30, 64, 39) * 0.08;
+}
 function texBark() {
-  return texPair("bark", 128, 256,
-    (x, y) => NOISE.fbm(x / 128 * 12, y / 256 * 3, 4, 12, 31) * 0.7 + NOISE.value(x / 128 * 32, y / 256 * 6, 32, 2) * 0.3,
-    (x, y, hv, o) => { const v = 55 + hv * 60; setRGB(o, v * 1.1, v * 0.82, v * 0.6); }, 6);
+  return texPair("bark", 256, 512,
+    (x, y) => barkH(x, y),
+    (x, y, hv, o) => { const W = 256, H = 512, li = sstep(0.68, 0.8, NOISE.fbm(x / W * 7, y / H * 5, 3, 7, 41)), warm = NOISE.fbm(x / W * 3, y / H * 2, 2, 3, 43), deep = hv < -0.15; let v = deep ? 26 + (hv + 0.6) * 40 : 58 + hv * 75 + (hv > 0.35 ? 18 : 0); v *= 0.9 + warm * 0.25; setRGB(o, v * (1.12 - li * 0.12), v * (0.84 + li * 0.14), v * (0.6 + li * 0.08)); }, 7);
 }
 
 function leafDabs(x, y, N, C, seed) {
@@ -201,14 +205,15 @@ function texFoliage(key, base) {
     }, 5);
 }
 
+function plankInfo(x, y) {
+  const board = Math.floor(y / 32), by = y % 32, kx = NOISE.hash2(board, 7) * 256, ky = 8 + NOISE.hash2(board, 9) * 16, dk = Math.hypot(((x - kx + 384) % 256) - 128, (by - ky) * 2.2) / 7, knot = NOISE.hash2(board, 13) > 0.45 ? dk : 99;
+  const warp = knot < 4 ? Math.sin(knot * 3) * 0.6 / (knot + 0.5) : 0, grain = Math.sin((by / 32 * 9 + NOISE.fbm(x / 256 * 3 + board, by / 32, 2, 0, 55) * 2.5 + warp) * Math.PI * 2), nail = ((x % 128) < 6 || (x % 128) > 121) && Math.hypot(((x + 3) % 128) - 3, by - 16) < 2.2;
+  return { board, by, knot, grain, nail };
+}
 function texPlanks() {
   return texPair("planks", 256, 256,
-    (x, y) => {
-      const board = Math.floor(y / 32);
-      const edge = (y % 32) < 2 ? -0.6 : 0;
-      return NOISE.fbm(x / 256 * 2 + board * 3.1, y / 256 * 40, 3, 0, 51) * 0.5 + edge + NOISE.value(x / 256 * 64, board * 5, 0, 3) * 0.1;
-    },
-    (x, y, hv, o) => { const board = Math.floor(y / 32); const tint = 0.85 + NOISE.hash2(board, 3) * 0.3; const v = (90 + hv * 70) * tint; setRGB(o, v * 1.15, v * 0.86, v * 0.6); }, 5);
+    (x, y) => { const p = plankInfo(x, y); const edge = p.by < 2 ? -0.7 : p.by > 29 ? -0.25 : 0; return p.grain * 0.12 + NOISE.fbm(x / 256 * 2 + p.board * 3.1, y / 256 * 40, 3, 0, 51) * 0.4 + edge + (p.knot < 1.2 ? -0.35 : p.knot < 2 ? 0.1 : 0) + (p.nail ? 0.5 : 0); },
+    (x, y, hv, o) => { const p = plankInfo(x, y); if (p.nail) { setRGB(o, 60, 58, 62); return; } const tint = 0.82 + NOISE.hash2(p.board, 3) * 0.34, wear = (p.by < 4 || p.by > 27 ? 0.12 : 0) * NOISE.value(x / 256 * 40, p.board, 0, 57), kn = p.knot < 1.2 ? -45 : p.knot < 2.5 ? -15 : 0; const v = (88 + hv * 70 + p.grain * 10 + kn) * tint * (1 + wear); setRGB(o, v * 1.15, v * 0.86, v * 0.6); }, 6);
 }
 
 function texBricks() {
@@ -247,8 +252,8 @@ function texShingle() {
 
 function texCloth(key, c1, c2) {
   return texPair(key, 128, 128,
-    (x, y) => ((x % 4 < 2) !== (y % 4 < 2) ? 0.6 : 0.4) + NOISE.fbm(x / 128 * 8, y / 128 * 8, 2, 8, 81) * 0.2,
-    (x, y, hv, o) => { const stripe = Math.floor(x / 32) % 2 ? c1 : c2; const v = 0.8 + hv * 0.3; setRGB(o, stripe[0] * v, stripe[1] * v, stripe[2] * v); }, 2);
+    (x, y) => ((x % 4 < 2) !== (y % 4 < 2) ? 0.6 : 0.4) + NOISE.fbm(x / 128 * 8, y / 128 * 8, 2, 8, 81) * 0.2 + Math.sin((x / 128 * 3 + NOISE.fbm(x / 128 * 2, y / 128 * 2, 2, 2, 83) * 0.8) * Math.PI * 2) * 0.12,
+    (x, y, hv, o) => { const stripe = Math.floor(x / 32) % 2 ? c1 : c2, sx = x % 32, seam = sx < 1 || sx > 30 ? 0.82 : 1, mot = 0.92 + NOISE.fbm(x / 128 * 5, y / 128 * 5, 2, 5, 85) * 0.16; const v = (0.78 + hv * 0.32) * seam * mot; setRGB(o, stripe[0] * v, stripe[1] * v, stripe[2] * v); }, 3);
 }
 
 function texCobble() {
