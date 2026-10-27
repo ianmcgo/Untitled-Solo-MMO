@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.59.0", date: "2026-10-27", title: "Lumpy, leafy hedges", items: [
+    "<b>Hedges look grown, not built.</b> All three hedge styles are now made of overlapping lumpy, faceted clumps of leaves instead of a square block. Each run has a different outline, height and length.",
+    "<b>Shading.</b> Hedges are lighter on top and darker at the base, with patches of lighter and darker leaves, and they sit flat on the ground.",
+  ] },
   { v: "19.58.0", date: "2026-10-27", title: "Fences that keep off the scenery", items: [
     "<b>Fences no longer cut through scenery.</b> Roadside fences now stop short of trees, logs, rocks, bushes, stumps, houses, stalls, ponds and other props instead of passing through them.",
     "<b>Posts reach the ground.</b> Fence posts are longer and sink into the turf, so no gaps show on slopes. Fence panels are skipped where the ground is too steep or uneven.",
@@ -4649,7 +4653,7 @@ function tabHelp() {
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
-    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
+    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Hedges are lumpy clumps of leaves that vary in length and height. Hedges are lumpy clumps of leaves that vary in length and height. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",

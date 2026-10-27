@@ -3019,3 +3019,9 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - buildProps fence loop: fenceBlocked(x, y) is sampled at 5 points along each 49 px panel. It blocks on non-fence colliders (r + 12), z.props (40), landmarks (60), dressing (24 + DRESS_R/U), stalls (40), houses (+16 margin) and ponds (+14). Panels are also skipped when the middle height differs from the end average by over 0.3 or the end heights differ by over 1.1. A blocked panel ends a started run, otherwise the run just moves on.
 - Vegetation (trees, rocks, logs, bushes) is built before buildProps, so their colliders are already in z.colliders when fences are placed.
 - fenceGeo posts are 1.55 tall centred at y 0.33 so they sink 0.45 below the rail line and stay grounded on slopes.
+
+
+## 19.59.0 Lumpy, leafy hedges
+- hedgeGeo(v, sd) now builds 4-8 overlapping lumpBlob() icospheres (detail 1, radial noise, per-blob scale) per style: 0 neat (5-6 wide blobs plus 3 top tufts), 1 rounded (4-5 big domes plus a low base blob), 2 wild (6-7 uneven blobs plus 4 stems). Two seeds per style (sd 0/1) split by instance index so neighbouring runs differ.
+- After merging, vertex y is clamped to 0.04 for a flat base, a vertex colour attribute is added (0.6 at the base to 1.0 at the top 1.1, plus +-0.12 noise patches) and normals are recomputed non-indexed for a faceted look. The hedge material uses vertexColors.
+- Instance scale per hedge is x 0.88-1.08, y 0.7-1.05, z 0.85-1.15. Spacing and colliders are unchanged (40 px, three r 10 colliders).

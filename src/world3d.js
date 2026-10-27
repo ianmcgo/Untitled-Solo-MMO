@@ -779,22 +779,40 @@ function tintInst(im, rnd, amt) {
 
 function rngFor(z, salt) { return seeded(hashStr(z.name + salt)); }
 
-function hedgeGeo(v) {
-  return propGeo("hedge" + v, () => {
-    const L = [], r = seeded(77 + v * 13);
+function lumpBlob(r, sx, sy, sz, cx, cy, cz, seed, amt) {
+  const g = new THREE.IcosahedronGeometry(r, 1), p = g.attributes.position;
+  for (let i = 0; i < p.count; i++) {
+    const x = p.getX(i), y = p.getY(i), z = p.getZ(i), n = NOISE.value(x * 5 + seed, y * 5 + seed * 0.7, z * 5, 517) * 2 - 1, k = 1 + n * amt;
+    p.setXYZ(i, x * k * sx + cx, y * k * sy + cy, z * k * sz + cz);
+  }
+  return g;
+}
+function hedgeGeo(v, sd) {
+  return propGeo("hedge" + v + "_" + sd, () => {
+    const L = [], r = seeded(77 + v * 13 + sd * 211);
     if (v === 0) {
-      L.push(new THREE.BoxGeometry(2.1, 0.95, 0.78, 8, 4, 3).translate(0, 0.52, 0));
-      for (let k = 0; k < 7; k++) L.push(new THREE.IcosahedronGeometry(0.2 + r() * 0.1, 1).translate(-0.9 + k * 0.3, 0.98 + r() * 0.05, (r() - 0.5) * 0.3));
-      for (let k = 0; k < 10; k++) L.push(new THREE.IcosahedronGeometry(0.16 + r() * 0.08, 0).translate(-0.95 + r() * 1.9, 0.25 + r() * 0.6, (r() < 0.5 ? -1 : 1) * 0.37));
+      const n = 5 + Math.floor(r() * 2);
+      for (let k = 0; k < n; k++) L.push(lumpBlob(0.4 + r() * 0.14, 1.05 + r() * 0.3, 0.78 + r() * 0.28, 0.9 + r() * 0.22, -0.95 + k * 1.9 / (n - 1) + (r() - 0.5) * 0.12, 0.5 + r() * 0.12, (r() - 0.5) * 0.14, k * 3 + sd, 0.16));
+      for (let k = 0; k < 3; k++) L.push(lumpBlob(0.2 + r() * 0.1, 1, 0.8, 1, -0.8 + r() * 1.6, 0.98 + r() * 0.12, (r() - 0.5) * 0.2, 40 + k, 0.22));
     } else if (v === 1) {
-      L.push(new THREE.CylinderGeometry(0.42, 0.42, 2.1, 10, 1).rotateZ(Math.PI / 2).scale(1, 1.2, 0.95).translate(0, 0.6, 0));
-      L.push(new THREE.BoxGeometry(2.1, 0.6, 0.8, 6, 2, 2).translate(0, 0.3, 0));
-      for (let k = 0; k < 5; k++) L.push(new THREE.SphereGeometry(0.28 + r() * 0.08, 8, 6).translate(-0.85 + k * 0.42, 1.0 + r() * 0.06, 0));
+      const n = 4 + Math.floor(r() * 2);
+      for (let k = 0; k < n; k++) L.push(lumpBlob(0.46 + r() * 0.18, 1.15, 0.85 + r() * 0.3, 1, -0.9 + k * 1.8 / (n - 1) + (r() - 0.5) * 0.2, 0.52 + r() * 0.2, (r() - 0.5) * 0.18, 10 + k + sd * 5, 0.2));
+      L.push(lumpBlob(0.36, 1.5, 0.55, 0.95, (r() - 0.5) * 0.5, 0.3, 0, 60 + sd, 0.12));
     } else {
-      for (let k = 0; k < 9; k++) L.push(new THREE.IcosahedronGeometry(0.38 + r() * 0.22, 1).translate(-0.95 + k * 0.24 + (r() - 0.5) * 0.1, 0.45 + r() * 0.55, (r() - 0.5) * 0.35));
+      const n = 6 + Math.floor(r() * 2);
+      for (let k = 0; k < n; k++) L.push(lumpBlob(0.26 + r() * 0.24, 0.9 + r() * 0.5, 0.7 + r() * 0.7, 0.9 + r() * 0.4, -1 + k * 2 / (n - 1) + (r() - 0.5) * 0.25, 0.35 + r() * 0.4, (r() - 0.5) * 0.4, 20 + k * 2 + sd, 0.3));
       for (let k = 0; k < 4; k++) L.push(new THREE.CylinderGeometry(0.03, 0.05, 0.6, 4).translate(-0.8 + k * 0.53, 0.3, (r() - 0.5) * 0.2));
     }
-    return noisyGeo(mergeNI(L), v === 1 ? 0.06 : 0.12, 23 + v);
+    const geo = mergeNI(L), p = geo.attributes.position, col = new Float32Array(p.count * 3);
+    for (let i = 0; i < p.count; i++) {
+      const y = Math.max(p.getY(i), 0.04);
+      p.setY(i, y);
+      const patch = NOISE.value(p.getX(i) * 2.2 + sd * 9, y * 2.2, p.getZ(i) * 2.2, 523) * 2 - 1, t = Math.min(1, y / 1.1), c = 0.6 + t * 0.4 + patch * 0.12;
+      col[i * 3] = c; col[i * 3 + 1] = Math.min(1, c * 1.04); col[i * 3 + 2] = c * 0.9;
+    }
+    geo.setAttribute("color", new THREE.BufferAttribute(col, 3));
+    geo.computeVertexNormals();
+    return geo;
   });
 }
 function buildHedges(field, root) {
@@ -807,10 +825,10 @@ function buildHedges(field, root) {
   for (let v = 0; v < 3; v++) {
     const L = list.filter(m => m.hv === v);
     if (!L.length) continue;
-    const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : cols[v] });
+    const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : cols[v], vertexColors: true });
     addWind(hm, 0.01);
     addSeason(hm, "shrub");
-    root.add(tintInst(instanced(hedgeGeo(v), hm, L, true), rnd, 0.12));
+    for (let sd = 0; sd < 2; sd++) { const Ls = L.filter((m, i) => i % 2 === sd); if (Ls.length) root.add(tintInst(instanced(hedgeGeo(v, sd), hm, Ls, true), rnd, 0.12)); }
     if (v === 2 && !snowy) {
       const bm = std({ color: 0xb02a3a, roughness: 0.5 }); addSeason(bm, "flower");
       const berries = [];
@@ -853,7 +871,7 @@ function hedgeRuns(field, z, rnd, q) {
         for (let k = 0; k < run && t < L - 90; k++, t += 40) {
           const c = at(t), x = c.x - c.uy * off * sd, y = c.y + c.ux * off * sd;
           if (!clearOf(x, y)) continue;
-          const mm = mtx(x * U, footY(field, x, y, 1.05), y * U, 1 + rnd() * 0.06, 0.85 + rnd() * 0.3, 1 + rnd() * 0.15, Math.atan2(c.ux, c.uy) + Math.PI / 2 + (rnd() - 0.5) * 0.06); mm.hv = runV; out.push(mm);
+          const mm = mtx(x * U, footY(field, x, y, 1.05), y * U, 0.88 + rnd() * 0.2, 0.7 + rnd() * 0.35, 0.85 + rnd() * 0.3, Math.atan2(c.ux, c.uy) + Math.PI / 2 + (rnd() - 0.5) * 0.06); mm.hv = runV; out.push(mm);
           for (const f of [-0.8, 0, 0.8]) z.colliders.push({ x: x + c.ux * f * 20, y: y + c.uy * f * 20, r: 10 });
         }
         t += 40 * (2 + Math.floor(rnd() * 4));
