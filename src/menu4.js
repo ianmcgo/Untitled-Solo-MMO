@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.81.0", date: "2026-10-27", title: "Noses, ears and more human faces", items: [
+    "<b>Real noses.</b> Characters now have a sculpted nose that sticks out from the face: a bridge running down from between the eyes, a rounded tip and nostril wings with nostrils. Elari noses are a little longer, nekari and female noses smaller, and Pipkins get a little button nose.",
+    "<b>Real ears.</b> Human-style ears are now shaped: a curled outer rim, a hollow inner bowl, an earlobe and the small flap in front, set at eye level and angled back.",
+    "<b>More human eyes.</b> Painted eyes are smaller and less cartoonish, with a lower lid line, a crease above the eye, soft shading underneath and fuller brows sitting closer to the eyes.",
+  ] },
   { v: "19.80.0", date: "2026-10-27", title: "Painting the ground on the way out", items: [
     "<b>Even faster zone changes.</b> The first time you visit an area, the game now also starts painting its ground while you walk out of the previous one, after shaping the land. Whatever is finished is carried straight into the loading screen instead of starting over, so first visits load quicker. Areas you've visited before still load their saved ground instantly.",
   ] },

@@ -105,8 +105,10 @@ function paintFace(g, ox, oy, v, fem) {
     g.fillStyle = "rgba(150,92,84,0.1)"; g.beginPath(); g.moveTo(2, 4); g.lineTo(6, 12); g.lineTo(3, 15); g.lineTo(0.5, 13); g.closePath(); g.fill();
     g.fillStyle = "rgba(255,244,232,0.14)"; g.beginPath(); g.ellipse(0, -22, 16, 5, 0, 0, Math.PI * 2); g.fill();
   }
+  const ES = 0.74;
   for (const s of [-1, 1]) {
     const x = ex + s * sp, rx = EYE[0] * (fem ? 1.05 : 1), up = EYE[1] * (fem ? 1.08 : 1), dn = EYE[2], tilt = EYE[3], drop = EYE[4], isz = EYE[5];
+    g.save(); g.translate(x, ey + 1); g.scale(ES * 1.05, ES); g.translate(-x, -(ey + 1));
     const inner = x - s * rx, outer = x + s * rx, oy2 = ey + tilt * 0.5, iy2 = ey + 1.2;
     const top = t => ey - up + drop * up * 1.4;
     const shape = () => {
@@ -138,7 +140,11 @@ function paintFace(g, ox, oy, v, fem) {
     g.beginPath(); g.moveTo(outer - s * 0.6, oy2 + 0.5); g.quadraticCurveTo(x + s * rx * 0.3, ey + dn * 1.1, x - s * rx * 0.1, ey + dn * 1.05); g.stroke();
     g.strokeStyle = "rgba(96,50,52,0.6)"; g.lineWidth = 1.1;
     g.beginPath(); g.moveTo(inner + s * 1.2, top() - 3.2); g.quadraticCurveTo(x, top() - 4.8 + tilt * 0.3, outer - s * 1.4, top() - 3 + tilt * 0.5); g.stroke();
-    const by = ey - up - 5.5 + BROW[1], bw = fem ? 1.1 : 1.7;
+    g.strokeStyle = "rgba(120,70,64,0.35)"; g.lineWidth = 1.2; g.beginPath(); g.moveTo(inner + s * 1, iy2 + dn * 0.6); g.quadraticCurveTo(x, ey + dn * 1.35, outer - s * 0.5, oy2 + dn * 0.35); g.stroke();
+    g.restore();
+    g.strokeStyle = "rgba(110,62,58,0.4)"; g.lineWidth = 0.9; g.beginPath(); g.moveTo(x - s * rx * ES * 0.8, ey - up * ES * 0.95 - 1.2); g.quadraticCurveTo(x, ey - up * ES * 1.25 - 1.8, x + s * rx * ES * 0.95, ey - up * ES * 0.8 - 0.6); g.stroke();
+    soft(x, ey + dn * ES + 3.2, rx * ES * 0.9, 1.6, [150, 90, 90], 0.1);
+    const by = ey - up * ES - 4.2 + BROW[1], bw = fem ? 1.25 : 2.0;
     g.fillStyle = "rgba(48,30,24,0.9)";
     g.beginPath();
     g.moveTo(x - s * 6.5, by + 1 - BROW[0] * 0.6);
@@ -2044,6 +2050,38 @@ function skeletonTorso(R, L, skin, J) {
   R.add(gTaper(V3(0, hipsY - 0.05, bz - 0.01), V3(0, hipsY - 0.085, bz + 0.005), 0.012, 0.004, 5), "hips", dark, "bone");
   R.add(gBox(V3(0, hipJ - 0.03, 0.05), 0.04, 0.03, 0.016), "hips", skin, "bone");
 }
+function headPt(HP, hc, hr, a, b, out) {
+  const dx = Math.sin(a) * Math.cos(b), dy = -Math.sin(b), dz = Math.cos(a) * Math.cos(b), r = headRadial(HP, dx, dy, dz, true) * hr + (out || 0);
+  return V3(dx * r * HEAD_SCALE[0], hc + dy * r * HEAD_SCALE[1], 0.005 + dz * r * HEAD_SCALE[2]);
+}
+function faceNose(R, L, HP, hc, hr, skin, SKR) {
+  const fem = L.build === 1, cat = L.ears === "cat", doll = !!L.doll, elf = L.ears === "elf";
+  const k = doll ? 0.6 : cat ? 0.75 : fem ? 0.88 : 1, len = elf ? 1.15 : 1, pro = hr * (doll ? 0.06 : 0.11) * k;
+  const top = headPt(HP, hc, hr, 0, -0.04, -hr * 0.01), tipB = doll ? 0.17 : 0.19 + (len - 1) * 0.05, base = headPt(HP, hc, hr, 0, tipB, 0), nrm = base.clone().sub(V3(0, hc, 0.005)).setY(0).normalize();
+  const tip = base.clone().addScaledVector(nrm, pro).add(V3(0, hr * 0.01, 0)), mid = headPt(HP, hc, hr, 0, (tipB - 0.04) * 0.55, pro * 0.45);
+  const shade = new THREE.Color(skin).multiplyScalar(0.93).getHex(), lit = new THREE.Color(skin).lerp(new THREE.Color(0xfff2e8), 0.08).getHex();
+  if (!doll) {
+    R.add(gTaper(top, mid, hr * 0.045 * k, hr * 0.055 * k, 8, 0.75), "head", skin, SKR);
+    R.add(gTaper(mid, tip, hr * 0.055 * k, hr * 0.07 * k, 8, 0.8), "head", lit, SKR);
+  }
+  R.add(gBall(tip, hr * (doll ? 0.06 : 0.072) * k, 1.1, 0.85, 0.9, 10), "head", lit, SKR);
+  if (!doll) for (const s of [-1, 1]) {
+    const al = base.clone().add(V3(s * hr * 0.085 * k, hr * 0.005, pro * 0.35));
+    R.add(gBall(al, hr * 0.052 * k, 0.9, 0.75, 0.95, 8), "head", shade, SKR);
+    R.add(gBall(al.clone().add(V3(-s * hr * 0.028 * k, -hr * 0.03 * k, pro * 0.1)), hr * 0.016 * k, 1.3, 0.6, 0.9, 6), "head", 0x5a2a28, "plain");
+  }
+}
+function humanEar(R, HP, hc, hr, skin, SKR, s) {
+  const c = headPt(HP, hc, hr, s * (Math.PI / 2 + 0.12), 0.06, -hr * 0.03), ik = new THREE.Color(skin).multiplyScalar(0.72).getHex(), rim = new THREE.Color(skin).multiplyScalar(0.95).getHex();
+  const tilt = -0.25, ER = hr * 0.17, out = V3(s * hr * 0.06, 0, 0);
+  const hel = new THREE.TorusGeometry(ER, hr * 0.035, 6, 14, Math.PI * 1.55);
+  hel.scale(0.75, 1.15, 1).rotateZ(Math.PI * 0.62).rotateY(s * Math.PI / 2).rotateX(tilt).translate(c.x + out.x, c.y + hr * 0.02, c.z - hr * 0.02);
+  R.add(hel, "head", rim, SKR);
+  R.add(gBall(V3(c.x + s * hr * 0.03, c.y + hr * 0.01, c.z - hr * 0.03), ER * 0.92, 0.32, 1.12, 0.78, 10), "head", skin, SKR);
+  R.add(gBall(V3(c.x + s * hr * 0.06, c.y + hr * 0.0, c.z - hr * 0.02), ER * 0.5, 0.25, 0.9, 0.7, 8), "head", ik, SKR);
+  R.add(gBall(V3(c.x + s * hr * 0.05, c.y - ER * 1.05, c.z + hr * 0.0), ER * 0.32, 0.55, 1.1, 0.8, 8), "head", skin, SKR);
+  R.add(gBall(V3(c.x + s * hr * 0.035, c.y - hr * 0.01, c.z + ER * 0.55), ER * 0.22, 0.6, 1, 0.8, 6), "head", skin, SKR);
+}
 function humanEntryBase(L) {
   const fem = L.build === 1;
   const pr = Object.assign({ leg: 0.86, torso: 0.52, headR: 0.138, shoulder: fem ? 0.165 : 0.195, hip: fem ? 0.1 : 0.095, arm: 0.6, girth: fem ? 0.9 : 1, neck: 0.02, waist: fem ? 0.8 : 0.92 }, L.prop || {});
@@ -2097,6 +2135,7 @@ function humanEntryBase(L) {
     for (let j = 0; j <= 3; j++) ths.push(mb - 0.05 + 0.1 * j / 3);
     R.add(gHeadPatch(HP, hc, hr, phis, ths, 0.006, true), "mouth", 0x3a1210, "plain");
   } else R.add(gHead(HP, hc, hr), "head", skin, faceReg);
+  if (!L.noFace && !L.skull && !L.nose && L.ears !== "ursan" && !L.beak) faceNose(R, L, HP, hc, hr, skin, SKR);
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.8), V3(0, hc - hr * 0.42, hr * 1.75), hr * 0.2, hr * 0.05, 8), "head", skin, SKR);
   const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
@@ -2110,13 +2149,14 @@ function humanEntryBase(L) {
           R.add(gBall(a1, hr * 0.12, 1, 1.1, 0.5, 8), eb, L.hair.color, "hair");
           ear(V3(s * hr * 0.53, hc + hr * 0.7, -hr * 0.015), V3(s * hr * 0.76, hc + hr * 1.34, 0.012 + hr * 0.02), hr * 0.35, hr * 0.07, 0.3, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
+    else if (!L.skull && L.ears !== "none" && !L.noFace && !L.doll) humanEar(R, HP, hc, hr, skin, SKR, s);
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
     if (!L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
       const ik = shadeHex(skin, 0.74);
       if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.04, -hr * 0.1), V3(s * (hr + 0.06), hc + hr * 0.3, -hr * 0.38), hr * 0.1, 0.003, 6, 0.4), earBone(s), ik, SKR);
       else if (L.ears === "pip") R.add(gTaper(V3(s * hr * HEAD_SCALE[0] * 0.95, hc - hr * 0.06, -hr * 0.03), V3(s * (hr * HEAD_SCALE[0] + 0.11), hc + hr * 0.08, -hr * 0.1), hr * 0.17, 0.005, 10, 0.4), earBone(s), ik, SKR);
       else if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.82, hc + hr * 0.04, -0.03), V3(s * (hr + 0.18), hc + hr * 0.6, -0.1), hr * 0.14, 0.004, 6, 0.45), "head", ik, SKR);
-      else R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.08, -hr * 0.05), hr * 0.1, 0.4, 1.05, 0.7, 8), "head", ik, SKR);
+      else if (L.noFace || L.doll) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.08, -hr * 0.05), hr * 0.1, 0.4, 1.05, 0.7, 8), "head", ik, SKR);
     }
     if (L.tusks) R.add(gTaper(V3(s * hr * 0.35, hc - hr * 0.55, hr * 0.75), V3(s * hr * 0.45, hc - hr * 0.1, hr * 0.95), hr * 0.1, 0.004, 6), "head", 0xf0e8d0, "bone");
     if (L.needles) for (let k = 0; k < 4; k++) R.add(gTaper(V3(s * hr * (0.3 + k * 0.2), hc + hr * (0.9 - k * 0.35), hr * 0.3 - k * 0.1), V3(s * hr * (0.5 + k * 0.3), hc + hr * (1.4 - k * 0.5), hr * 0.3 - k * 0.1), 0.012, 0.002, 4), "head", 0xf0f0d8, "bone");
