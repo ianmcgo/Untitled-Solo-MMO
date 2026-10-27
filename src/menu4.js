@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.65.0", date: "2026-10-27", title: "Hay bales and loaded wagons", items: [
+    "<b>Proper hay bales.</b> Bales have rounded, slightly bulging edges, straw streaks in light and dark gold, chopped stalk ends, wisps of straw sticking out and two twine bands that wrap all the way round. Hay wagons carry a loose, lumpy heap under the bales, and spilled hay lies on the ground beside them.",
+    "<b>Wagon cargo.</b> Stone wagons carry lumpy rocks of mixed size and colour, with gravel. Barrel wagons have slumped burlap sacks tied at the neck and a coiled rope. Covered wagons have a sagging, wrinkled canvas roof tied down with ropes.",
+    "<b>Fixed:</b> the canvas on covered wagons was upside down inside the wagon bed. It now arches over the hoops.",
+  ] },
   { v: "19.64.0", date: "2026-10-27", title: "Real skeletons", items: [
     "<b>Skeletons are all bone.</b> Skeleton monsters no longer have a tube for a body. They now have a curved spine of separate vertebrae, a ribcage of curved ribs joined to a breastbone, collarbones, shoulder blades and a pelvis.",
     "<b>Limbs and extremities.</b> Arms have a ball-jointed upper bone and two forearm bones. Legs have a curved thigh bone, a kneecap and two shin bones. Hands have finger bones and feet have toe bones.",

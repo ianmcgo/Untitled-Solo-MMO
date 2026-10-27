@@ -521,6 +521,68 @@ function cartGeo() {
 function pathLen(P) { return P.pts.reduce((a, q, i) => i ? a + Math.hypot(q[0] - P.pts[i - 1][0], q[1] - P.pts[i - 1][1]) : 0, 0); }
 function pathAt(P, d) { for (let i = 1; i < P.pts.length; i++) { const [ax, ay] = P.pts[i - 1], [bx, by] = P.pts[i], L = Math.hypot(bx - ax, by - ay); if (d <= L || i === P.pts.length - 1) { const f = Math.min(1, d / (L || 1)); return { x: ax + (bx - ax) * f, y: ay + (by - ay) * f, ux: (bx - ax) / (L || 1), uy: (by - ay) / (L || 1) }; } d -= L; } return null; }
 function wheelGeo() { return propGeo("wagonwheel", () => { const L = [new THREE.TorusGeometry(0.44, 0.045, 6, 18), new THREE.CylinderGeometry(0.09, 0.09, 0.22, 8).rotateX(Math.PI / 2), new THREE.TorusGeometry(0.41, 0.02, 4, 18).translate(0, 0, 0.03)]; for (let k = 0; k < 10; k++) L.push(new THREE.BoxGeometry(0.035, 0.38, 0.035).translate(0, 0.24, 0).rotateZ(k * Math.PI / 5)); return mergeNI(L); }); }
+function vcolor(g, fn) {
+  const p = g.attributes.position, c = new Float32Array(p.count * 3);
+  for (let i = 0; i < p.count; i++) { const v = fn(p.getX(i), p.getY(i), p.getZ(i), i); c[i * 3] = v[0]; c[i * 3 + 1] = v[1]; c[i * 3 + 2] = v[2]; }
+  g.setAttribute("color", new THREE.BufferAttribute(c, 3));
+  return g;
+}
+function baleGeo(sd) {
+  return propGeo("bale" + sd, () => {
+    const g = new THREE.BoxGeometry(0.9, 0.42, 0.5, 14, 7, 8).toNonIndexed(), p = g.attributes.position, hx = 0.45, hy = 0.21, hz = 0.25;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), y = p.getY(i), z = p.getZ(i), r = Math.pow(Math.pow(Math.abs(x / hx), 5) + Math.pow(Math.abs(y / hy), 5) + Math.pow(Math.abs(z / hz), 5), 0.2), n = NOISE.value(x * 9 + sd * 3 + z * 4, y * 9 + z * 6, 0, 601) - 0.5, band = Math.min(Math.abs(x - 0.22), Math.abs(x + 0.22)) < 0.03 ? -0.02 : 0;
+      const k = (1 + n * 0.06) / r;
+      p.setXYZ(i, x * k, y * k * (1 + band), z * k * (1 + band));
+    }
+    vcolor(g, (x, y, z) => { const end = Math.abs(x) > 0.42, st = NOISE.value(y * 46 + z * 31, x * 2.5 + sd, 0, 603), st2 = NOISE.value(y * 90 + z * 70, x * 6, 0, 609), dot = NOISE.value(y * 70 + sd, z * 70, 0, 605), v = end ? 0.55 + dot * 0.5 : 0.62 + st * 0.3 + st2 * 0.18 - (y < -0.15 ? 0.14 : 0) + (y > 0.18 ? 0.06 : 0), g2 = st2 > 0.75 ? 0.9 : 1; return [v * 1.0, v * 0.95 * g2, v * 0.74 * g2]; });
+    g.computeVertexNormals();
+    const L = [g];
+    for (const bx of [-0.22, 0.22]) { const pts = []; for (let k = 0; k < 28; k++) { const a = k / 28 * Math.PI * 2, c = Math.cos(a), sn = Math.sin(a), yy = Math.sign(sn) * Math.pow(Math.abs(sn), 0.4) * (hy + 0.008), zz = Math.sign(c) * Math.pow(Math.abs(c), 0.4) * (hz + 0.008); pts.push(new THREE.Vector3(bx + Math.sin(a * 3) * 0.004, yy, zz)); } const t = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 40, 0.011, 4, true).toNonIndexed(); L.push(vcolor(t, (x, y, z) => { const v = 0.3 + NOISE.value(y * 40, z * 40, 0, 607) * 0.12; return [v * 1.2, v * 0.95, v * 0.6]; })); }
+    const r = seeded(611 + sd);
+    for (let k = 0; k < 14; k++) { const ax = (r() - 0.5) * 0.9, face = r(), y0 = face < 0.5 ? hy * 0.95 : (r() - 0.5) * 0.3, z0 = face < 0.5 ? (r() - 0.5) * 0.4 : (r() < 0.5 ? -1 : 1) * hz * 0.95, len = 0.06 + r() * 0.1, cn = new THREE.ConeGeometry(0.006, len, 3).translate(0, len / 2, 0).rotateZ((r() - 0.5) * 1.6).rotateX(face < 0.5 ? (r() - 0.5) * 0.8 : Math.sign(z0) * (1.2 + r() * 0.4)).translate(ax, y0, z0).toNonIndexed(); L.push(vcolor(cn, () => { const v = 0.85 + r() * 0.25; return [v, v * 0.92, v * 0.62]; })); }
+    return THREE.mergeGeometries(L.map(q => { q.deleteAttribute("uv"); q.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(q.attributes.position.count * 2), 2)); return q; }));
+  });
+}
+function hayHeapGeo(sd) {
+  return propGeo("hayheap" + sd, () => {
+    const r = seeded(621 + sd), L = [];
+    for (let k = 0; k < 4; k++) L.push(lumpBlob(0.3 + r() * 0.12, 1.3, 0.55, 1.05, (k - 1.5) * 0.28, 0.12 + r() * 0.05, (r() - 0.5) * 0.2, k * 11 + sd, 0.35));
+    for (let k = 0; k < 26; k++) { const len = 0.12 + r() * 0.2, cn = new THREE.ConeGeometry(0.005, len, 3).translate(0, len / 2, 0).rotateZ((r() - 0.5) * 2.6).rotateX((r() - 0.5) * 2.2).translate((r() - 0.5) * 1.1, 0.12 + r() * 0.16, (r() - 0.5) * 0.4).toNonIndexed(); cn.deleteAttribute("uv"); cn.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(cn.attributes.position.count * 2), 2)); L.push(cn); }
+    const g = THREE.mergeGeometries(L.map(q => q.index ? q.toNonIndexed() : q));
+    vcolor(g, (x, y, z) => { const v = 0.72 + NOISE.value(x * 13 + z * 7, y * 13, 0, 625) * 0.4 + y * 0.3; return [v, v * 0.93, v * 0.66]; });
+    g.computeVertexNormals();
+    return g;
+  });
+}
+function cargoRockGeo(sd) {
+  return propGeo("cargorock" + sd, () => {
+    const g = lumpBlob(1, 1.1, 0.75, 0.95, 0, 0, 0, sd * 17, 0.3);
+    vcolor(g, (x, y, z) => { const n = NOISE.value(x * 3 + z * 2 + sd, y * 3, 0, 631), v = 0.55 + n * 0.35 + y * 0.12, tint = sd % 3; return [v * (tint === 1 ? 1.05 : 1), v * (tint === 2 ? 1.03 : 0.99), v * (tint === 1 ? 0.9 : 0.97)]; });
+    g.computeVertexNormals();
+    return g;
+  });
+}
+function sackGeo(sd) {
+  return propGeo("sack" + sd, () => {
+    const pts = [[0, 0], [0.16, 0.01], [0.21, 0.08], [0.22, 0.2], [0.19, 0.3], [0.12, 0.36], [0.05, 0.38], [0.045, 0.42], [0.07, 0.48], [0.02, 0.5]].map(([a, b]) => new THREE.Vector2(a, b));
+    const g = new THREE.LatheGeometry(pts, 12).toNonIndexed(), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), n = NOISE.value(Math.atan2(z, x) * 2 + sd * 5, y * 9, 0, 641) - 0.5, sag = y < 0.32 ? 1 + n * 0.16 : 1 + n * 0.3; p.setXYZ(i, x * sag * 1.1, y * (y < 0.1 ? 0.9 : 1), z * sag * 0.9); }
+    vcolor(g, (x, y, z) => { const v = 0.82 + NOISE.value(x * 30 + z * 20, y * 30, 0, 643) * 0.2 - (y < 0.05 ? 0.15 : 0); return [v, v * 0.95, v * 0.84]; });
+    g.computeVertexNormals();
+    return g;
+  });
+}
+function tarpGeo() {
+  return propGeo("tarp", () => {
+    const g = new THREE.CylinderGeometry(0.66, 0.66, 2.3, 18, 8, true, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).rotateX(Math.PI / 2).toNonIndexed(), p = g.attributes.position;
+    for (let i = 0; i < p.count; i++) if (p.getY(i) < 0) p.setY(i, -p.getY(i));
+    for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i), hoop = Math.min(...[-0.9, -0.3, 0.3, 0.9].map(h => Math.abs(x - h))), sag = hoop < 0.04 ? 0 : 0.035 + (NOISE.value(x * 4, z * 4, 0, 651) - 0.5) * 0.06, wr = Math.sin(x * 22 + z * 9) * 0.008; const k = 1 - sag + wr; p.setXYZ(i, x, y * k, z * k); }
+    vcolor(g, (x, y, z) => { const v = 0.82 + NOISE.value(x * 6, z * 6 + y * 3, 0, 653) * 0.22 - (y < 0.25 ? 0.12 : 0); return [v, v * 0.96, v * 0.86]; });
+    g.computeVertexNormals();
+    return g;
+  });
+}
 function wagonParts(bt, B, M, kind, r, broken) {
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d), Y = 0.78;
   bt.add(M.wood, box(2.4, 0.08, 1.2), B, 0, Y, 0);
@@ -541,20 +603,25 @@ function wagonParts(bt, B, M, kind, r, broken) {
   bt.add(M.dark, box(0.08, 0.08, 0.9), B, 2.6, 0.24, 0);
   bt.add(M.iron, new THREE.TorusGeometry(0.06, 0.015, 4, 8), B, 2.75, 0.24, 0, 0, 0, Math.PI / 2);
   if (kind === "hay") {
-    for (let k = 0; k < 7; k++) bt.add(M.hay, new THREE.SphereGeometry(0.42, 8, 6).scale(1.2, 0.55, 1), B, -0.85 + (k % 4) * 0.55 + (k > 3 ? 0.25 : 0), Y + 0.35 + (k > 3 ? 0.28 : 0), (r() - 0.5) * 0.4, r() * 3);
-    for (let k = 0; k < 2; k++) { bt.add(M.hay, box(0.9, 0.42, 0.5), B, -0.5 + k * 1.0, Y + 0.95, 0.05, r() * 0.3); for (const tx of [-0.2, 0.2]) bt.add(M.dark, box(0.03, 0.44, 0.52), B, -0.5 + k * 1.0 + tx, Y + 0.95, 0.05, r() * 0.01); }
-    for (let k = 0; k < 6; k++) bt.add(M.hay, box(0.4, 0.02, 0.03), B, (r() - 0.5) * 2.2, Y + 0.6 + r() * 0.3, (r() < 0.5 ? -1 : 1) * 0.64, r() * 3, 0, (r() - 0.5));
+    bt.add(M.hay, hayHeapGeo(0), B, -0.45, Y + 0.02, -0.18, r() * 0.4);
+    bt.add(M.hay, hayHeapGeo(1), B, 0.5, Y + 0.02, 0.15, r() * 0.4 + 3);
+    for (let k = 0; k < 4; k++) bt.add(M.hay, baleGeo(k % 3), B, -0.58 + (k % 2) * 1.0 + (r() - 0.5) * 0.1, Y + 0.3 + (k > 1 ? 0.42 : 0), (k > 1 ? 0.05 : (k ? 0.27 : -0.27)) + (r() - 0.5) * 0.06, (k > 1 ? 0.1 : 0) + (r() - 0.5) * 0.25, (r() - 0.5) * 0.06, (r() - 0.5) * 0.06);
+    for (let k = 0; k < 3; k++) bt.add(M.hay, hayHeapGeo(2), B, (r() - 0.5) * 2, 0.02, (r() < 0.5 ? -1 : 1) * (0.8 + r() * 0.3), r() * 6, 0, 0, 0.45, 0.4, 0.45);
   } else if (kind === "rocks") {
-    for (let k = 0; k < 11; k++) { const sz = 0.18 + r() * 0.2; bt.add(M.rock, new THREE.IcosahedronGeometry(sz, 0), B, -0.95 + (k % 6) * 0.38 + r() * 0.1, Y + 0.12 + sz * 0.6 + (k > 5 ? 0.22 : 0), (r() - 0.5) * 0.8, r() * 3, r() * 3); }
+    for (let k = 0; k < 14; k++) { const sz = 0.14 + r() * 0.2; bt.add(M.rock, cargoRockGeo(k % 5), B, -0.95 + (k % 7) * 0.31 + r() * 0.1, Y + 0.06 + sz * 0.6 + (k > 6 ? 0.2 : 0), (r() - 0.5) * 0.8, r() * 6, r() * 3, r() * 3, sz, sz, sz); }
+    for (let k = 0; k < 9; k++) { const sz = 0.04 + r() * 0.05; bt.add(M.rock, cargoRockGeo(k % 5), B, (r() - 0.5) * 2.1, Y + 0.08, (r() - 0.5) * 0.9, r() * 6, r() * 3, 0, sz, sz, sz); }
     bt.add(M.iron, new THREE.CylinderGeometry(0.03, 0.03, 1.1, 5), B, 0.9, Y + 0.6, 0.3, 0, 0, 1.1);
     bt.add(M.iron, box(0.2, 0.28, 0.04), B, 1.38, Y + 0.85, 0.3, 0, 0, 1.1);
   } else if (kind === "barrels") {
     for (const [bx, bz] of [[-0.7, -0.27], [-0.7, 0.27], [0.0, -0.27]]) { bt.add(M.wood, barrelGeo(), B, bx, Y + 0.04, bz, r() * 6); bt.add(M.iron, hoopGeo(), B, bx, Y + 0.04, bz); }
     bt.add(M.wood, crateGeo(), B, 0.65, Y + 0.32, 0.1, r() * 0.4, 0, 0, 0.62, 0.62, 0.62);
-    bt.add(M.cloth, new THREE.SphereGeometry(0.25, 8, 6).scale(1, 0.75, 1.3), B, 0.1, Y + 0.24, 0.32);
+    bt.add(M.cloth, sackGeo(0), B, 0.15, Y + 0.04, 0.32, r() * 6, 0, 0.15);
+    bt.add(M.cloth, sackGeo(1), B, 0.55, Y + 0.6, 0.12, r() * 6, 0.9, 0.2, 0.9, 0.9, 0.9);
+    for (let k = 0; k < 4; k++) bt.add(M.rope, new THREE.TorusGeometry(0.13 - k * 0.012, 0.018, 5, 14).rotateX(Math.PI / 2), B, -0.1, Y + 0.06 + k * 0.03, -0.35);
   } else if (kind === "cover") {
     for (let k = 0; k < 4; k++) bt.add(M.dark, new THREE.TorusGeometry(0.62, 0.025, 4, 12, Math.PI), B, -0.9 + k * 0.6, Y + 0.45, 0, Math.PI / 2);
-    bt.add(M.cloth, new THREE.CylinderGeometry(0.64, 0.64, 2.2, 14, 1, true, -Math.PI / 2, Math.PI).rotateZ(Math.PI / 2).rotateX(Math.PI / 2), B, 0, Y + 0.45, 0);
+    bt.add(M.cloth, tarpGeo(), B, 0, Y + 0.45, 0);
+    for (const sz of [-1, 1]) for (const hx of [-0.9, 0.3]) bt.add(M.rope, new THREE.CylinderGeometry(0.012, 0.012, 0.5, 4), B, hx, Y + 0.2, sz * 0.66, 0, sz * 0.15, 0);
   }
 }
 let PROP_MATS = null;
@@ -565,7 +632,7 @@ function propMats() {
 }
 function wagonMats(z) {
   const bark = texBark(), planks = texPlanks(), rock = texRock();
-  return { wood: std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a66, roughness: 0.9 }), dark: std({ map: bark.map, color: 0x6a4a30, roughness: 0.95 }), iron: std({ color: 0x3a3a3e, metalness: 0.6, roughness: 0.5 }), hay: std({ color: 0xd8b860, roughness: 1 }), rock: std({ map: rock.map, normalMap: rock.normalMap, color: z && z.palette === "snow" ? 0x9aa2aa : 0x9a8f84, roughness: 0.95 }), cloth: std({ color: 0xe8dcc0, roughness: 0.95, side: THREE.DoubleSide }) };
+  return { wood: std({ map: planks.map, normalMap: planks.normalMap, color: 0xb08a66, roughness: 0.9 }), dark: std({ map: bark.map, color: 0x6a4a30, roughness: 0.95 }), iron: std({ color: 0x3a3a3e, metalness: 0.6, roughness: 0.5 }), hay: std({ color: 0xe6cc8a, roughness: 1, vertexColors: true }), rock: std({ map: rock.map, normalMap: rock.normalMap, color: z && z.palette === "snow" ? 0xb0b8c0 : 0xb0a498, roughness: 0.95, vertexColors: true }), cloth: std({ color: 0xe8dcc0, roughness: 0.95, side: THREE.DoubleSide, vertexColors: true }), rope: std({ color: 0xa88a5a, roughness: 1 }) };
 }
 const WAGON_KINDS = ["hay", "rocks", "barrels", "cover", "empty"];
 function stumpGeo() {
@@ -1844,7 +1911,10 @@ function cityBatch() {
       _m.compose(new THREE.Vector3(x, y, z), _q, new THREE.Vector3(sx || 1, sy || 1, sz || 1));
       gg.applyMatrix4(_m); gg.applyMatrix4(B);
       if (!gg.attributes.uv) gg.setAttribute("uv", new THREE.BufferAttribute(new Float32Array(gg.attributes.position.count * 2), 2));
-      for (const k of Object.keys(gg.attributes)) if (!["position", "normal", "uv"].includes(k)) gg.deleteAttribute(k);
+      const vc = !!mat.vertexColors;
+      if (vc && !gg.attributes.color) gg.setAttribute("color", new THREE.BufferAttribute(new Float32Array(gg.attributes.position.count * 3).fill(1), 3));
+      for (const k of Object.keys(gg.attributes)) if (!["position", "normal", "uv"].includes(k) && !(vc && k === "color")) gg.deleteAttribute(k);
+      if (vc && gg.attributes.color.itemSize !== 3) { const c = gg.attributes.color, n = new Float32Array(c.count * 3); for (let i = 0; i < c.count; i++) { n[i * 3] = c.getX(i); n[i * 3 + 1] = c.getY(i); n[i * 3 + 2] = c.getZ(i); } gg.setAttribute("color", new THREE.BufferAttribute(n, 3)); }
       if (!parts.has(mat)) parts.set(mat, []);
       parts.get(mat).push(gg);
     },
