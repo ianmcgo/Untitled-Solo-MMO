@@ -22,7 +22,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.67 | Faces and clothes better painted and sculpted | done |
 | 19.68 | Longnecks bigger and better sculpted | done |
 | 19.69 | Fish monsters scarier and more detailed | done |
-| 19.70 | Mandrake, rabbit, treant remodels; aprons | |
+| 19.70 | Mandrake, rabbit, treant remodels; aprons | done |
 | 19.71 | Monster KO poses, fishing rod prop, staff cast glow | |
 | 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | |
 | 19.73 | Build next zone during the walk (second scene root) | |

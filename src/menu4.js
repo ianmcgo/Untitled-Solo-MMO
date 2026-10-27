@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.70.0", date: "2026-10-27", title: "Mandrakes, hares, treants and aprons", items: [
+    "<b>Mandrakes are roots now.</b> A knobbly, wrinkled root body ringed with growth bands and fuzzy with rootlets, gnarled root arms with twig fingers, forked root legs with toe roots and a tap root. They have a screaming mouth full of little teeth, sunken eyes with a yellow glint under scowling brows, and a crown of long wavy leaves on stems.",
+    "<b>Hares.</b> Front paws with toes, cheek tufts and whiskers, a fluffy chest and a two-tone tail, veined ears, nose detail and defined haunches.",
+    "<b>Treants.</b> Ridged bark runs over the trunk and down the legs, with knots, moss on the shoulders and back, and leafy branches growing from the back.",
+    "<b>Aprons.</b> Crafters' aprons are now a real bib and skirt that curve around the body and are sized to the wearer, with neck straps, back ties, a waist tie and a trimmed pocket.",
+  ] },
   { v: "19.69.0", date: "2026-10-27", title: "Fish with teeth", items: [
     "<b>Fish monsters are scary now.</b> They have a gaping underbite full of uneven bone-white teeth with long fangs and a dark red maw, glowing amber eyes with slit pupils under scowling brow plates, an armoured skull and drooping barbels.",
     "<b>More detail.</b> Gill slits, scars, a darker back over a pale belly with belly plates, a spiny dorsal fin with a membrane, pectoral fins with bony rays and a forked, ribbed tail.",

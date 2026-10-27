@@ -1897,6 +1897,14 @@ function familyExtras(R, L, D) {
       R.add(gBall(V3(s * sw * 0.6, shY + 0.01, 0.04), 0.06 * gi, 1.3, 0.35, 1, 8), "chest", 0x5a7a2a, "fur");
     }
     R.add(gBall(V3(0.04, chestY - 0.05, 0.13 * gi), 0.04, 1, 1.3, 0.4, 8), "chest", 0x1a120a, "plain");
+    const ridge = new THREE.Color(bark).multiplyScalar(0.7).getHex(), litB = new THREE.Color(bark).lerp(new THREE.Color(0xd8c8a0), 0.25).getHex(), moss = 0x5a7a2a;
+    for (let k = 0; k < 14; k++) { const a = k / 14 * Math.PI * 2 + 0.2, r = 0.15 * gi, y0 = spineY - 0.12 + (k % 3) * 0.03, y1 = chestY + 0.1 - (k % 2) * 0.04; R.add(gTaper(V3(Math.sin(a) * r, y0, Math.cos(a) * r * 0.8), V3(Math.sin(a + 0.08) * r * 1.02, y1, Math.cos(a + 0.08) * r * 0.82), 0.012, 0.009, 4, 0.5), y1 > chestY - 0.05 ? "chest" : "spine", k % 3 ? ridge : litB, "wood"); }
+    for (let k = 0; k < 4; k++) { const a = k * 1.7 + 0.5; R.add(gBall(V3(Math.sin(a) * 0.15 * gi, spineY + k * 0.05, Math.cos(a) * 0.12 * gi), 0.028, 1, 1.2, 0.6, 7), "chest", 0x2a1a0e, "wood"); }
+    for (let k = 0; k < 6; k++) { const a = Math.PI + (k - 2.5) * 0.45; R.add(gBall(V3(Math.sin(a) * 0.15 * gi, chestY + 0.05 + (k % 2) * 0.05, Math.cos(a) * 0.13 * gi), 0.05, 1.3, 0.4, 1, 7), "chest", moss, "fur"); }
+    for (const [s, sd] of sides) {
+      for (let k = 0; k < 2; k++) { const b0 = V3(s * 0.08 * gi, chestY + 0.06 + k * 0.08, -0.12 * gi), b1 = b0.clone().add(V3(s * 0.14, 0.2 + k * 0.05, -0.12)), b2 = b1.clone().add(V3(s * 0.05, 0.08, -0.06)); R.add(gTaper(b0, b1, 0.022, 0.012, 5), "chest", bark, "wood"); R.add(gTaper(b1, b2, 0.012, 0.003, 4), "chest", bark, "wood"); R.add(gBall(b1, 0.06, 1.2, 0.9, 1, 7), "chest", leaf, "plain"); R.add(gBall(b2, 0.045, 1, 0.9, 1, 6), "chest", leaf, "plain"); }
+      for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; R.add(gTaper(V3(s * hx + Math.cos(a) * 0.05, knee + 0.1, Math.sin(a) * 0.05), V3(s * hx + Math.cos(a) * 0.045, ank + 0.06, Math.sin(a) * 0.045), 0.01, 0.008, 4), "shin" + sd, ridge, "wood"); }
+    }
   }
   if (F === "ghoul" || F === "undead") {
     const rag = L.top && L.top.color != null ? L.top.color : 0x3a3028;
@@ -2486,7 +2494,16 @@ function humanEntryBase(L) {
       R.add(gBox(V3(0, ty1 + 0.015, fz * (0.125 * gi + 0.01)), 0.2, 0.025, 0.006), bn, top.trim || 0xd8c070, "trim");
     }
   }
-  if (t === "apron") R.add(gBox(V3(0, hipsY - 0.05, 0.13 * gi), 0.26, 0.55, 0.012), "hips", top.color2, "leather");
+  if (t === "apron" || L.apron) {
+    const ac = L.apron || top.color2, ad = new THREE.Color(ac).multiplyScalar(0.72).getHex(), Wd = (sw0 / 0.195) * (L.doll ? 0.78 : 1), fz = (BODY.up ? Math.max(...BODY.up.slice(0, 5).map(r => r.rz * (r.f || 1) + (r.z || 0))) : 0.152 * gi * 0.72) + 0.012, sk = Math.max(0.12, (hipsY - knee) * 0.95);
+    const ap = (y0, y1, w0, w1, z0, bone) => { const g = new THREE.PlaneGeometry(1, 1, 4, 8), p = g.attributes.position; for (let i = 0; i < p.count; i++) { const u = p.getX(i), v = p.getY(i) + 0.5, y = y0 + (y1 - y0) * v, w = w0 + (w1 - w0) * v, x = u * w; p.setXYZ(i, x + Math.sin(v * 9 + u * 3) * 0.004, y, z0 - x * x * 1.6 + Math.sin(u * 12 + v * 5) * 0.004 + (1 - v) * 0.015); } g.computeVertexNormals(); return g; };
+    R.add(ap(hipsY + 0.04, hipsY - sk, 0.3 * gi * Wd, 0.25 * gi * Wd, fz + 0.004), "hips", ac, "cloth");
+    R.add(ap(chestY + (neckY - chestY) * 0.55, hipsY + 0.04, 0.19 * gi * Wd, 0.25 * gi * Wd, fz + 0.012), "chest", ac, "cloth");
+    R.add(gBox(V3(0, hipsY - sk * 0.4, fz + 0.012), 0.14 * gi * Wd, sk * 0.22, 0.006), "hips", ad, "cloth");
+    R.add(gBox(V3(0, hipsY - sk * 0.29, fz + 0.016), 0.14 * gi * Wd, 0.007, 0.005), "hips", 0xd8c8a0, "trim");
+    R.add(gRing(V3(0, hipsY + 0.04, 0), (fem ? 0.165 : 0.152) * gi + 0.012, 0.007, "y", 18).scale(1, 1, 0.75), "hips", ad, "cloth");
+    for (const s of [-1, 1]) { R.add(gTaper(V3(s * 0.085 * gi * Wd, chestY + (neckY - chestY) * 0.55, fz + 0.01), V3(s * 0.05 * Wd, neckY - 0.01, 0.04), 0.006, 0.006, 4), "chest", ad, "cloth"); R.add(gTaper(V3(s * 0.04, hipsY + 0.04, -0.12 * gi), V3(s * 0.06, hipsY - 0.12, -0.13 * gi), 0.008, 0.004, 4), "hips", ad, "cloth"); }
+  }
   if (t === "fur") R.add(gRing(V3(0, neckY - 0.04, 0), 0.12 * gi, 0.06, "y", 14), "chest", topC, "fur");
   if (t === "rags" && L.skull) {
     R.add(gRing(V3(0, hipsY - 0.025, 0.0), 0.1 * gi, 0.006, "y", 16).scale(1, 1, 0.8), "hips", 0x5a4630, "leather");
@@ -3134,23 +3151,42 @@ function mandrakeEntry(col, leaf) {
   R.bone("head", "body", 0, Y + 0.3, 0);
   R.bone("leaf", "head", 0, Y + 0.5, -0.02);
   for (const [s, sd] of [[1, "L"], [-1, "R"]]) { R.bone("arm" + sd, "body", s * 0.17, Y + 0.08, 0.02); R.bone("leg" + sd, "body", s * 0.09, Y - 0.14, 0); }
-  const dark = new THREE.Color(col).multiplyScalar(0.65).getHex(), lf = leaf || 0x5aa84a, lfd = new THREE.Color(lf).multiplyScalar(0.6).getHex();
-  R.add(gBall(V3(0, Y, 0), 0.2, 1, 1.15, 0.95, 14), "body", col, "skin");
-  R.add(gBall(V3(0, Y + 0.3, 0.02), 0.19, 1.05, 0.95, 1, 14), "head", col, "skin");
+  const dark = new THREE.Color(col).multiplyScalar(0.62).getHex(), deep = new THREE.Color(col).multiplyScalar(0.4).getHex(), pale = new THREE.Color(col).lerp(new THREE.Color(0xf0e2c8), 0.35).getHex(), lf = leaf || 0x5aa84a, lfd = new THREE.Color(lf).multiplyScalar(0.6).getHex(), lfl = new THREE.Color(lf).lerp(new THREE.Color(0xe8f0a0), 0.3).getHex();
+  const prof = [[0.0, -0.2], [0.07, -0.17], [0.15, -0.1], [0.2, 0.0], [0.21, 0.1], [0.2, 0.2], [0.21, 0.3], [0.2, 0.4], [0.15, 0.48], [0.07, 0.53], [0.0, 0.54]].map(([r, y]) => new THREE.Vector2(r, y));
+  const body = new THREE.LatheGeometry(prof, 14), bp = body.attributes.position;
+  for (let i = 0; i < bp.count; i++) { const x = bp.getX(i), y = bp.getY(i), z = bp.getZ(i), a2 = Math.atan2(z, x), k = 1 + (NOISE.value(a2 * 2.2 + 3, y * 7, 0, 661) - 0.5) * 0.22 - (Math.abs(Math.sin(y * 31)) < 0.18 ? 0.05 : 0); bp.setXYZ(i, x * k, y, z * k * 0.92); }
+  body.translate(0, Y - 0.04, 0.01); body.computeVertexNormals();
+  R.add(body, "body", col, "wood");
+  for (let k = 0; k < 6; k++) { const y = Y - 0.12 + k * 0.09, r = 0.2 - Math.abs(k - 2.5) * 0.008; R.add(gRing(V3(0, y, 0.01), r * 1.01, 0.008, "y", 14, Math.PI * (1.2 + (k % 2) * 0.4), [0, k * 1.3, 0]).scale(1, 1, 0.92), "body", dark, "wood"); }
+  for (let k = 0; k < 10; k++) { const a2 = k * 2.4, y = Y - 0.15 + (k % 5) * 0.06, r = 0.2, bx = Math.cos(a2) * r, bz = Math.sin(a2) * r * 0.9; R.add(gTaper(V3(bx, y, bz), V3(bx * 1.6, y - 0.05 - (k % 3) * 0.02, bz * 1.6), 0.006, 0.001, 3), "body", pale, "wood"); }
+  R.add(gTaper(V3(0.02, Y - 0.22, 0.01), V3(0.05, 0.0, 0.05), 0.04, 0.005, 6), "body", dark, "wood");
+  R.add(gBall(V3(0, Y + 0.3, 0.13), 0.13, 1.1, 0.95, 0.55, 10), "head", col, "wood");
   for (const s of [-1, 1]) {
     const sd = s > 0 ? "L" : "R";
-    R.add(gBall(V3(s * 0.08, Y + 0.33, 0.17), 0.04, 1, 1.1, 0.6, 8), "head", 0x111111, "plain");
-    R.add(gBall(V3(s * 0.08, Y + 0.34, 0.19), 0.012, 1, 1, 0.6, 5), "head", 0xffffff, "plain");
-    R.add(gBall(V3(s * 0.17, Y + 0.08, 0.02), 0.065, 1, 1, 1, 8), "arm" + sd, dark, "skin");
-    R.add(gTaper(V3(s * 0.17, Y + 0.08, 0.02), V3(s * 0.3, Y - 0.06, 0.08), 0.045, 0.02, 6), "arm" + sd, dark, "skin");
-    R.add(gBall(V3(s * 0.09, Y - 0.14, 0), 0.075, 1, 1, 1, 8), "leg" + sd, dark, "skin");
-    R.add(gTaper(V3(s * 0.09, Y - 0.14, 0), V3(s * 0.1, 0.02, 0.03), 0.055, 0.045, 6), "leg" + sd, dark, "skin");
-    R.add(gBall(V3(s * 0.1, 0.02, 0.06), 0.06, 1.1, 0.5, 1.4, 7), "leg" + sd, dark, "skin");
+    R.add(gBall(V3(s * 0.075, Y + 0.34, 0.17), 0.05, 1, 1.1, 0.55, 8), "head", 0x140c08, "plain");
+    R.add(gBall(V3(s * 0.075, Y + 0.335, 0.185), 0.016, 1, 1, 0.6, 5), "head", 0xffe060, "glow", true);
+    R.add(gBox(V3(s * 0.07, Y + 0.405, 0.18), 0.09, 0.022, 0.04, 0, 0, -s * 0.38), "head", deep, "wood");
+    R.add(gBall(V3(s * 0.15, Y + 0.25, 0.14), 0.035, 1, 0.8, 0.7, 6), "head", dark, "wood");
+    R.add(gBall(V3(s * 0.17, Y + 0.08, 0.02), 0.06, 1, 1, 1, 8), "arm" + sd, dark, "wood");
+    R.add(boneTube([V3(s * 0.17, Y + 0.08, 0.02), V3(s * 0.25, Y + 0.02, 0.05), V3(s * 0.29, Y - 0.06, 0.08)], 0.04, 0.022, 8), "arm" + sd, dark, "wood");
+    for (let f = 0; f < 3; f++) R.add(gTaper(V3(s * 0.29, Y - 0.06, 0.08), V3(s * (0.3 + f * 0.025), Y - 0.15 + f * 0.02, 0.1 + (f - 1) * 0.04), 0.012, 0.002, 4), "arm" + sd, dark, "wood");
+    R.add(gBall(V3(s * 0.09, Y - 0.14, 0), 0.07, 1, 1, 1, 8), "leg" + sd, dark, "wood");
+    R.add(boneTube([V3(s * 0.09, Y - 0.14, 0), V3(s * 0.11, Y - 0.22, 0.02), V3(s * 0.1, 0.03, 0.03)], 0.05, 0.035, 8), "leg" + sd, dark, "wood");
+    for (let f = 0; f < 3; f++) R.add(gTaper(V3(s * 0.1, 0.03, 0.03), V3(s * (0.1 + (f - 1) * 0.05), 0.0, 0.1 + (f === 1 ? 0.04 : 0)), 0.018, 0.003, 4), "leg" + sd, dark, "wood");
   }
-  R.add(gBall(V3(0, Y + 0.22, 0.17), 0.05, 1.3, 0.35, 0.5, 8), "head", 0x4a2a2a, "plain");
-  R.add(gTaper(V3(0, Y + 0.44, -0.02), V3(0, Y + 0.72, -0.04), 0.03, 0.02, 6), "leaf", lfd, "wood");
-  for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + 0.4; R.add(gBall(V3(Math.cos(a) * 0.16, Y + 0.7, -0.04 + Math.sin(a) * 0.16), 0.14, 1.3, 0.18, 0.6, 8), "leaf", lf, "plain"); }
-  R.meta = { kind: "mandrake", headTop: Y + 0.8 };
+  R.add(gBall(V3(0, Y + 0.23, 0.19), 0.052, 1.2, 0.85, 0.5, 8), "head", 0x2a0c0c, "plain");
+  for (let k = 0; k < 5; k++) { const x = (k - 2) * 0.017; R.add(gTaper(V3(x, Y + 0.268, 0.205), V3(x, Y + 0.248, 0.21), 0.006, 0.001, 3), "head", pale, "bone"); R.add(gTaper(V3(x, Y + 0.19, 0.205), V3(x, Y + 0.21, 0.21), 0.005, 0.001, 3), "head", pale, "bone"); }
+  R.add(gTaper(V3(0, Y + 0.44, -0.02), V3(0.01, Y + 0.58, -0.03), 0.035, 0.025, 6), "leaf", lfd, "wood");
+  for (let k = 0; k < 7; k++) {
+    const a2 = k / 7 * Math.PI * 2 + 0.3, len = 0.28 + (k % 3) * 0.08, b0 = V3(0.01, Y + 0.56, -0.03), tip = b0.clone().add(V3(Math.cos(a2) * len * 0.75, len * 0.75, Math.sin(a2) * len * 0.75)), mid2 = b0.clone().lerp(tip, 0.5).add(V3(0, 0.06, 0));
+    R.add(boneTube([b0, mid2, tip], 0.008, 0.004, 6), "leaf", lfd, "wood");
+    const g = new THREE.PlaneGeometry(0.11, len * 0.9, 2, 6), gp = g.attributes.position;
+    for (let i = 0; i < gp.count; i++) { const yy = gp.getY(i) / (len * 0.9) + 0.5, xx = gp.getX(i), w2 = Math.sin(yy * Math.PI) * (1 + 0.35 * Math.sin(yy * 18)); gp.setX(i, xx * w2); gp.setZ(i, Math.abs(xx) * 0.35 - yy * yy * 0.06); }
+    g.translate(0, len * 0.45, 0).rotateX(-0.5).rotateY(-a2 + Math.PI / 2).translate(b0.x, b0.y, b0.z);
+    g.computeVertexNormals();
+    R.add(g, "leaf", k % 2 ? lf : lfl, "plain");
+  }
+  R.meta = { kind: "mandrake", headTop: Y + 0.85 };
   return R.finish();
 }
 
@@ -3293,6 +3329,7 @@ function wormEntry(col) {
   return R.finish();
 }
 
+function sdOf(s) { return s > 0 ? "L" : "R"; }
 function hareEntry(col) {
   const R = new RigBuilder();
   R.bone("root", null, 0, 0, 0);
@@ -3329,6 +3366,20 @@ function hareEntry(col) {
     R.add(gBall(V3(s * 0.1, 0.025, 0.04), 0.06, 0.85, 0.42, 2.0, 10), "footB" + sd, light, "fur");
   }
   R.add(gBall(V3(0, 0.19, -0.19), 0.058, 1, 1, 1, 10), "tail", 0xf6f2ea, "fur");
+  R.add(gBall(V3(0, 0.205, -0.215), 0.04, 1.1, 0.9, 0.9, 8), "tail", 0xffffff, "fur");
+  for (const s of [-1, 1]) {
+    const fp = V3(s * 0.065, 0.2, 0.1);
+    R.add(gTaper(fp, V3(s * 0.06, 0.04, 0.13), 0.026, 0.018, 7), "body", col, "fur");
+    R.add(gBall(V3(s * 0.06, 0.03, 0.15), 0.028, 0.9, 0.55, 1.4, 8), "body", light, "fur");
+    for (let k = 0; k < 3; k++) R.add(gBall(V3(s * 0.06 + (k - 1) * 0.011, 0.022, 0.185), 0.009, 1, 0.8, 1.1, 5), "body", light, "fur");
+    for (let k = 0; k < 3; k++) R.add(gTaper(V3(s * 0.1, 0.47 + k * 0.012, 0.08), V3(s * 0.15, 0.45 + k * 0.02, 0.05), 0.016, 0.002, 4), "head", light, "fur");
+    R.add(gBall(V3(s * 0.066, 0.53, 0.135), 0.033, 1, 1.15, 0.6, 8), "head", light, "fur");
+    R.add(gBox(V3(s * 0.066, 0.75, 0.016), 0.004, 0.13, 0.004), "ear" + sdOf(s), 0xc88888, "plain");
+    R.add(gBall(V3(s * 0.12, 0.2, -0.02), 0.07, 0.5, 0.9, 1.1, 8), "hips", dark, "fur");
+    for (let k = 0; k < 3; k++) R.add(gBall(V3(s * 0.1 + (k - 1) * 0.014, 0.018, 0.13), 0.012, 1, 0.7, 1.2, 5), "footB" + sdOf(s), light, "fur");
+  }
+  R.add(gBall(V3(0, 0.32, 0.11), 0.08, 1.2, 0.8, 0.45, 8), "body", 0xf6f2ea, "fur");
+  R.add(gBox(V3(0, 0.455, 0.185), 0.004, 0.02, 0.006), "head", 0x6a4a40, "plain");
   R.meta = { kind: "rarab", headTop: 0.98 };
   return R.finish();
 }
