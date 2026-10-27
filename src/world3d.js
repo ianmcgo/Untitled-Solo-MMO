@@ -3805,6 +3805,8 @@ function initRenderer() {
   sky.scale.setScalar(1400);
   const su = sky.material.uniforms;
   su.turbidity.value = 4.5; su.rayleigh.value = 1.6; su.mieCoefficient.value = 0.005; su.mieDirectionalG.value = 0.82;
+  sky.material.fragmentShader = sky.material.fragmentShader.replace("gl_FragColor = vec4( texColor, 1.0 );", "{ float bl = max(dot(texColor, vec3(0.3, 0.59, 0.11)), 1e-5), bs = sqrt(bl) * 9.0, bb = (floor(bs) + smoothstep(0.3, 0.7, fract(bs))) / 9.0; texColor *= mix(1.0, bb * bb / bl, 0.6); }\ngl_FragColor = vec4( texColor, 1.0 );");
+  sky.material.needsUpdate = true;
   W3.sky = sky;
   W3.scene.add(sky);
   W3.skyScene = new THREE.Scene();

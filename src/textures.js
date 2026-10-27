@@ -175,10 +175,30 @@ function texBark() {
     (x, y, hv, o) => { const v = 55 + hv * 60; setRGB(o, v * 1.1, v * 0.82, v * 0.6); }, 6);
 }
 
+function leafDabs(x, y, N, C, seed) {
+  const cs = N / C, cx = Math.floor(x / cs), cy = Math.floor(y / cs);
+  let best = -1, sec = -1, tone = 0.5;
+  for (let j = -1; j <= 1; j++) for (let i = -1; i <= 1; i++) {
+    const gx = cx + i, gy = cy + j, wx = ((gx % C) + C) % C, wy = ((gy % C) + C) % C;
+    for (let k = 0; k < 2; k++) {
+      const h1 = NOISE.hash2(wx * 7 + k * 31 + seed, wy * 13 + k * 17), h2 = NOISE.hash2(wx * 11 + k * 5 + seed, wy * 3 + k * 41), h3 = NOISE.hash2(wx * 19 + k + seed, wy * 23 + k * 7);
+      const px = (gx + h1) * cs, py = (gy + h2) * cs, a = h3 * Math.PI, ca = Math.cos(a), sa = Math.sin(a), dx = x - px, dy = y - py, u = (dx * ca + dy * sa) / (cs * 0.62), v = (-dx * sa + dy * ca) / (cs * 0.34), d = u * u + v * v;
+      const val = d < 1 ? (1 - d) * (0.75 + 0.25 * h1) + (dy < 0 ? 0.12 : 0) : -1;
+      if (val > best) { sec = best; best = val; tone = h2; } else if (val > sec) sec = val;
+    }
+  }
+  return [best, sec, tone];
+}
 function texFoliage(key, base) {
-  return texPair(key, 128, 128,
-    (x, y) => NOISE.fbm(x / 128 * 10, y / 128 * 10, 3, 10, 41),
-    (x, y, hv, o) => { const v = 0.7 + hv * 0.6; setRGB(o, base[0] * v, base[1] * v, base[2] * v); }, 4);
+  const N = 256, C = 14;
+  return texPair(key, N, N,
+    (x, y) => { const [b] = leafDabs(x, y, N, C, 3); return b < 0 ? -0.35 : b * 0.9 + NOISE.fbm(x / N * 8, y / N * 8, 2, 8, 41) * 0.25; },
+    (x, y, hv, o) => {
+      const [b, s2, tone] = leafDabs(x, y, N, C, 3), gap = b < 0, edge = !gap && b - Math.max(0, s2) < 0.08, n = NOISE.fbm(x / N * 6, y / N * 6, 2, 6, 47);
+      let v = gap ? 0.38 + n * 0.15 : 0.62 + b * 0.42 + (tone - 0.5) * 0.22 - (edge ? 0.12 : 0);
+      const warm = gap ? 0 : Math.max(0, b - 0.55) * 0.5, cool = gap ? 0.08 : 0;
+      setRGB(o, base[0] * v * (1 + warm * 0.55), base[1] * v * (1 + warm * 0.25), base[2] * v * (1 - warm * 0.3 + cool));
+    }, 5);
 }
 
 function texPlanks() {

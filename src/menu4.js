@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.75.0", date: "2026-10-27", title: "Painted leaves and a banded sky", items: [
+    "<b>Painted leaves.</b> Tree crowns, hedges, bushes and moss now use a hand-painted leaf texture: overlapping individual leaves with sunlit tops, darker gaps between them, rim lines and warm highlights, at twice the old resolution.",
+    "<b>Banded sky.</b> The sky gradient now falls into soft painted bands of colour from the horizon up, for a more illustrated look at every time of day.",
+  ] },
   { v: "19.73.0", date: "2026-10-27", title: "Shaping the land on the way out", items: [
     "<b>Faster zone changes.</b> While you walk out of an area, the game now starts shaping the next area's land in the background, a few milliseconds each frame, so less is left to do behind the loading fade. The stored ground image for the next area is still fetched at the same time.",
   ] },
