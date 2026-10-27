@@ -825,6 +825,62 @@ function logGeo(sd) {
     return { bark, cut, moss };
   });
 }
+const TREE_KINDS = {
+  oak: { h: 2.7, r0: 0.25, r1: 0.13, flare: 0.13, lean: 0.03, br: [4, 5], by: [1.4, 2.1], be: [0.4, 0.75], bl: [1.5, 2.1], cr: [0.95, 1.3], top: [0, 4.3, 1.25], fill: 3, fy: [3.2, 4.3], fs: 1.6, birch: 0 },
+  birch: { h: 4.8, r0: 0.16, r1: 0.06, flare: 0.07, lean: 0.06, br: [5, 6], by: [2.4, 4.4], be: [0.9, 1.2], bl: [0.7, 1.1], cr: [0.6, 0.85], top: [0, 5.5, 0.8], fill: 5, fy: [3.0, 5.2], fs: 0.55, birch: 1 },
+  bushy: { h: 1.8, r0: 0.22, r1: 0.12, flare: 0.1, lean: 0.02, br: [5, 6], by: [1.0, 1.7], be: [0.55, 1.0], bl: [1.0, 1.5], cr: [0.8, 1.05], top: [0, 3.3, 1.0], fill: 5, fy: [1.6, 3.2], fs: 1.4, birch: 0 }
+};
+function treeGeo(kind, sd) {
+  return propGeo("tree" + kind + sd, () => {
+    const K = TREE_KINDS[kind], r = seeded(301 + sd * 37 + kind.length * 11), rng = (a) => a[0] + r() * (a[1] - a[0]);
+    const la = r() * 6.28, lx = Math.cos(la) * K.lean, lz = Math.sin(la) * K.lean, axis = y => [lx * y * y * 0.5, lz * y * y * 0.5];
+    const trunk = new THREE.CylinderGeometry(K.r1, K.r0, K.h + 0.4, K.birch ? 12 : 9, K.birch ? 30 : 10, true).translate(0, K.h / 2 + 0.2 - 0.4, 0), tp = trunk.attributes.position;
+    for (let i = 0; i < tp.count; i++) {
+      const x = tp.getX(i), y = tp.getY(i), zz = tp.getZ(i), a = Math.atan2(zz, x), t = clamp((y + 0.2) / (K.h + 0.2), 0, 1);
+      const base = K.r0 + (K.r1 - K.r0) * t, root = K.flare * Math.exp(-Math.max(0, y) * 3.5) * (0.6 + 0.8 * Math.pow(Math.max(0, Math.cos(a * 4 + sd * 1.7)), 2)), knot = (NOISE.value(Math.cos(a) * 1.5, y * 1.2, sd, 541) - 0.5) * base * 0.25, R = base + root + knot, [ax, az] = axis(Math.max(0, y));
+      tp.setXYZ(i, Math.cos(a) * R + ax, y, Math.sin(a) * R + az);
+    }
+    const wood = [trunk], tips = [];
+    const nb = Math.round(rng(K.br));
+    for (let k = 0; k < nb; k++) {
+      const y0 = K.by[0] + (K.by[1] - K.by[0]) * (k + r() * 0.6) / nb, a = (k / nb) * 6.28 + r() * 0.9 + sd, e = rng(K.be), L = rng(K.bl);
+      const d = new THREE.Vector3(Math.cos(a) * Math.cos(e), Math.sin(e), Math.sin(a) * Math.cos(e)), [ax, az] = axis(y0), st = new THREE.Vector3(ax, y0, az);
+      const rad = (K.r0 + (K.r1 - K.r0) * (y0 / K.h)) * 0.55;
+      const g = new THREE.CylinderGeometry(rad * 0.35, rad, L, 6, 2, true).translate(0, L / 2, 0).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d)).translate(st.x, st.y, st.z);
+      wood.push(g);
+      const tip = st.clone().addScaledVector(d, L);
+      tips.push(tip);
+      if (L > 1.1) { const a2 = a + (r() - 0.5) * 1.6, e2 = e + 0.3, d2 = new THREE.Vector3(Math.cos(a2) * Math.cos(e2), Math.sin(e2), Math.sin(a2) * Math.cos(e2)), s2 = st.clone().addScaledVector(d, L * 0.55), L2 = L * 0.5; wood.push(new THREE.CylinderGeometry(rad * 0.2, rad * 0.5, L2, 5, 1, true).translate(0, L2 / 2, 0).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d2)).translate(s2.x, s2.y, s2.z)); tips.push(s2.clone().addScaledVector(d2, L2)); }
+    }
+    const tw = mergeNI(wood);
+    if (K.birch) {
+      const p = tw.attributes.position, c = new Float32Array(p.count * 3);
+      for (let i = 0; i < p.count; i++) { const y = p.getY(i), a = Math.atan2(p.getZ(i), p.getX(i)), dash = NOISE.value(a * 1.6 + sd, y * 9, 0, 547) > 0.6 ? 0.2 : NOISE.value(a * 3, y * 3, 1, 549) > 0.7 ? 0.5 : 0.92 + (NOISE.value(a, y * 2, 2, 553) - 0.5) * 0.1, low = y < 0.5 ? 0.6 + y * 0.6 : 1; c[i * 3] = dash * low; c[i * 3 + 1] = dash * low * 0.98; c[i * 3 + 2] = dash * low * 0.93; }
+      tw.setAttribute("color", new THREE.BufferAttribute(c, 3));
+    }
+    tw.computeVertexNormals();
+    const cl = [];
+    for (const t of tips) { const rr = rng(K.cr); cl.push([t.x, t.y + rr * 0.45, t.z, rr]); }
+    const [ax, az] = axis(K.top[1]);
+    cl.push([K.top[0] + ax, K.top[1], az, K.top[2]]);
+    for (let k = 0; k < K.fill; k++) { const a = r() * 6.28, y = rng(K.fy), [bx, bz] = axis(y); cl.push([bx + Math.cos(a) * K.fs * (0.4 + r() * 0.5), y, bz + Math.sin(a) * K.fs * (0.4 + r() * 0.5), rng(K.cr) * 0.9]); }
+    const cy0 = Math.min(...cl.map(c => c[1] - c[3])), cy1 = Math.max(...cl.map(c => c[1] + c[3]));
+    const parts = cl.map(([x, y, zz, rr], k) => {
+      const g = lumpBlob(rr, 1 + r() * 0.2, 0.78 + r() * 0.2, 1 + r() * 0.2, x, y, zz, k * 5 + sd * 13, 0.24), p = g.attributes.position, c = new Float32Array(p.count * 3);
+      const hue = r(), hm = hue < 0.33 ? [1.08, 1.05, 0.82] : hue < 0.66 ? [0.94, 1.0, 1.02] : [1, 1, 1];
+      for (let i = 0; i < p.count; i++) {
+        const vy = p.getY(i), loc = clamp((vy - y) / rr * 0.5 + 0.5, 0, 1), glob = clamp((vy - cy0) / (cy1 - cy0), 0, 1), out = clamp(Math.hypot(p.getX(i) - x, p.getZ(i) - zz) / rr, 0, 1);
+        const v = 0.5 + loc * 0.32 + glob * 0.3 + out * 0.1 + (NOISE.value(p.getX(i) * 3, vy * 3, p.getZ(i) * 3, 551) - 0.5) * 0.16;
+        c[i * 3] = v * hm[0]; c[i * 3 + 1] = v * hm[1]; c[i * 3 + 2] = v * hm[2];
+      }
+      g.setAttribute("color", new THREE.BufferAttribute(c, 3));
+      return g;
+    });
+    const canopy = THREE.mergeGeometries(parts);
+    canopy.computeVertexNormals();
+    return { trunk: tw, canopy };
+  });
+}
 function hedgeGeo(v, sd) {
   return propGeo("hedge" + v + "_" + sd, () => {
     const L = [], r = seeded(77 + v * 13 + sd * 211);
@@ -1218,11 +1274,6 @@ function buildVegetation(field, root) {
   }
   const trunkGeo = bendGeo(new THREE.CylinderGeometry(0.12, 0.22, 2.4, 7, 5).translate(0, 1.2, 0), 0.028, 0.012, 21);
   const pineGeo = bendGeo(pineTiers(), 0.028, 0.012, 21);
-  const leafGeo = bendGeo(noisyGeo(THREE.mergeGeometries([
-    new THREE.IcosahedronGeometry(1.5, 1).translate(0, 3.2, 0),
-    new THREE.IcosahedronGeometry(1.1, 1).translate(0.8, 2.8, 0.4),
-    new THREE.IcosahedronGeometry(1.0, 1).translate(-0.7, 3.0, -0.5)
-  ]), 0.18, 7), 0.028, 0.012, 21);
   const barkMat = std({ map: bark.map, normalMap: bark.normalMap });
   const snowy = z.palette === "snow";
   const pineMat = std({ map: pineTex.map, normalMap: pineTex.normalMap, color: snowy ? 0xf2f6fa : 0xd8e8d0, side: THREE.DoubleSide });
@@ -1238,17 +1289,21 @@ function buildVegetation(field, root) {
     const cg = THREE.mergeGeometries(parts.map(g => g.index ? g.toNonIndexed() : g));
     root.add(tintInst(instanced(cg, std({ color: 0x5a8a3e, roughness: 0.8 }), cacti, true), rnd, 0.12));
   }
-  if (leafy.length) { root.add(instanced(trunkGeo, barkMat, leafy, true)); root.add(tintInst(instanced(leafGeo, leafMat, leafy, true), rnd, 0.14)); }
-  if (leafy2.length) {
-    const trunk2 = THREE.mergeGeometries([bendGeo(new THREE.CylinderGeometry(0.1, 0.2, 3.4, 7, 6).translate(0, 1.7, 0), -0.02, 0.016, 33), new THREE.CylinderGeometry(0.05, 0.08, 1.4, 5).rotateZ(0.8).translate(0.55, 2.6, 0), new THREE.CylinderGeometry(0.05, 0.08, 1.2, 5).rotateZ(-0.9).translate(-0.5, 2.9, 0.1)]);
-    const canopy = THREE.mergeGeometries([
-      new THREE.IcosahedronGeometry(1.25, 1).translate(0, 4.3, 0), new THREE.IcosahedronGeometry(1.0, 1).translate(1.0, 3.8, 0.3), new THREE.IcosahedronGeometry(0.95, 1).translate(-0.9, 3.9, -0.3),
-      new THREE.IcosahedronGeometry(0.85, 1).translate(0.2, 3.5, 0.95), new THREE.IcosahedronGeometry(0.8, 1).translate(-0.3, 3.4, -0.95), new THREE.IcosahedronGeometry(0.7, 1).translate(0.1, 5.1, 0.1)
-    ]);
-    noisyGeo(canopy, 0.2, 13);
-    bendGeo(canopy, -0.02, 0.016, 33);
-    root.add(instanced(trunk2, barkMat, leafy2, true));
-    root.add(tintInst(instanced(canopy, leafMat, leafy2, true), rnd, 0.18));
+  const decid = leafy.concat(leafy2);
+  if (decid.length) {
+    const birchMat = std({ normalMap: bark.normalMap, color: snowy ? 0xe8eaec : 0xf2f0ea, vertexColors: true, roughness: 0.85 });
+    const leafV = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0xffffff, vertexColors: true });
+    if (snowy) leafV.emissive = new THREE.Color(0x30383a);
+    addWind(leafV, 0.03);
+    addSeason(leafV, "leaf");
+    const kinds = jungle ? ["bushy", "oak", "bushy"] : theme === "town" ? ["oak", "birch", "oak"] : desert ? ["bushy"] : ["oak", "birch", "bushy"];
+    const sets = {};
+    for (const m of decid) { const k = kinds[Math.floor(rnd() * kinds.length)] + Math.floor(rnd() * 2); (sets[k] = sets[k] || []).push(m); }
+    for (const key of Object.keys(sets)) {
+      const kind = key.slice(0, -1), g = treeGeo(kind, +key.slice(-1)), L = sets[key];
+      root.add(tintInst(instanced(g.trunk, kind === "birch" ? birchMat : barkMat, L, true), rnd, 0.12));
+      root.add(tintInst(instanced(g.canopy, leafV, L, true), rnd, 0.16));
+    }
   }
   if (bushes.length) {
     const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);

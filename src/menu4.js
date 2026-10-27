@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.61.0", date: "2026-10-27", title: "Oaks, birches and bushy trees", items: [
+    "<b>Three kinds of broadleaf tree.</b> Broad oaks with spreading boughs, tall slender birches with white, dark-flecked bark, and low bushy trees with dense crowns. Each kind has two shapes, and every tree is sized and leaned a little differently.",
+    "<b>Leafy crowns.</b> Crowns are built from several faceted clumps of leaves at the ends of real branches you can see under the canopy. Crowns are darker underneath and inside, lighter on top, with clumps of slightly different greens.",
+    "<b>Trunks.</b> Trunks taper, flare into roots at the base and have knots and bumps. Pines are unchanged.",
+  ] },
   { v: "19.60.0", date: "2026-10-27", title: "Gnarled, mossy logs", items: [
     "<b>Fallen logs look like real wood.</b> Logs are now faceted, slightly bent and tapered, with deep bark ridges, lighter cut ends showing growth rings, broken branch stubs and patches of moss on top.",
     "<b>Settled in.</b> Logs sit a little lower so they look like they've lain in the grass for a while. There are three log shapes, so neighbouring logs differ.",
@@ -4657,7 +4662,7 @@ function tabHelp() {
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
-    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Hedges are lumpy clumps of leaves that vary in length and height, and fallen logs are bent, ridged and mossy. Hedges are lumpy clumps of leaves that vary in length and height. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
+    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Hedges are lumpy clumps of leaves that vary in length and height, fallen logs are bent, ridged and mossy, and broadleaf trees come as oaks, birches and bushy trees. Hedges are lumpy clumps of leaves that vary in length and height. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",
