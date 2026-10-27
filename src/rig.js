@@ -86,6 +86,21 @@ function paintFace(g, ox, oy, v, fem) {
   const soft = (x, y, rx, ry, col, a) => { g.fillStyle = rgba(col, a * 0.55); g.beginPath(); g.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2); g.fill(); g.fillStyle = rgba(col, a * 0.45); g.beginPath(); g.ellipse(x, y, rx * 0.55, ry * 0.55, 0, 0, Math.PI * 2); g.fill(); };
   g.lineCap = "round"; g.lineJoin = "round";
   {
+    for (const s of [-1, 1]) {
+      soft(s * 15.5, -2, 16, 9.5, [120, 72, 70], 0.11);
+      soft(s * 14, -13.5, 12, 3.2, [255, 242, 228], 0.13);
+      soft(s * 20.5, 10, 7.5, 3.6, [255, 238, 226], 0.14);
+      soft(s * 21.5, 18.5, 6.5, 4.2, [150, 92, 84], 0.09);
+      soft(s * 30, 20, 5.5, 11, [140, 86, 80], 0.08);
+      soft(s * 4.2, 8, 2.2, 6.5, [150, 90, 82], 0.11);
+      g.fillStyle = "rgba(96,44,42,0.32)"; g.beginPath(); g.ellipse(s * 2.4, 15.3, 1.5, 0.8, s * 0.35, 0, Math.PI * 2); g.fill();
+      g.strokeStyle = "rgba(150,88,80,0.18)"; g.lineWidth = 0.7; g.beginPath(); g.moveTo(s * 1.4, 17.2); g.lineTo(s * 1.7, 22.6); g.stroke();
+    }
+    soft(0.4, 3, 1.5, 7.5, [255, 246, 236], 0.22);
+    soft(0.2, 12.4, 2.6, 1.8, [255, 246, 236], 0.18);
+    soft(0, 17.6, 4.6, 1.4, [120, 60, 55], 0.2);
+    soft(0, 34, 5.5, 2.6, [255, 242, 230], 0.12);
+    soft(0, 38.5, 9, 2.4, [140, 84, 78], 0.08);
     g.fillStyle = "rgba(150,92,84,0.13)"; g.beginPath(); g.ellipse(0, 31, 36, 13, 0, 0, Math.PI); g.fill();
     g.fillStyle = "rgba(150,92,84,0.1)"; g.beginPath(); g.moveTo(2, 4); g.lineTo(6, 12); g.lineTo(3, 15); g.lineTo(0.5, 13); g.closePath(); g.fill();
     g.fillStyle = "rgba(255,244,232,0.14)"; g.beginPath(); g.ellipse(0, -22, 16, 5, 0, 0, Math.PI * 2); g.fill();
@@ -137,8 +152,16 @@ function paintFace(g, ox, oy, v, fem) {
   g.beginPath(); g.moveTo(ex + 0.6, ey + 13); g.quadraticCurveTo(ex + 1.7, ey + 15.2, ex - 0.7, ey + 15.6); g.quadraticCurveTo(ex + 0.6, ey + 14.8, ex + 0.6, ey + 13); g.fill();
   const mw = [4.4, 3.8, 3.6, 4.6, 5, 3.6, 3.6, 4.2][v] * (fem ? 0.9 : 1), my = ey + 26, smile = [1.4, 0.4, 0.2, 1.6, 2.2, -0.6, 0.3, 1][v];
   if (fem) soft(ex, my + 0.6, mw + 1, 1.8, [230, 110, 110], 0.42);
+  {
+    const lc = fem ? [176, 78, 82] : [150, 84, 78], la = fem ? 0.5 : 0.32;
+    g.fillStyle = rgba(lc.map(c => c * 0.82 | 0), la); g.beginPath(); g.moveTo(ex - mw, my - smile * 0.5); g.quadraticCurveTo(ex - mw * 0.5, my - 2.4, ex - 0.6, my - 1.6); g.quadraticCurveTo(ex, my - 1.1, ex + 0.6, my - 1.6); g.quadraticCurveTo(ex + mw * 0.5, my - 2.4, ex + mw, my - smile * 0.5); g.quadraticCurveTo(ex, my + smile, ex - mw, my - smile * 0.5); g.fill();
+    g.fillStyle = rgba(lc, la * 0.8); g.beginPath(); g.moveTo(ex - mw * 0.9, my - smile * 0.4); g.quadraticCurveTo(ex, my + smile + 3.4, ex + mw * 0.9, my - smile * 0.4); g.quadraticCurveTo(ex, my + smile, ex - mw * 0.9, my - smile * 0.4); g.fill();
+    soft(ex + 0.6, my + smile * 0.5 + 1.6, mw * 0.35, 0.6, [255, 236, 230], fem ? 0.35 : 0.2);
+  }
   g.strokeStyle = "rgb(110,46,46)"; g.lineWidth = 1.05;
   g.beginPath(); g.moveTo(ex - mw, my - smile * 0.5); g.quadraticCurveTo(ex, my + smile, ex + mw, my - smile * 0.5); g.stroke();
+  g.strokeStyle = "rgba(110,46,46,0.4)"; g.lineWidth = 0.7;
+  for (const s of [-1, 1]) { g.beginPath(); g.moveTo(ex + s * mw, my - smile * 0.5); g.quadraticCurveTo(ex + s * (mw + 1.2), my - smile * 0.5 - 0.4, ex + s * (mw + 1.6), my - smile * 0.5 - 1.2); g.stroke(); }
   soft(ex, my + 4, 3, 1.4, [120, 60, 50], 0.12);
   if (v === 3) { g.fillStyle = "rgba(170,100,70,0.5)"; const rr = seeded(33); for (let k = 0; k < 18; k++) { const sx = rr() < 0.5 ? -1 : 1; g.beginPath(); g.arc(ex + sx * (8 + rr() * 14), ey + 8 + rr() * 5, 0.5 + rr() * 0.4, 0, Math.PI * 2); g.fill(); } }
   g.restore();
@@ -243,9 +266,13 @@ const CLASSIC_PAINT = {
   skin(u, v, o) { const n = NOISE.fbm(u * 3, v * 3, 2, 3, 11); o[0] = 0.84 + 0.05 * n + 0.012 * (NOISE.value(u * 40, v * 40, 40, 13) - 0.5); o[1] = 0; o[2] = 0.9; o[3] = 0; },
   face(u, v, o) { o[0] = 0.86; o[1] = 0; o[2] = 0.9; o[3] = 0; },
   cloth(u, v, o, X) {
-    const ev = Math.min(v, 1 - v), w = NOISE.fbm(u * 3, v * 2, 2, 3, 23);
+    const ev = Math.min(v, 1 - v), w = NOISE.fbm(u * 3, v * 2, 2, 3, 23), w2 = NOISE.fbm(u * 2, v * 3, 2, 2, 27);
     const f = Math.sin((u * 5 + w * 0.35) * Math.PI * 2), crease = f < -0.93 ? 1 : 0, hi = f > 0.82 ? 1 : 0;
-    let a = 0.7 + 0.2 * PST(f * 0.5 + 0.5, 3) - crease * 0.24 + hi * 0.06;
+    const d = Math.sin(((u * 3 - v * 2) + w2 * 0.6) * Math.PI * 2), dc = d < -0.9 ? 1 : 0;
+    let a = 0.7 + 0.2 * PST(f * 0.5 + 0.5, 3) - crease * 0.24 + hi * 0.06 + 0.05 * PST(d * 0.5 + 0.5, 2) - dc * 0.1;
+    const su = Math.abs(u - 0.5);
+    if (ev >= 0.1 && su < 0.006) a -= 0.18; else if (ev >= 0.1 && su < 0.016 && ((v * 64) % 1) < 0.45) a += 0.1;
+    a += 0.06 * (NOISE.fbm(u * 6, v * 6, 2, 6, 29) - 0.5);
     if (ev < 0.06) a = 0.66 + 0.06 * PST(f * 0.5 + 0.5, 2);
     if (ev >= 0.06 && ev < 0.072) a = 0.42;
     if (ev > 0.085 && ev < 0.095 && (X % 8) < 4.5) a = 0.5;
@@ -790,12 +817,12 @@ function gMembrane(ptsXZ, y) {
 }
 
 const HEAD_PROFILES = {
-  human0: { jaw: 0.34, chin: 0.1, brow: 0.05, sock: 0.05, cheek: 0.04, nose: 0.2, lips: 1, long: 0.1 },
-  human1: { jaw: 0.47, chin: 0.02, brow: 0.02, sock: 0.045, cheek: 0.07, nose: 0.13, lips: 1.3, long: -0.02 },
-  elari: { jaw: 0.4, chin: 0.1, brow: 0.03, sock: 0.05, cheek: 0.06, nose: 0.17, lips: 1, long: 0.15 },
+  human0: { jaw: 0.34, chin: 0.11, brow: 0.075, sock: 0.065, cheek: 0.065, nose: 0.23, lips: 1, long: 0.1 },
+  human1: { jaw: 0.47, chin: 0.03, brow: 0.035, sock: 0.058, cheek: 0.088, nose: 0.15, lips: 1.3, long: -0.02 },
+  elari: { jaw: 0.4, chin: 0.11, brow: 0.045, sock: 0.062, cheek: 0.08, nose: 0.19, lips: 1, long: 0.15 },
   pipkin: { jaw: 0.1, chin: 0, brow: 0.01, sock: 0.03, cheek: 0.03, nose: 0.1, lips: 0.8, long: -0.11 },
   ursan: { jaw: 0.24, chin: 0.1, brow: 0.16, sock: 0.07, cheek: 0.04, nose: 0.14, noseW: 1.7, lips: 0.2, long: 0, muzzle: 0 },
-  nekari: { jaw: 0.44, chin: 0.04, brow: 0.02, sock: 0.045, cheek: 0.08, nose: 0.1, lips: 0.9, long: 0.08, muzzle: 0.05 },
+  nekari: { jaw: 0.44, chin: 0.05, brow: 0.032, sock: 0.056, cheek: 0.095, nose: 0.12, lips: 0.9, long: 0.08, muzzle: 0.05 },
   goblin: { jaw: 0.16, chin: 0.09, brow: 0.13, sock: 0.1, cheek: 0.08, nose: 0, lips: 0.7, long: 0, muzzle: 0.06 },
   orc: { jaw: -0.06, chin: 0.15, brow: 0.15, sock: 0.08, cheek: 0.05, nose: 0.12, noseW: 1.9, lips: 1.6, long: 0.05, muzzle: 0.1 },
   skull: { jaw: 0.3, chin: 0.07, brow: 0.08, sock: 0.2, cheek: 0.08, nose: -0.11, lips: 0, long: 0.05 },

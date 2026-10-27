@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.67.0", date: "2026-10-27", title: "Painted faces and draped cloth", items: [
+    "<b>Faces are painted with light and shade.</b> Human, elari and nekari faces now have shadowed eye sockets, a lit brow, a highlighted nose bridge with shaded sides and nostrils, cheekbone highlights with soft hollows, a jaw shadow, a lit chin and a philtrum.",
+    "<b>Lips.</b> Mouths are now shaped upper and lower lips with a highlight and small corner creases, instead of a single line.",
+    "<b>Sculpt.</b> Brows, eye sockets, cheekbones, noses and chins stand out a little more on human, elari and nekari heads.",
+    "<b>Cloth.</b> Fabric now shows diagonal drape folds as well as vertical ones, a centre seam with stitching and uneven, worn colour.",
+  ] },
   { v: "19.66.0", date: "2026-10-27", title: "Both hands on the haft", items: [
     "<b>Fixed: floating off hand.</b> With a great axe, scythe, great sword, great katana, polearm or staff drawn, your off hand now really grips the haft instead of hovering beside it. If the usual spot is out of reach, the hand slides along the haft, your chest turns slightly into the swing and your weapon hand draws in toward your middle. This also works for small races like Pipkins.",
     "<b>Steadier grip.</b> The two-handed grip no longer creeps or shakes from frame to frame.",

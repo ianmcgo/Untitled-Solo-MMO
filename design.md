@@ -3071,3 +3071,9 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Now: pick() scans 15 points from 1.4x to 0.14x the grip offset and takes the reachable point (within 0.97 arm length) nearest the preferred offset. If even that is out of full arm length, the chest is yawed (tries -0.15 to -0.45, +0.15, +0.3) to bring the left shoulder closer. If still out, the right arm is solved (2-bone IK) to put the weapon hand in front of the body (mid 62% toward the right shoulder, forward 0.62 and down 0.22 arm length), keeping the weapon's world rotation. Then the left arm IK as before.
 - ikSave / ikRestore: the IK saves upArmL, foreArmL, chest, upArmR, foreArmR and weapon quaternions and restores them before poseHuman next frame, so IK never feeds into the blend.
 - Measured hand-to-haft distance: human great axe, polearm and scythe 0-3 mm; Pipkin great axe and scythe 15-21 mm; Pipkin polearm about 50 mm.
+
+## 19.67.0 Painted faces and draped cloth
+- paintFace (human, elari, nekari): an extra shading pass before the eyes, in face-cell coordinates (eyes at y 0 x +-15.5, nose 4-17, mouth y 26): socket shade, brow-ridge light, cheekbone light and hollow, jaw shade, nose-side shade, nostrils, philtrum lines, nose-bridge and tip light, under-nose shade, chin light and under-chin shade.
+- Lips: upper lip fill (darker) and lower lip fill (warmer) with a highlight. Female lips are more saturated (alpha 0.5, versus 0.32 for male). Corner creases on both sides. The old lip line is kept on top.
+- HEAD_SCULPT: human0, human1, elari and nekari brow, sock, cheek, nose and chin raised by about 20-50%.
+- CLASSIC_PAINT.cloth: adds diagonal folds (u * 3 - v * 2 with noise; dark crease when sin < -0.9), a centre seam at u = 0.5 with stitches (64 per v), and a +-0.03 fbm mottle.
