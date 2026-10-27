@@ -3077,3 +3077,7 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Lips: upper lip fill (darker) and lower lip fill (warmer) with a highlight. Female lips are more saturated (alpha 0.5, versus 0.32 for male). Corner creases on both sides. The old lip line is kept on top.
 - HEAD_SCULPT: human0, human1, elari and nekari brow, sock, cheek, nose and chin raised by about 20-50%.
 - CLASSIC_PAINT.cloth: adds diagonal folds (u * 3 - v * 2 with noise; dark crease when sin < -0.9), a centre seam at u = 0.5 with stitches (64 per v), and a +-0.03 fbm mottle.
+
+## 19.68.0 Towering longnecks
+- longneckEntry: bodyY 1.85, bodyR 0.55, bodyLen 1.95, leg 1.6, hip 0.28, neckUp 1.85, neckFwd 0.8, neckR 0.15, headR 0.18, tailLen 0.8, tailDrop 0.55, stride 3.1, patches = col * 0.62, long: true. Data: longneck radius 20 to 30.
+- quadEntry o.long: the neck is a boneTube through 5 Catmull-Rom points (S-curve, radius neckR * 1.55 at the base to 0.78 at the top), plus a shoulder hump ball. Along the curve: a mane of 14 boxes on the back normal (dark, fur region, radius matched to the tube) and 6 throat ridge balls (light). Head: two ossicone tapers with dark knobs and a brow bump. Neck spots: 12 flattened balls on the sides in the patch colour. Tail tuft for long: 7 dark strands instead of the big ball.

@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.68.0", date: "2026-10-27", title: "Towering longnecks", items: [
+    "<b>Longnecks are huge now.</b> Marsh Longnecks stand about half again as tall, with longer legs, a deeper body and a long stride, and they take up more room in a fight.",
+    "<b>Sculpted neck.</b> The neck is a thick, S-curved column that swells at the shoulders and narrows toward the head, with a dark mane down the back, a ridged throat, spots and a muscled shoulder hump.",
+    "<b>Head and tail.</b> Two knobbed horns on the head, a bump on the brow, and a tail that ends in a tuft of dark strands instead of a ball.",
+  ] },
   { v: "19.67.0", date: "2026-10-27", title: "Painted faces and draped cloth", items: [
     "<b>Faces are painted with light and shade.</b> Human, elari and nekari faces now have shadowed eye sockets, a lit brow, a highlighted nose bridge with shaded sides and nostrils, cheekbone highlights with soft hollows, a jaw shadow, a lit chin and a philtrum.",
     "<b>Lips.</b> Mouths are now shaped upper and lower lips with a highlight and small corner creases, instead of a single line.",
