@@ -309,6 +309,7 @@ function netJoinZone(zoneId) {
     const ch = NET.sb.channel("zone:" + zoneId, { config: { broadcast: { self: false }, presence: { key: S.charId } } });
     ch.on("broadcast", { event: "mv" }, m => netOnMove(m.payload));
     ch.on("broadcast", { event: "chat" }, m => netOnChat(m.payload));
+    ch.on("broadcast", { event: "work" }, m => netOnWork(m.payload || {}));
     ch.on("broadcast", { event: "emo" }, m => { const q = m.payload || {}; const o = S.others && S.others.get(q.id); if (o && typeof EMOTES !== "undefined" && EMOTES[q.e]) o.emote = { id: q.e, at: S.time }; });
     for (const [ev, fn] of [["ms", netOnMs], ["hit", netOnHit], ["deb", netOnDeb], ["mat", netOnMat], ["die", netOnDie], ["req", netOnReq], ["want", netOnWant], ["sc", (p) => netOnSc(p)]]) ch.on("broadcast", { event: ev }, m => fn(m.payload));
     ch.on("presence", { event: "sync" }, () => { const st = ch.presenceState(); netOnPresence(st); netElect(st); });
@@ -450,6 +451,15 @@ function netChat(kind, text) {
   Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "chat", payload: { id: S.charId, name: save.name, kind, text, x: Math.round(player.x), y: Math.round(player.y) } })).catch(() => {});
 }
 
+function netWork(p) { if (NET_RT.zch) Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "work", payload: Object.assign({ id: S.charId }, p) })).catch(() => {}); }
+function netOnWork(q) {
+  const o = S.others && S.others.get(q.id);
+  if (!o) return;
+  if (q.g && GATHER[q.g]) { o.gatherAt = S.time; o.gatherType = q.g; }
+  if (q.s != null) o.synth = q.s && CRAFTS[q.s] ? { r: { craft: q.s }, start: S.time, end: S.time + Math.min(30, +q.d || 6) } : null;
+  if (q.f != null) o.fish = q.f ? { state: q.f === 2 ? "bite" : "wait", since: o.fish && o.fish.since || S.time } : null;
+  if (q.r) { o.fish = null; o.reelAt = S.time; }
+}
 function netEmote(id) { if (NET_RT.zch) Promise.resolve(NET_RT.zch.send({ type: "broadcast", event: "emo", payload: { id: S.charId, e: id } })).catch(() => {}); }
 function netOnChat(p) {
   if (!p || p.id === S.charId) return;

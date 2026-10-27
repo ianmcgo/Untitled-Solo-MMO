@@ -553,27 +553,33 @@ function poseHuman(v, e, dt) {
       else if (em.id === "thumbsup") { setP(P, "upArmR", -1.1, 0, -0.2, w); setP(P, "foreArmR", -1.4, 0, 0, w); addP(P, "head", -0.05 * w, 0, 0.1 * w); }
     }
   }
-  if (e === player && amp < 0.2 && !e.casting && e.alive !== false && !e.mounted && !e.resting) {
-    const fs = S.fish, gk = e.gatherAt != null ? (S.time - e.gatherAt) / 0.9 : 9, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
+  if ((e === player || e.remote) && amp < 0.2 && !e.casting && e.alive !== false && !e.mounted && !e.resting) {
+    const fs = e === player ? S.fish : e.fish, gk = e.gatherAt != null ? (S.time - e.gatherAt) / 0.9 : 9, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
     if (fs || rk < 1) {
       const T = fs ? S.time - (fs.since || S.time) : 0, castK = fs ? clamp(T / 0.7, 0, 1) : 1, bite = fs && fs.state === "bite", w = fs ? 1 : 1 - ease(rk);
-      const swing = castK < 1 ? Math.sin(castK * Math.PI) : 0, back = castK < 1 ? (castK < 0.5 ? castK * 2 : 1 - (castK - 0.5) * 2) : 0;
-      setP(P, "upArmR", -1.0 - (bite ? 0.8 + Math.sin(S.time * 24) * 0.08 : 0) - back * 1.3, 0, -0.2, w);
+      const swing = castK < 1 ? Math.sin(castK * Math.PI) : 0, back = castK < 1 ? (castK < 0.5 ? castK * 2 : 1 - (castK - 0.5) * 2) : 0, idle = Math.sin(S.time * 1.3);
+      setP(P, "upArmR", -1.0 - (bite ? 0.8 + Math.sin(S.time * 24) * 0.08 : 0) - back * 1.3 + idle * 0.03, 0, -0.2, w);
       setP(P, "foreArmR", -0.7 + (rk < 1 ? Math.sin(rk * 18) * 0.5 : 0) - swing * 0.4, 0, 0, w);
       setP(P, "upArmL", -0.85 - back * 0.9, 0, 0.15, w);
       setP(P, "foreArmL", -1.0 + (rk < 1 ? Math.sin(rk * 18 + 1.5) * 0.3 : 0), 0, 0, w);
       addP(P, "spine", (0.08 + (bite ? -0.22 : 0) - back * 0.25 + (rk < 1 ? -0.15 * Math.sin(rk * Math.PI) : 0)) * w, 0, 0);
+      addP(P, "chest", 0, (-back * 0.35 + swing * 0.2) * w, 0);
       addP(P, "head", (0.18 - (bite ? 0.1 : 0)) * w, 0, 0);
       addP(P, "hips", 0, 0, Math.sin(S.time * 0.9) * 0.015 * w);
-    } else if (e.synth) {
-      const sy = e.synth, T = S.time - sy.start, hit = Math.max(0, Math.sin(T * 7)), g = env((S.time - sy.start) / (sy.end - sy.start), 0.08, 0.1);
-      setP(P, "upArmL", -0.85 + Math.sin(T * 7 + 1.2) * 0.12, 0, 0.1, g); setP(P, "upArmR", -0.85 - hit * 0.5, 0, -0.1, g);
-      setP(P, "foreArmL", -1.2, 0, 0, g); setP(P, "foreArmR", -1.4 + hit * 0.7, 0, 0, g);
-      addP(P, "spine", 0.3 * g, 0, 0); addP(P, "chest", 0.1 * g, 0, 0); addP(P, "head", 0.35 * g + Math.sin(T * 0.8) * 0.06 * g, 0, 0);
+      setP(P, "thighL", -0.15, 0, 0.06, w); setP(P, "shinL", 0.2, 0, 0, w); setP(P, "thighR", 0.1, 0, -0.06, w); setP(P, "shinR", 0.12 + (bite ? 0.2 : 0), 0, 0, w);
+    } else if (e.synth && S.time < e.synth.end + 0.2) {
+      const sy = e.synth, T = S.time - sy.start, g = env((S.time - sy.start) / Math.max(0.1, sy.end - sy.start), 0.08, 0.1), cr = sy.r && sy.r.craft;
+      setP(P, "thighL", -0.3, 0, 0.12, g); setP(P, "shinL", 0.45, 0, 0, g); setP(P, "thighR", -0.12, 0, -0.12, g); setP(P, "shinR", 0.3, 0, 0, g); v.rootOff[1] -= 0.05 * g;
+      if (cr === "woodworking") { const c = Math.sin(T * 6); setP(P, "upArmR", -0.85 + c * 0.32, 0, -0.18, g); setP(P, "foreArmR", -0.9 - c * 0.55, 0, 0, g); setP(P, "upArmL", -0.95, 0, 0.25, g); setP(P, "foreArmL", -1.1, 0, 0, g); addP(P, "chest", 0, c * 0.12 * g, 0); addP(P, "spine", 0.4 * g, 0, 0); addP(P, "head", 0.35 * g, 0, 0); }
+      else if (cr === "clothcraft") { const pl = Math.max(0, Math.sin(T * 3.6)); setP(P, "upArmL", -1.0, 0, 0.18, g); setP(P, "foreArmL", -1.5, 0, 0, g); setP(P, "upArmR", -0.95 - pl * 0.8, 0, -0.12 - pl * 0.45, g); setP(P, "foreArmR", -1.6 + pl * 0.9, 0, 0, g); addP(P, "spine", 0.3 * g, 0, 0); addP(P, "head", (0.45 - pl * 0.1) * g, pl * 0.15 * g, 0); }
+      else if (cr === "alchemy") { const sh = Math.sin(T * 15) * (Math.sin(T * 1.3) > -0.2 ? 1 : 0.2); setP(P, "upArmR", -1.25, 0, -0.1, g); setP(P, "foreArmR", -1.35 + sh * 0.2, 0, sh * 0.12, g); setP(P, "upArmL", -0.9, 0, 0.12, g); setP(P, "foreArmL", -1.5, 0, 0, g); addP(P, "spine", 0.1 * g, 0, 0); addP(P, "head", 0.15 * g, 0, 0.2 * g); }
+      else if (cr === "cooking") { const a2 = T * 4.5; setP(P, "upArmR", -0.85 + Math.cos(a2) * 0.18, 0, -0.18 + Math.sin(a2) * 0.18, g); setP(P, "foreArmR", -1.15 + Math.sin(a2) * 0.2, 0, 0, g); setP(P, "upArmL", -0.75, 0, 0.3, g); setP(P, "foreArmL", -1.0, 0, 0, g); addP(P, "spine", 0.28 * g, 0, 0); addP(P, "chest", 0, Math.cos(a2) * 0.06 * g, 0); addP(P, "head", 0.3 * g, 0, 0); }
+      else { const ph = (T * 1.15) % 1, up = ph < 0.65 ? ease(ph / 0.65) : 1 - ease((ph - 0.65) / 0.12 > 1 ? 1 : (ph - 0.65) / 0.12), hit = ph > 0.77 && ph < 0.86 ? 1 : 0; setP(P, "upArmL", -0.85, 0, 0.1, g); setP(P, "foreArmL", -1.2, 0, 0, g); setP(P, "upArmR", -0.7 - up * 1.6, 0, -0.2, g); setP(P, "foreArmR", -1.3 + up * 0.5, 0, 0, g); addP(P, "spine", (0.32 - up * 0.12 + hit * 0.08) * g, 0, 0); addP(P, "chest", 0, -up * 0.15 * g, 0); addP(P, "head", (0.35 + hit * 0.05) * g, 0, 0); v.rootOff[1] -= hit * 0.02 * g; }
     } else if (gk >= 0 && gk < 1) {
       const gt = e.gatherType, w = env(gk, 0.1, 0.25);
-      if (gt === "harvesting") { const pull = Math.sin(clamp(gk * 1.4, 0, 1) * Math.PI); setP(P, "upArmL", -0.9, 0, 0.1, w); setP(P, "upArmR", -0.9, 0, -0.1, w); setP(P, "foreArmL", -0.5 - pull * 0.8, 0, 0, w); setP(P, "foreArmR", -0.5 - pull * 0.8, 0, 0, w); addP(P, "spine", (0.55 - pull * 0.25) * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); addP(P, "thighL", -0.4 * w, 0, 0.1 * w); addP(P, "thighR", -0.4 * w, 0, -0.1 * w); addP(P, "shinL", 0.7 * w, 0, 0); addP(P, "shinR", 0.7 * w, 0, 0); v.rootOff[1] -= 0.12 * w; }
-      else { const up = gk < 0.4 ? ease(gk / 0.4) : 1 - ease(clamp((gk - 0.4) / 0.2, 0, 1)); setP(P, "upArmR", -0.4 - 2.2 * up, 0, -0.25, w); setP(P, "upArmL", -0.5 - 2.0 * up, 0, 0.25, w); setP(P, "foreArmR", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); setP(P, "foreArmL", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); addP(P, "spine", (-0.2 * up + (gk >= 0.4 && gk < 0.7 ? 0.45 : 0)) * w, 0, 0); addP(P, "thighL", -0.2 * w, 0, 0); addP(P, "thighR", 0.1 * w, 0, 0); }
+      if (gt === "harvesting") { const sw = Math.sin(clamp(gk * 1.3, 0, 1) * Math.PI), pull = clamp((gk - 0.55) / 0.3, 0, 1); setP(P, "thighL", -1.15, 0, 0.18, w); setP(P, "shinL", 1.55, 0, 0, w); setP(P, "thighR", -0.55, 0, -0.18, w); setP(P, "shinR", 1.85, 0, 0, w); v.rootOff[1] -= 0.26 * w; setP(P, "upArmL", -1.0 + pull * 0.5, 0, 0.15, w); setP(P, "foreArmL", -0.4 - pull * 0.9, 0, 0, w); setP(P, "upArmR", -0.9, 0, -0.5 + sw * 0.9, w); setP(P, "foreArmR", -0.5 - sw * 0.3, 0, 0, w); addP(P, "chest", 0, (0.5 - sw * 0.9) * w, 0); addP(P, "spine", (0.6 - pull * 0.25) * w, 0, 0); addP(P, "head", 0.3 * w, 0, 0); }
+      else if (gt === "logging") { const wind = gk < 0.4 ? ease(gk / 0.4) : 1 - ease(clamp((gk - 0.4) / 0.15, 0, 1)), hit = gk > 0.5 && gk < 0.62 ? 1 : 0; setP(P, "upArmR", -1.35, 0, -0.35 - wind * 0.6, w); setP(P, "upArmL", -1.3, 0, 0.1 + wind * 0.4, w); setP(P, "foreArmR", -0.4 - wind * 0.5, 0, 0, w); setP(P, "foreArmL", -0.6 - wind * 0.4, 0, 0, w); addP(P, "chest", 0, (wind * 0.95 - (1 - wind) * 0.35) * w, 0); addP(P, "spine", (0.15 + hit * 0.12) * w, (wind * 0.3) * w, 0); addP(P, "hips", 0, wind * 0.2 * w, 0); setP(P, "thighL", -0.35, 0, 0.12, w); setP(P, "shinL", 0.45, 0, 0, w); setP(P, "thighR", 0.15, 0, -0.15, w); setP(P, "shinR", 0.3, 0, 0, w); v.rootOff[1] -= (0.05 + hit * 0.03) * w; }
+      else { const up = gk < 0.4 ? ease(gk / 0.4) : 1 - ease(clamp((gk - 0.4) / 0.15, 0, 1)), st = gk >= 0.4 ? Math.sin(clamp((gk - 0.4) / 0.4, 0, 1) * Math.PI) : 0; setP(P, "upArmR", -0.4 - 2.3 * up, 0, -0.25, w); setP(P, "upArmL", -0.5 - 2.1 * up, 0, 0.25, w); setP(P, "foreArmR", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); setP(P, "foreArmL", -0.9 - 0.5 * up + (gk >= 0.4 ? 0.6 : 0), 0, 0, w); addP(P, "spine", (-0.22 * up + st * 0.5) * w, 0, 0); addP(P, "chest", (-0.1 * up) * w, 0, 0); addP(P, "head", (0.1 + st * 0.15) * w, 0, 0); setP(P, "thighL", -0.3 - st * 0.25, 0, 0.18, w); setP(P, "shinL", 0.35 + st * 0.45, 0, 0, w); setP(P, "thighR", 0.1 - st * 0.2, 0, -0.18, w); setP(P, "shinR", 0.25 + st * 0.4, 0, 0, w); v.rootOff[1] -= (0.03 + st * 0.08) * w; }
     }
   }
   if (e.jumpAt != null && S.time - e.jumpAt < 0.9) {

@@ -2455,6 +2455,7 @@ function startFishing() {
   removeItem("bait", 1);
   player.face = Math.atan2(w.y - player.y, w.x - player.x);
   const rainy = ["rain", "storm"].includes(weatherNow());
+  netWorkSend({ f: 1 });
   S.fish = { state: "wait", at: S.time + rand(FISH_CFG.waitMin, FISH_CFG.waitMax) * (rainy ? 0.75 : 1), x: player.x, y: player.y, since: S.time };
   log("You cast your line.", "you");
   sfx("cast_line", player);
@@ -2464,6 +2465,7 @@ function startFishing() {
 function stopFishing(msg) {
   if (!S.fish) return;
   S.fish = null;
+  netWorkSend({ f: 0 });
   if (msg) log(msg, "sys");
 }
 
@@ -2479,7 +2481,7 @@ function pickFish() {
 function reelFish() {
   const f = S.fish;
   if (!f || f.state !== "bite") return;
-  S.fish = null; player.reelAt = S.time;
+  S.fish = null; player.reelAt = S.time; netWorkSend({ r: 1 });
   const [id, lv] = pickFish();
   const skill = save.gatherSkill.fishing || 0;
   const chance = clamp(62 + (skill - lv) * 6 + (invCount("sea_rod") > 0 ? 10 : 0) + buddyPerk("fish") * 100, 12, 95);
@@ -2500,8 +2502,8 @@ function tickFish() {
   const f = S.fish;
   if (!f) return;
   if (!player.alive || Math.hypot(player.x - f.x, player.y - f.y) > 6 || player.engaged || inCombatWith(player)) { stopFishing("You reel in your line."); return; }
-  if (f.state === "wait" && S.time >= f.at) { f.state = "bite"; f.until = S.time + FISH_CFG.bite; log("Something's biting! Reel it in!", "loot"); sfx("splash", player); sfx("notify", player); uiEvent("bite", {}); }
-  else if (f.state === "bite" && S.time > f.until) { S.fish = null; log("The fish slips the hook.", "sys"); }
+  if (f.state === "wait" && S.time >= f.at) { netWorkSend({ f: 2 }); f.state = "bite"; f.until = S.time + FISH_CFG.bite; log("Something's biting! Reel it in!", "loot"); sfx("splash", player); sfx("notify", player); uiEvent("bite", {}); }
+  else if (f.state === "bite" && S.time > f.until) { S.fish = null; netWorkSend({ f: 0 }); log("The fish slips the hook.", "sys"); }
 }
 
 function enterBattlefield() {
@@ -5243,6 +5245,7 @@ function doGather(n) {
   const skill = save.gatherSkill[type] || 0;
   player.face = Math.atan2(n.y - player.y, n.x - player.x);
   player.gatherAt = S.time; player.gatherType = type;
+  netWorkSend({ g: type });
   sfx(type === "mining" ? "blunt" : type === "logging" ? "slash" : "miss", player);
   vfx("hit", { src: player, tgt: n, crit: false, slash: type === "logging" });
   let got = null;
@@ -5295,6 +5298,7 @@ function canSynth(r) {
   if (!recipeMatsOk(r)) return "You're missing ingredients.";
   return "";
 }
+function netWorkSend(p) { if (typeof netWork === "function") netWork(p); }
 function startSynth(id) {
   const r = RECIPES.find(x => x.id === id);
   if (!r) return "Unknown recipe.";
@@ -5302,6 +5306,7 @@ function startSynth(id) {
   if (why) { log(why, "sys"); sfx("error"); return why; }
   if (player.resting) standUp(player, true);
   player.synth = { r, start: S.time, end: S.time + CONFIG.synthTime };
+  netWorkSend({ s: r.craft, d: CONFIG.synthTime });
   S.moveTarget = null; S.chase = false;
   log("You begin crafting " + ITEMS[r.out].name + " with " + an(ITEMS[CRAFTS[r.craft].crystal].name) + ".", "you");
   sfx("cast", player); sfx("craft", player);
@@ -5311,12 +5316,14 @@ function startSynth(id) {
 function cancelSynth(msg) {
   if (!player.synth) return;
   player.synth = null;
+  netWorkSend({ s: "" });
   log(msg || "Your crafting is interrupted.", "sys");
   sfx("interrupt", player);
 }
 function finishSynth() {
   const r = player.synth.r;
   player.synth = null;
+  netWorkSend({ s: "" });
   const crystal = CRAFTS[r.craft].crystal;
   removeItem(crystal, 1);
   const skill = craftSkill(r.craft);

@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.63.0", date: "2026-10-27", title: "Hands at work", items: [
+    "<b>Gathering looks like work.</b> Mining is a full overhead pickaxe swing that bends your knees on the strike. Logging is a sideways hatchet chop that twists through the hips. Harvesting drops you into a crouch to sweep the sickle and pull the crop.",
+    "<b>Every craft has its own motion and tool.</b> Smithing hammers in a steady rhythm, woodworking saws back and forth, clothcraft draws a needle and thread, alchemy shakes a glowing flask and cooking stirs with a ladle. You lean over your work with knees softly bent.",
+    "<b>Fishing.</b> You brace your feet and twist into the cast, and lean back when something bites.",
+    "<b>See other players working.</b> Other players' mining, logging, harvesting, crafting and fishing now show on your screen, with their tools in hand.",
+  ] },
   { v: "19.62.0", date: "2026-10-27", title: "A livelier waterfall", items: [
     "<b>Waterfalls pour, not hang.</b> The falling water is now a curved, layered torrent: a deep blue body with white streaks and fast thin strands over it. It curls over the lip, spreads as it drops and has ragged, fading edges instead of a straight sheet.",
     "<b>Spill and splash.</b> Thin side streams spill down beside the main fall, the plunge pool has an uneven patch of churning foam with lumps of white water, and clouds of mist roll up from the bottom.",
@@ -4667,6 +4673,7 @@ function tabHelp() {
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
+    "<b>Working:</b> gathering, crafting and fishing each have their own animation and tool, and other players can see you at work.",
     "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Hedges are lumpy clumps of leaves that vary in length and height, fallen logs are bent, ridged and mossy, and broadleaf trees come as oaks, birches and bushy trees. Hedges are lumpy clumps of leaves that vary in length and height. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",

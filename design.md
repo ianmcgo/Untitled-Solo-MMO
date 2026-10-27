@@ -3047,3 +3047,10 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Rocks are snapped to the terrain under their centre (sunk by 0.32 scale); in the pool they sit at max(ground, waterline - 0.45 scale). Sheet yy is clamped to 0-1 so pow() never gets a negative base (that produced NaN rows).
 - Pool: foam is an irregular, flattened CircleGeometry with RGBA vertex fade; churn is 11 flattened lumpBlobs; spray has 18 sprites; mists are 4 sprites that rise and fade over about 8 s, plus the old static mist.
 - Noise fix: earlier 19.59-19.61 calls passed a z coordinate as NOISE.value's third argument, which is the wrap period. They now fold z into x/y and pass 0.
+
+## 19.63.0 Hands at work
+- anim.js work block now runs for e === player or e.remote; fishing state is S.fish for the player and e.fish for remotes (models3d workFish(e)).
+- Gather poses (0.9 s, gk 0-1): mining overhead (wind to 0.4, strike with knee bend and rootOff dip); logging horizontal (chest yaw wind +0.95, arms at shoulder height, hips follow, lunge stance); harvesting squat (thighs -1.15/-0.55, shins 1.55/1.85, rootOff -0.26) with a sickle sweep (chest yaw) and a left-hand pull.
+- Craft poses keyed by synth.r.craft, all with a soft knee bend: smithing hammer rhythm (1.15 Hz, raise 65%, strike dip), woodworking saw (6 rad/s), clothcraft needle pull (3.6 rad/s), alchemy flask shake (15 rad/s, gated by a slow sine), cooking stir (circle, 4.5 rad/s). Fishing adds a cast twist and a braced stance.
+- CRAFT_TOOL maps craft to a tool prop built in buildTool: hammer, saw, needle, flask (translucent glowing), ladle. toolWant shows the craft tool while synth is active (+0.2 s).
+- Network: broadcast event "work" on the zone channel, sent by netWorkSend in game.js. Payload {g: gatherType} on gather; {s: craft, d: seconds} on synth start and {s: ""} on finish or cancel; {f: 1} cast, {f: 2} bite, {f: 0} stop; {r: 1} reel. netOnWork sets o.gatherAt/gatherType, o.synth ({ r: { craft }, start, end }), o.fish, o.reelAt on the remote entity.

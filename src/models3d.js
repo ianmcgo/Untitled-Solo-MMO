@@ -253,6 +253,24 @@ function buildTool(kind) {
     g.add(toolPart(cyl(0.02, 0.017, 0.3), wood, 0, 0.1, 0));
     const arc = new THREE.Mesh(new THREE.TorusGeometry(0.13, 0.013, 6, 14, Math.PI * 1.15), toolMat(steel));
     arc.position.set(0.11, 0.34, 0); arc.rotation.set(0, 0, Math.PI * 0.55); arc.castShadow = true; g.add(arc);
+  } else if (kind === "hammer") {
+    g.add(toolPart(cyl(0.018, 0.015, 0.34), wood, 0, 0.12, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.11, 0.055, 0.055), 0x6a6e74, 0, 0.3, 0));
+    g.add(toolPart(new THREE.BoxGeometry(0.02, 0.06, 0.06), steel, 0.065, 0.3, 0));
+  } else if (kind === "saw") {
+    g.add(toolPart(new THREE.BoxGeometry(0.035, 0.11, 0.05), wood, 0, 0.03, 0));
+    const bl = toolPart(new THREE.BoxGeometry(0.006, 0.36, 0.07), steel, 0, 0.26, 0.012); g.add(bl);
+    for (let k = 0; k < 9; k++) g.add(toolPart(new THREE.BoxGeometry(0.006, 0.02, 0.014), 0x9aa2aa, 0, 0.1 + k * 0.036, 0.05, 0.6));
+  } else if (kind === "needle") {
+    g.add(toolPart(new THREE.CylinderGeometry(0.002, 0.004, 0.09, 4), 0xd8dde2, 0, 0.06, 0));
+    g.add(toolPart(new THREE.CylinderGeometry(0.0015, 0.0015, 0.22, 3), 0xc83a4a, 0.02, 0.15, 0, 0, 0, 0.3));
+  } else if (kind === "flask") {
+    const fl = new THREE.Mesh(new THREE.SphereGeometry(0.05, 10, 8).scale(1, 1.1, 1), new THREE.MeshStandardMaterial({ color: 0x7ad0c0, transparent: true, opacity: 0.75, roughness: 0.2, emissive: 0x1a4a40 })); fl.position.set(0, 0.06, 0); g.add(fl);
+    g.add(toolPart(new THREE.CylinderGeometry(0.016, 0.02, 0.07, 8), 0xd8eef0, 0, 0.13, 0));
+    g.add(toolPart(new THREE.CylinderGeometry(0.018, 0.016, 0.022, 8), 0x8a5a30, 0, 0.175, 0));
+  } else if (kind === "ladle") {
+    g.add(toolPart(cyl(0.012, 0.009, 0.42), wood, 0, 0.16, 0));
+    g.add(toolPart(new THREE.SphereGeometry(0.045, 10, 6, 0, Math.PI * 2, Math.PI / 2, Math.PI / 2), 0x8a6040, 0, 0.4, 0.02, Math.PI, 0, 0));
   } else {
     const hand = new THREE.Group(); g.add(hand);
     hand.add(toolPart(cyl(0.022, 0.019, 0.34), dark, 0, 0.0, 0));
@@ -269,10 +287,13 @@ function buildTool(kind) {
   }
   return g;
 }
+const CRAFT_TOOL = { smithing: "hammer", woodworking: "saw", clothcraft: "needle", alchemy: "flask", cooking: "ladle" };
+function workFish(e) { return e === player ? S.fish : e.fish; }
 function toolWant(v, e) {
-  if (e !== player || e.alive === false || e.mounted || e.resting) return null;
-  if (S.fish || (e.reelAt != null && S.time - e.reelAt < 0.8)) return "rod";
+  if ((e !== player && !e.remote) || e.alive === false || e.mounted || e.resting) return null;
+  if (workFish(e) || (e.reelAt != null && S.time - e.reelAt < 0.8)) return "rod";
   if (e.gatherAt != null && S.time - e.gatherAt < 0.9) return e.gatherType === "mining" ? "pickaxe" : e.gatherType === "logging" ? "hatchet" : "sickle";
+  if (e.synth && S.time < e.synth.end + 0.2) return CRAFT_TOOL[e.synth.r.craft] || null;
   return null;
 }
 function placeTool(v, e) {
@@ -294,7 +315,7 @@ function placeTool(v, e) {
   const k = Math.min(1, (S.time - tl.t0) / 0.18), sc = weaponBodyK(v) * (0.3 + 0.7 * k * k * (3 - 2 * k));
   tl.g.scale.setScalar(sc);
   if (tl.kind !== "rod") return;
-  const ud = tl.g.userData, fs = S.fish, line = ud.line, fl = ud.float;
+  const ud = tl.g.userData, fs = workFish(e), line = ud.line, fl = ud.float;
   tl.g.updateWorldMatrix(true, false);
   const tipW = tl.g.localToWorld(ud.tipLocal.clone()), tip = v.group.worldToLocal(tipW.clone());
   const sy = v.group.scale.y || 1, rk = e.reelAt != null ? (S.time - e.reelAt) / 0.8 : 9;
