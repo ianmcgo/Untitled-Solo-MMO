@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.71.0", date: "2026-10-27", title: "Knockouts and glowing staves", items: [
+    "<b>Monsters fall when defeated.</b> Animals keel over onto their side with a last kick, crabs, bees and crawlers flip onto their backs, fish roll belly-up, bats drop flat, and mandrakes, shroomlings and bulbs topple backwards, before fading into the ground.",
+    "<b>Glowing staves.</b> While you or a monster casts with a staff, club or wand drawn, its tip glows in the spell's element colour, brightening as the spell nears release.",
+  ] },
   { v: "19.70.0", date: "2026-10-27", title: "Mandrakes, hares, treants and aprons", items: [
     "<b>Mandrakes are roots now.</b> A knobbly, wrinkled root body ringed with growth bands and fuzzy with rootlets, gnarled root arms with twig fingers, forked root legs with toe roots and a tap root. They have a screaming mouth full of little teeth, sunken eyes with a yellow glint under scowling brows, and a crown of long wavy leaves on stems.",
     "<b>Hares.</b> Front paws with toes, cheek tufts and whiskers, a fluffy chest and a two-tone tail, veined ears, nose detail and defined haunches.",

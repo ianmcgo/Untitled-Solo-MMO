@@ -221,6 +221,35 @@ function ikRestore(v) {
   v.ikSaved = null;
 }
 function ikSave(v, list) { v.ikSaved = list.filter(Boolean).map(o => [o, o.quaternion.clone()]); }
+const KO_KIND = { quad: [0, 1.45, 0.42], hare: [0, 1.4, 0.4], rarab: [0, 1.4, 0.4], crab: [0, Math.PI, 0.9], bee: [0, Math.PI, 0.7], crawler: [0, Math.PI, 0.7], fish: [0, Math.PI * 0.9, 0.75], bat: [-1.35, 0, 0.12], mandrake: [-1.4, 0, 0.3], shroom: [-1.3, 0, 0.3], bulb: [-1.2, 0, 0.3], worm: [0, 1.2, 0.25] };
+function koPose(v, e, g) {
+  const ko = KO_KIND[v.kind];
+  if (!ko || !isMob(e)) return;
+  const tgt = v.koRoll || (v.koRoll = { x: 0, z: 0, y: 0 });
+  if (e.alive === false && e.deadAt != null) {
+    if (tgt.side == null) tgt.side = Math.random() < 0.5 ? -1 : 1;
+    const t = S.time - e.deadAt, k = clamp(t / 0.55, 0, 1), ek = k < 1 ? 1 - Math.pow(1 - k, 3) : 1, bounce = k >= 1 && t < 0.85 ? Math.sin((t - 0.55) / 0.3 * Math.PI) * 0.08 : 0, kick = t > 0.4 && t < 1.4 ? Math.sin(t * 26) * 0.04 * (1.4 - t) : 0;
+    tgt.x = ko[0] * ek; tgt.z = ko[1] * tgt.side * ek + kick; tgt.y = ((v.meta && v.meta.headTop) || 1) * ko[2] * Math.sin(ek * Math.PI / 2) + bounce;
+  } else { tgt.side = null; tgt.x *= 0.8; tgt.z *= 0.8; tgt.y *= 0.8; }
+  if (Math.abs(tgt.x) + Math.abs(tgt.z) + Math.abs(tgt.y) < 1e-4) { if (v.mesh.rotation.x || v.mesh.rotation.z) { v.mesh.rotation.x = 0; v.mesh.rotation.z = 0; v.mesh.position.y = 0; } return; }
+  v.mesh.rotation.x = tgt.x; v.mesh.rotation.z = tgt.z; v.mesh.position.y = tgt.y * Math.abs(Math.sin(tgt.z || tgt.x)) * (ko[1] > 2 ? 0.55 : 1);
+}
+function castGlow(v, e) {
+  const on = !!(e.casting && e.alive !== false && v.weapon && v.weaponDrawn && (v.weaponKind === "staff" || v.weaponKind === "club" || v.weaponKind === "wand"));
+  if (!on && !v.cGlow) return;
+  if (!v.cGlow) { const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: texGlow(), color: 0x9fd8ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending })); sp.renderOrder = 5; v.cGlow = sp; }
+  const sp = v.cGlow;
+  if (on) {
+    if (sp.parent !== v.weapon) v.weapon.add(sp);
+    const tip = v.weapon.userData.tip, ty = tip ? (Array.isArray(tip) ? tip[1] : tip.y || 0) : 1.2;
+    sp.position.set(0, ty || 1.2, 0);
+    const el = e.casting.sp && e.casting.sp.element, c = new THREE.Color(typeof ELEMENT_COLORS !== "undefined" && ELEMENT_COLORS[el] || "#bfe6ff"), prog = clamp((S.time - e.casting.start) / Math.max(0.1, e.casting.end - e.casting.start), 0, 1);
+    sp.material.color.copy(c);
+    sp.material.opacity = 0.35 + 0.45 * prog + Math.sin(S.time * 18) * 0.08;
+    const sc = (0.25 + prog * 0.35) / Math.max(0.3, v.weapon.scale.x || 1);
+    sp.scale.set(sc, sc, sc);
+  } else { sp.material.opacity *= 0.7; if (sp.material.opacity < 0.02 && sp.parent) sp.parent.remove(sp); }
+}
 function twoHandGrip(v, e) {
   const w = v.weapon, B = v.bones;
   if (!w || !v.weaponDrawn || w.parent !== B.handR || !B.upArmL || !B.foreArmL || !B.handL || e.alive === false) return;
@@ -472,6 +501,8 @@ function syncEntity(e, dt) {
   placeWeapon(v, e);
   twoHandGrip(v, e);
   placeTool(v, e);
+  castGlow(v, e);
+  koPose(v, e, g);
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;
   v.mat.emissive.setRGB(flash, flash * 0.95, flash * 0.9);

@@ -3091,3 +3091,8 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - hareEntry additions (sdOf(s) helper gives "L"/"R"): front legs on the body bone with paws and toes, cheek tufts, eye rings, ear vein strips, haunch shading, hind toes, chest ruff, nose line, extra tail fluff.
 - familyExtras treant: 14 vertical bark ridges (alternating dark and light), 4 knots, 6 moss pads on the back, 2 forked leafy branches per side from the upper back, 5 bark ridges per shin.
 - Apron (top.type apron or L.apron): a curved, slightly rippled skirt (hips) and bib (chest) sized from sw0 / 0.195 (0.78 for doll), front depth from the BODY.up rings and skirt length (hipsY - knee) * 0.95, with pocket, trim, waist tie ring, neck straps and back ties.
+
+## 19.71.0 Knockouts and glowing staves
+- koPose(v, e, g) runs after the poses for non-human mobs. KO_KIND[kind] = [pitch, roll, lift * headTop]: quad, hare and rarab roll about 1.4 onto a random side; crab, bee and crawler roll pi (legs up); fish 0.9 pi; bat pitch -1.35; mandrake, shroom and bulb pitch back; worm roll 1.2. Ease-out over 0.55 s, a small bounce and a twitch until 1.4 s. Applied to v.mesh rotation and position (the LOD mesh shares the skeleton). The existing sink after 1.4 s still runs. It eases back to rest when the mob is alive again.
+- castGlow(v, e): while e.casting with a staff, club or wand drawn, an additive glow sprite sits at the weapon tip (userData.tip[1]), coloured by ELEMENT_COLORS[sp.element], with opacity 0.35 + 0.45 * progress, a flicker, and size growing with progress. It fades out after the cast.
+- The fishing rod prop already existed (buildTool "rod", with a line and float), so it is marked done.
