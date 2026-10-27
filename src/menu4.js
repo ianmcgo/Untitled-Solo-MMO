@@ -1844,6 +1844,9 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.80.0", date: "2026-10-27", title: "Painting the ground on the way out", items: [
+    "<b>Even faster zone changes.</b> The first time you visit an area, the game now also starts painting its ground while you walk out of the previous one, after shaping the land. Whatever is finished is carried straight into the loading screen instead of starting over, so first visits load quicker. Areas you've visited before still load their saved ground instantly.",
+  ] },
   { v: "19.79.0", date: "2026-10-27", title: "Rough-hewn fences, stumps, crates and barrels", items: [
     "<b>Split-rail fences.</b> Fences are now made of knobbly, slightly crooked posts with whittled tops and a broken-off branch, carrying two sagging split rails lashed on with rope. No more square boards.",
     "<b>Tree stumps.</b> Stumps flare into five gnarled roots, have a jagged, slanted cut top and a dead twig, and are lumpy all round.",

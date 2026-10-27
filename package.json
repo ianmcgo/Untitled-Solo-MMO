@@ -1,7 +1,7 @@
 {
   "name": "untitled-solo-rpg",
-  "version": "19.79.0",
-  "releaseTitle": "Rough-hewn fences, stumps, crates and barrels",
+  "version": "19.80.0",
+  "releaseTitle": "Painting the ground on the way out",
   "description": "",
   "main": "index.js",
   "scripts": {

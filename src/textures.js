@@ -351,13 +351,13 @@ const TERRAIN_THEMES = {
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
-function* bakeTerrainAlbedoSteps(field, size) {
+function* bakeTerrainAlbedoSteps(field, size, keyOver) {
   const z = field.zone, th = TERRAIN_THEMES[z.palette || z.theme] || TERRAIN_THEMES.field;
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
-  const tkey = terrainKey(), pre = W3.terrainPre && W3.terrainPre.key === tkey ? W3.terrainPre.img : null;
-  W3.terrainPre = null;
+  const tkey = keyOver || terrainKey(), pre = !keyOver && W3.terrainPre && W3.terrainPre.key === tkey ? W3.terrainPre.img : null;
+  if (!keyOver) W3.terrainPre = null;
   if (pre) {
     const hc = makeCanvas(W, H);
     hc.getContext("2d").drawImage(pre, 0, 0, W, H);

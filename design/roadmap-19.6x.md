@@ -33,6 +33,6 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.76 | Higher-quality painted textures (bark, leaf, rock, ground, planks, cloth) | done (leaf in 19.75) |
 | 19.78 | Tabards drape over the body | done |
 | 19.79 | Art pass: fences, stumps, crates and barrels (split rails, gnarled posts, cut stumps, worn crates) | done |
-| 19.80 | Finish zone prebuild: terrain painted during the exit walk | |
+| 19.80 | Finish zone prebuild: terrain painted during the exit walk | done (field + terrain bake prebuilt and resumed; props still built in the fade) |
 
 Suggested model: Sonnet for scenery props (19.60, 19.62, 19.65, 19.74); Opus for rigs, animation, faces and systems (19.63, 19.64, 19.66, 19.67, 19.73, 19.76, 19.77).

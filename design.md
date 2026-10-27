@@ -3133,3 +3133,9 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - fenceGeo (cached "fence2"): two 7-sided logPiece posts (-0.45 to 1.04, tapered) with slanted cone caps and a branch stub, two 6-sided sagging rails at y 0.8 and 0.43 spanning x +-1.25 (still scaled by the instance x as before), four rope tori, roughen 1.2 cm.
 - stumpGeo ("stump2"): a 12x6 cylinder with 5 buttress flares at the base, angle noise, and a slanted, jagged, notched top; 5 root logPieces, one twig, roughen.
 - barrelGeo ("barrel2"): a 28-segment lathe with a base disc and recessed lid; 14 staves with grooves (|sin(7a)| < 0.18), per-stave bulge from hash2, noise. crateGeo ("crate2"): an inner box plus 4 boards per face (2 mm gaps, tiny random tilt), the old frame and braces, corner nail heads, roughen 1.2 cm. Attributes are still position, normal and uv, so all existing callers and batches work.
+
+## 19.80.0 Painting the ground on the way out
+- bakeTerrainAlbedoSteps(field, size, keyOver): with keyOver it uses that cache key and leaves W3.terrainPre alone.
+- prefetchZone records pf.cached once the stored terrain image lookup for the next zone resolves. tickPreField (during S.exitWalk): first the field generator (6 ms per frame); then, if pf.cached === false, starts pf.bake = bakeTerrainAlbedoSteps(pf.field, terrainSize(), "t|<id>|<size>") and advances it 10 ms per frame. When it finishes, W3.preTerrain = { key, img: texture.image } (it is also stored in the IndexedDB cache).
+- buildZoneAsync uses W3.preTerrain as the terrain image if the cache read missed. buildZone3DSteps hands a half-finished bake to buildTerrainSteps through W3.preBake (same field object, no terrainPre), which resumes it with yield*, so no work is thrown away.
+- Roadmap 19.73 is now complete apart from building props early (they still need a second scene root).

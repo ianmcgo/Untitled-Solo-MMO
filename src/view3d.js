@@ -468,16 +468,25 @@ function zoneFadeTo(op, secs) {
 }
 function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 1.0); }
 function prefetchZone(id) {
-  if (ZONES[id] && typeof buildFieldSteps === "function") { try { W3.preField = { id, gen: buildFieldSteps(ZONES[id]), field: null, p: 0 }; } catch (e) { W3.preField = null; } }
+  W3.preTerrain = null;
+  if (ZONES[id] && typeof buildFieldSteps === "function") { try { W3.preField = { id, gen: buildFieldSteps(ZONES[id]), field: null, p: 0, cached: null, bake: null }; } catch (e) { W3.preField = null; } }
   if (!W3.renderer || typeof cacheGet !== "function") return;
-  const key = "t|" + id + "|" + terrainSize();
-  W3.terrainFetch = { key, p: cacheGet(key).then(cacheImage).catch(() => null) };
+  const key = "t|" + id + "|" + terrainSize(), pf = W3.preField;
+  const p = cacheGet(key).then(cacheImage).catch(() => null);
+  W3.terrainFetch = { key, p };
+  p.then(img => { if (pf) pf.cached = !!img; });
 }
 function tickPreField() {
   const pf = W3.preField;
-  if (!pf || pf.field || !pf.gen) return;
+  if (!pf) return;
   const t0 = performance.now();
-  try { while (performance.now() - t0 < 6) { const r = pf.gen.next(); if (r.done) { pf.field = r.value; pf.gen = null; break; } pf.p = typeof r.value === "number" ? r.value : pf.p; } } catch (e) { W3.preField = null; }
+  try {
+    if (!pf.field && pf.gen) { while (performance.now() - t0 < 6) { const r = pf.gen.next(); if (r.done) { pf.field = r.value; pf.gen = null; break; } pf.p = typeof r.value === "number" ? r.value : pf.p; } return; }
+    if (!pf.field || pf.cached !== false || pf.baked || typeof bakeTerrainAlbedoSteps !== "function") return;
+    const key = "t|" + pf.id + "|" + terrainSize();
+    if (!pf.bake) pf.bake = bakeTerrainAlbedoSteps(pf.field, terrainSize(), key);
+    while (performance.now() - t0 < 10) { const r = pf.bake.next(); if (r.done) { pf.baked = true; pf.bake = null; if (r.value && r.value.image) W3.preTerrain = { key, img: r.value.image }; break; } }
+  } catch (e) { W3.preField = null; }
 }
 function loaderHide() {
   const el = $("loading");
@@ -537,7 +546,9 @@ async function buildZoneAsync(job, p0, p1) {
   try {
     const tk = terrainKey(), tc = performance.now(), pf = W3.terrainFetch && W3.terrainFetch.key === tk ? W3.terrainFetch.p : null;
     W3.terrainFetch = null;
-    const img = pf ? await pf : await cacheImage(await cacheGet(tk));
+    let img = pf ? await pf : await cacheImage(await cacheGet(tk));
+    if (!img && W3.preTerrain && W3.preTerrain.key === tk) img = W3.preTerrain.img;
+    W3.preTerrain = null;
     PERF.slice(img ? "cache read hit" : "cache read miss", performance.now() - tc);
     if (job !== VIEW.zoneJob) return false;
     if (img) W3.terrainPre = { key: tk, img };

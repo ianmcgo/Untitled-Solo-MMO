@@ -301,7 +301,9 @@ function* buildTerrainSteps(field) {
   }
   geo.computeVertexNormals();
   const size = terrainSize();
-  const map = yield* bakeTerrainAlbedoSteps(field, size);
+  const pb = W3.preBake && W3.preBake.field === field && !W3.terrainPre ? W3.preBake : null;
+  W3.preBake = null;
+  const map = pb ? yield* pb.gen : yield* bakeTerrainAlbedoSteps(field, size);
   W3.terrainMap = map; W3.terrainBox = [field.x0, field.y0, (field.cols - 1) * field.cs, (field.rows - 1) * field.cs];
   const detail = texDetailNormal();
   const nm = detail.clone();
@@ -3968,6 +3970,7 @@ function* buildZone3DSteps() {
   W3.zoneRoot = root;
   const pf = W3.preField && ZONES[W3.preField.id] === z ? W3.preField : null;
   W3.preField = null;
+  W3.preBake = pf && pf.bake && pf.field ? { field: pf.field, gen: pf.bake } : null;
   const field = pf && pf.field ? pf.field : yield* scaleSteps(pf && pf.gen ? pf.gen : buildFieldSteps(z), pf ? pf.p * 0.3 : 0, 0.3, "Shaping the land…");
   W3.field = field;
   const terrain = yield* scaleSteps(buildTerrainSteps(field), 0.3, 0.75, "Painting the ground…");
