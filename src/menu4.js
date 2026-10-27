@@ -1844,6 +1844,10 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.58.0", date: "2026-10-27", title: "Fences that keep off the scenery", items: [
+    "<b>Fences no longer cut through scenery.</b> Roadside fences now stop short of trees, logs, rocks, bushes, stumps, houses, stalls, ponds and other props instead of passing through them.",
+    "<b>Posts reach the ground.</b> Fence posts are longer and sink into the turf, so no gaps show on slopes. Fence panels are skipped where the ground is too steep or uneven.",
+  ] },
   { v: "19.57.0", date: "2026-10-23", title: "Smoother figures, scarier skeletons and Pip the butler", items: [
     "<b>Smoother figures.</b> Female characters have rounder, less flat shoulders, a higher bust that blends smoothly into the chest, slimmer, smoother elbows, slimmer wrists that meet the hands cleanly, and a rounder curve from the lower back into the legs.",
     "<b>Scarier skeletons.</b> Plain skeletons now have aged yellowed bone, deep enlarged eye sockets with burning red eyes and a white-hot pupil, a heavy brow ridge, cracks across the skull, hollow cheeks and a gaping jaw. Royal guards and crypt sentinels get the same skull.",
@@ -4645,7 +4649,7 @@ function tabHelp() {
     "<b>Deleting a character:</b> on the character screen, choose Delete and type the character's name to confirm. Deleted characters can't be brought back.",
     "<b>Database:</b> places, people, jobs, quests and creatures appear as you discover them. Tap a creature or person's picture to examine their 3D model.",
     "<b>Closing menus:</b> tap or click anywhere outside a menu to close it, including shop windows with the Buy box open.",
-    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
+    "<b>Solid scenery:</b> trees, stumps, boulders, knee-high rocks, fences, bushes, hedges, carts, logs, benches and town props block movement. Roadside fences are only built where nothing is in the way, so they never pass through a tree, log, rock or building. Grass, ferns, flowers, mushrooms, reeds and pebbles do not.",
     "<b>The moon:</b> it waxes and wanes over each 30-day game month (see /clock for the date). It is new on the 1st, full around the 16th, and waning toward the 30th. It rises opposite the sun.",
     "<b>Damage numbers:</b> red numbers pop out of anyone who takes damage and fizzle away. Turn them off in Config → Interface → Damage numbers.",
     "<b>Looking:</b> your character turns its head toward your target; people look at you when you target them or stand close, and monsters watch who they're fighting.",

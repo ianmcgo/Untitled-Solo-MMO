@@ -510,7 +510,7 @@ function shroomClusterGeo() {
   return THREE.mergeGeometries(parts);
 }
 function fenceGeo() {
-  const parts = [new THREE.BoxGeometry(0.12, 1.1, 0.12).translate(-1.2, 0.55, 0), new THREE.BoxGeometry(0.12, 1.1, 0.12).translate(1.2, 0.55, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.8, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.42, 0).rotateZ(0.03)];
+  const parts = [new THREE.BoxGeometry(0.12, 1.55, 0.12).translate(-1.2, 0.33, 0), new THREE.BoxGeometry(0.12, 1.55, 0.12).translate(1.2, 0.33, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.8, 0), new THREE.BoxGeometry(2.5, 0.1, 0.06).translate(0, 0.42, 0).rotateZ(0.03)];
   return THREE.mergeGeometries(parts.map(g => g.toNonIndexed()));
 }
 function cartGeo() {
@@ -611,6 +611,16 @@ function buildProps(field, root) {
     wb.flush(root);
     z._wagons = placed;
   }
+  const fenceBlocked = (x, y) => {
+    for (const c of z.colliders || []) if (!c.fence && Math.hypot(x - c.x, y - c.y) < c.r + 12) return true;
+    for (const o of z.props || []) if (Math.hypot(x - o.x, y - o.y) < 40) return true;
+    for (const o of z.landmarks || []) if (Math.hypot(x - o.x, y - o.y) < 60) return true;
+    for (const o of z.dressing || []) if (Math.hypot(x - o.x, y - o.y) < 24 + (DRESS_R[o.t] || 1) * (o.s || 1) / U) return true;
+    for (const st of z.stalls || []) if (Math.hypot(x - st.x, y - st.y) < 40) return true;
+    for (const r of z.houses || []) if (Math.abs(x - r.x) < r.w / 2 + 16 && Math.abs(y - r.y) < r.h / 2 + 16) return true;
+    for (const wt of z.water || []) if (pondDist(wt, x, y) < wt.r + 14) return true;
+    return false;
+  };
   if (th === "field" && !desert && !volcanic && (z.paths || []).length) {
     const at = pathAt, plen = pathLen;
     const runs = 2 + Math.floor(rnd() * 3);
@@ -626,6 +636,8 @@ function buildProps(field, root) {
         const mx = (a0.x + b0.x) / 2, my = (a0.y + b0.y) / 2;
         if (!placeable(field, mx, my, { water: 30, npc: 60, path: 0.2, exit: 200, clr: 20 }) || field.outsideE(mx, my) > -40 || roadGap(z, mx, my) < 24) { if (made) break; d += 49; a0 = b0; continue; }
         const y0 = field.heightAt(a0.x, a0.y), y1 = field.heightAt(b0.x, b0.y), a = Math.atan2(b0.y - a0.y, b0.x - a0.x), hl = Math.hypot(b0.x - a0.x, b0.y - a0.y) * U;
+        const blocked = [0, 0.25, 0.5, 0.75, 1].some(t => fenceBlocked(a0.x + (b0.x - a0.x) * t, a0.y + (b0.y - a0.y) * t)) || Math.abs(field.heightAt(mx, my) - (y0 + y1) / 2) > 0.3 || Math.abs(y1 - y0) > 1.1;
+        if (blocked) { if (made) break; d += 49; a0 = b0; continue; }
         fences.push(mtx(mx * U, (y0 + y1) / 2 - 0.05, my * U, hl / 2.5, 1, 1, -a, 0, Math.atan2(y1 - y0, hl)));
         if (z.colliders) for (let t = 0; t <= 6; t++) z.colliders.push({ x: a0.x + (b0.x - a0.x) * t / 6, y: a0.y + (b0.y - a0.y) * t / 6, r: 4, fence: 1 });
         made++; d += 49; a0 = b0;

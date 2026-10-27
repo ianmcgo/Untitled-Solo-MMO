@@ -3013,3 +3013,9 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - Skeletons: look flag scary (plain skeleton, royal_guard, crypt_sentinel) gives bigger sockets (hr*0.21), a bigger glow, a white pupil, a brow ridge box, three dark crack boxes on the cranium, cheek hollows and the jaw dropped to hc - 0.98hr. The plain skeleton is now bone 0xcfc4a4 with red eyes and no cape (the cape rendered at head height on the thin skeleton).
 - Pip: NPCS.pip is no longer prop "nubbin". It is now "Pip, Goblin Butler" with noRelook (excluded from identity reassignment). NPC_LOOK.pip is goblinLook("raider") with a black coat, white trim and collar, white gloves, boots, and no weapon, sack or head.
 - Not done (no clear spec): mandrake, rabbit and treant remodels, and aprons.
+
+## 19.58.0 Fences that keep off the scenery
+- Scenery plan (versions 19.58 to 19.61): 19.58 fences, 19.59 hedges, 19.60 logs, 19.61 trees. Each phase updates Help, Updates and these notes.
+- buildProps fence loop: fenceBlocked(x, y) is sampled at 5 points along each 49 px panel. It blocks on non-fence colliders (r + 12), z.props (40), landmarks (60), dressing (24 + DRESS_R/U), stalls (40), houses (+16 margin) and ponds (+14). Panels are also skipped when the middle height differs from the end average by over 0.3 or the end heights differ by over 1.1. A blocked panel ends a started run, otherwise the run just moves on.
+- Vegetation (trees, rocks, logs, bushes) is built before buildProps, so their colliders are already in z.colliders when fences are placed.
+- fenceGeo posts are 1.55 tall centred at y 0.33 so they sink 0.45 below the rail line and stay grounded on slopes.
