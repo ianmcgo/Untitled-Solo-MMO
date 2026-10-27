@@ -90,13 +90,15 @@ function paintFace(g, ox, oy, v, fem) {
       soft(s * 15.5, -2, 16, 9.5, [120, 72, 70], 0.11);
       soft(s * 14, -13.5, 12, 3.2, [255, 242, 228], 0.13);
       soft(s * 20.5, 10, 7.5, 3.6, [255, 238, 226], 0.14);
-      soft(s * 21.5, 18.5, 6.5, 4.2, [150, 92, 84], 0.09);
+      soft(s * 21.5, 18.5, 6.5, 4.2, [170, 110, 100], 0.04);
       soft(s * 30, 20, 5.5, 11, [140, 86, 80], 0.08);
       soft(s * 4.2, 8, 2.2, 6.5, [150, 90, 82], 0.11);
       g.fillStyle = "rgba(96,44,42,0.32)"; g.beginPath(); g.ellipse(s * 2.4, 15.3, 1.5, 0.8, s * 0.35, 0, Math.PI * 2); g.fill();
       g.strokeStyle = "rgba(150,88,80,0.18)"; g.lineWidth = 0.7; g.beginPath(); g.moveTo(s * 1.4, 17.2); g.lineTo(s * 1.7, 22.6); g.stroke();
     }
-    soft(0.4, 3, 1.5, 7.5, [255, 246, 236], 0.22);
+    soft(0.4, 3, 1.5, 7.5, [255, 246, 236], 0.14);
+    soft(0, 11, 4.5, 4, [205, 120, 108], 0.08);
+
     soft(0.2, 12.4, 2.6, 1.8, [255, 246, 236], 0.18);
     soft(0, 17.6, 4.6, 1.4, [120, 60, 55], 0.2);
     soft(0, 34, 5.5, 2.6, [255, 242, 230], 0.12);
@@ -105,9 +107,9 @@ function paintFace(g, ox, oy, v, fem) {
     g.fillStyle = "rgba(150,92,84,0.1)"; g.beginPath(); g.moveTo(2, 4); g.lineTo(6, 12); g.lineTo(3, 15); g.lineTo(0.5, 13); g.closePath(); g.fill();
     g.fillStyle = "rgba(255,244,232,0.14)"; g.beginPath(); g.ellipse(0, -22, 16, 5, 0, 0, Math.PI * 2); g.fill();
   }
-  const ES = 0.74;
+  const ES = fem ? 0.6 : 0.7;
   for (const s of [-1, 1]) {
-    const x = ex + s * sp, rx = EYE[0] * (fem ? 1.05 : 1), up = EYE[1] * (fem ? 1.08 : 1), dn = EYE[2], tilt = EYE[3], drop = EYE[4], isz = EYE[5];
+    const x = ex + s * sp, rx = EYE[0], up = EYE[1], dn = EYE[2], tilt = EYE[3], drop = EYE[4], isz = EYE[5] * 0.92;
     g.save(); g.translate(x, ey + 1); g.scale(ES * 1.05, ES); g.translate(-x, -(ey + 1));
     const inner = x - s * rx, outer = x + s * rx, oy2 = ey + tilt * 0.5, iy2 = ey + 1.2;
     const top = t => ey - up + drop * up * 1.4;
@@ -129,13 +131,14 @@ function paintFace(g, ox, oy, v, fem) {
     g.fillStyle = "rgb(14,10,14)"; g.beginPath(); g.ellipse(0, -0.05, 0.42, 0.5, 0, 0, Math.PI * 2); g.fill();
     g.restore();
     g.fillStyle = "rgba(60,40,60,0.28)"; g.beginPath(); g.ellipse(x, top() + 1.5, rx * 1.1, 3.6, 0, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgba(255,255,255,0.97)"; g.beginPath(); g.ellipse(ix - s * 1.6, iy - iry * 0.42, 1.9, 2.5, -0.3 * s, 0, Math.PI * 2); g.fill();
-    g.fillStyle = "rgba(255,255,255,0.8)"; g.beginPath(); g.arc(ix + s * 1.8, iy + iry * 0.38, 0.95, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.75)"; g.beginPath(); g.ellipse(ix - s * 1.5, iy - iry * 0.4, 1.1, 1.4, -0.3 * s, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(255,255,255,0.35)"; g.beginPath(); g.arc(ix + s * 1.6, iy + iry * 0.36, 0.6, 0, Math.PI * 2); g.fill();
+    g.fillStyle = "rgba(120,80,70,0.22)"; g.beginPath(); g.ellipse(x, top() + 2.2, rx * 1.05, 2.2, 0, 0, Math.PI * 2); g.fill();
     g.restore();
-    g.strokeStyle = "rgb(22,14,16)";
-    g.lineWidth = fem ? 3.6 : 3;
+    g.strokeStyle = "rgb(58,36,32)";
+    g.lineWidth = fem ? 2.4 : 1.9;
     g.beginPath(); g.moveTo(inner + s * 0.4, iy2 - 0.4); g.bezierCurveTo(inner + s * rx * 0.15, top() - 1.5, outer - s * rx * 0.55, top() - 1.2 + tilt * 0.6, outer + s * (fem ? 1.6 : 0.8), oy2 - 1.6 - (fem ? 0.8 : 0)); g.stroke();
-    if (fem) { g.lineWidth = 1.1; for (let k = 0; k < 3; k++) { const bx = outer - s * k * 2.2, by = oy2 - 1.8 - k * 1.2 + (k ? -1 : 0); g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + s * 1.8, by - 1.2, bx + s * 2.6, by - 2.6); g.stroke(); } }
+    if (fem) { g.lineWidth = 0.6; for (let k = 0; k < 3; k++) { const bx = outer - s * k * 2.2, by = oy2 - 1.8 - k * 1.2 + (k ? -1 : 0); g.beginPath(); g.moveTo(bx, by); g.quadraticCurveTo(bx + s * 1.8, by - 1.2, bx + s * 2.6, by - 2.6); g.stroke(); } }
     g.strokeStyle = "rgba(60,30,34,0.7)"; g.lineWidth = 0.8;
     g.beginPath(); g.moveTo(outer - s * 0.6, oy2 + 0.5); g.quadraticCurveTo(x + s * rx * 0.3, ey + dn * 1.1, x - s * rx * 0.1, ey + dn * 1.05); g.stroke();
     g.strokeStyle = "rgba(96,50,52,0.6)"; g.lineWidth = 1.1;
@@ -151,7 +154,7 @@ function paintFace(g, ox, oy, v, fem) {
     g.quadraticCurveTo(x, by - 2.2 - BROW[0] * 0.2, x + s * 8.5, by + 1.2 + BROW[0] * 0.4);
     g.quadraticCurveTo(x, by - 2.2 + bw - BROW[0] * 0.2, x - s * 6.5, by + 1 + bw * 0.6 - BROW[0] * 0.6);
     g.fill();
-    soft(x + s * 3, ey + dn + 5, 6.5, 3, [240, 110, 120], fem ? 0.32 : 0.12);
+    soft(x + s * 5, ey + dn + 9, 8, 4.5, [220, 120, 110], fem ? 0.1 : 0.05);
   }
   soft(ex, ey + 11, 1.2, 3, [255, 240, 230], 0.25);
   g.fillStyle = "rgba(150,80,72,0.55)";
@@ -159,7 +162,7 @@ function paintFace(g, ox, oy, v, fem) {
   const mw = [4.4, 3.8, 3.6, 4.6, 5, 3.6, 3.6, 4.2][v] * (fem ? 0.9 : 1), my = ey + 26, smile = [1.4, 0.4, 0.2, 1.6, 2.2, -0.6, 0.3, 1][v];
   if (fem) soft(ex, my + 0.6, mw + 1, 1.8, [230, 110, 110], 0.42);
   {
-    const lc = fem ? [176, 78, 82] : [150, 84, 78], la = fem ? 0.5 : 0.32;
+    const lc = fem ? [168, 92, 88] : [150, 92, 84], la = fem ? 0.36 : 0.24;
     g.fillStyle = rgba(lc.map(c => c * 0.82 | 0), la); g.beginPath(); g.moveTo(ex - mw, my - smile * 0.5); g.quadraticCurveTo(ex - mw * 0.5, my - 2.4, ex - 0.6, my - 1.6); g.quadraticCurveTo(ex, my - 1.1, ex + 0.6, my - 1.6); g.quadraticCurveTo(ex + mw * 0.5, my - 2.4, ex + mw, my - smile * 0.5); g.quadraticCurveTo(ex, my + smile, ex - mw, my - smile * 0.5); g.fill();
     g.fillStyle = rgba(lc, la * 0.8); g.beginPath(); g.moveTo(ex - mw * 0.9, my - smile * 0.4); g.quadraticCurveTo(ex, my + smile + 3.4, ex + mw * 0.9, my - smile * 0.4); g.quadraticCurveTo(ex, my + smile, ex - mw * 0.9, my - smile * 0.4); g.fill();
     soft(ex + 0.6, my + smile * 0.5 + 1.6, mw * 0.35, 0.6, [255, 236, 230], fem ? 0.35 : 0.2);
@@ -857,7 +860,8 @@ function headProfile(L) {
   }
   const P = Object.assign({}, HEAD_PROFILES[k] || HEAD_PROFILES.human0);
   if (L.build === 1 && !/human|skull|plain/.test(k)) { P.brow *= 0.5; P.jaw += 0.06; P.chin *= 0.4; P.long -= 0.04; P.cheek += 0.02; P.nose *= 0.85; P.lips *= 1.2; }
-  if (!L.noFace && /human|elari|pipkin|nekari/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
+  if (!L.noFace && /pipkin/.test(k)) { P.nose *= 0.3; P.sock *= 0.2; P.brow *= 0.3; P.lips *= 0.25; P.cheek *= 0.4; P.anime = true; }
+  else if (!L.noFace && /human|elari|nekari/.test(k)) { P.real = true; P.lips *= 0.55; if (!L.ears) P.ear = L.build === 1 ? 0.2 : 0.23; else if (L.ears === "elf") P.ear = 0.16; }
   P.key = k;
   return P;
 }
@@ -882,6 +886,11 @@ function headRadial(P, x, y, z, feat) {
     const nr = P.neckR || 0.42, hz = Math.hypot(x, z) * m;
     if (hz > nr) m += (m * nr / hz - m) * under;
   }
+  if (feat && P.ear) {
+    const aa0 = Math.abs(a), a0 = 1.56, b0 = 0.04, side = Math.max(0, Math.abs(x)), da = aa0 - a0, db = b - b0;
+    const shell = Math.exp(-((da / 0.085) ** 2) - ((db / 0.13) ** 2)), rim = Math.exp(-(((Math.hypot(da / 0.075, db / 0.12) - 0.85) / 0.22) ** 2)) * (Math.abs(db) < 0.17 ? 1 : 0.4), bowl = Math.exp(-(((da + 0.01) / 0.04) ** 2) - (((db - 0.01) / 0.075) ** 2)), lobe = Math.exp(-(((da + 0.015) / 0.035) ** 2) - (((db - 0.13) / 0.035) ** 2)), trag = Math.exp(-(((da + 0.07) / 0.02) ** 2) - (((db - 0.02) / 0.03) ** 2));
+    m *= 1 + P.ear * (0.9 * shell + 0.8 * rim - 1.1 * bowl + 0.5 * lobe + 0.35 * trag) * side;
+  }
   if (!feat || Math.abs(a) > 1.5) return m;
   const aa = Math.abs(a), ea = FACE_PX.eyeA, eb = FACE_PX.eyeB;
   let f = 0;
@@ -894,6 +903,7 @@ function headRadial(P, x, y, z, feat) {
     const w = (0.05 + 0.05 * smoothRange(-0.1, 0.18, b)) * nw;
     f += P.nose * nb * Math.exp(-((a / w) ** 2));
     if (P.nose > 0) f += P.nose * 0.32 * Math.exp(-(((aa - 0.085 * nw) / 0.05) ** 2) - (((b - 0.2) / 0.045) ** 2));
+    if (P.real && P.nose > 0) { f += P.nose * 0.4 * G(0, 0.185, 0.085 * nw, 0.055); f -= P.nose * 0.25 * G(0, 0.235, 0.06 * nw, 0.02); f += P.nose * 0.12 * G(0, -0.02, 0.06, 0.08); }
   }
   if (P.lips) {
     f += 0.026 * P.lips * G(0, 0.405, 0.17 * Math.min(1.5, P.lips), 0.035);
@@ -902,6 +912,7 @@ function headRadial(P, x, y, z, feat) {
     f -= 0.015 * G(0, 0.56, 0.12, 0.04);
   }
   if (P.chin > 0) f += 0.03 * G(0, 0.7, 0.15, 0.09);
+  if (P.real) { f += 0.035 * Math.exp(-(((aa - 0.62) / 0.16) ** 2) - (((b - 0.02) / 0.09) ** 2)); f -= 0.015 * Math.exp(-(((aa - 0.6) / 0.2) ** 2) - (((b - 0.32) / 0.14) ** 2)); f += 0.02 * G(0, 0.28, 0.1, 0.05); f -= 0.012 * G(0, 0.3, 0.025, 0.06); f += 0.025 * Math.exp(-(((aa - 0.9) / 0.15) ** 2) - (((b - 0.55) / 0.1) ** 2)); }
   return m * (1 + f);
 }
 
@@ -974,8 +985,8 @@ function gHeadPatch(P, hc, hr, phis, ths, off, feat) {
   return g;
 }
 function gHead(P, hc, hr, seg) {
-  const nu = Math.max(30, sgK(seg || 44)), nv = Math.max(22, sgK(Math.round((seg || 44) * 0.68)));
-  const phis = densityMap(nu, 0, Math.PI * 2, p => { let d = p - Math.PI / 2; d = Math.atan2(Math.sin(d), Math.cos(d)); return 1 + 2.4 * Math.exp(-((d / 0.75) ** 2)); });
+  const nu = Math.max(P.real ? 48 : 30, sgK(seg || 44)), nv = Math.max(P.real ? 30 : 22, sgK(Math.round((seg || 44) * 0.68)));
+  const phis = densityMap(nu, 0, Math.PI * 2, p => { let d = p - Math.PI / 2; d = Math.atan2(Math.sin(d), Math.cos(d)); return 1 + 2.4 * Math.exp(-((d / 0.75) ** 2)) + (P.ear ? 1.6 * Math.exp(-(((Math.abs(d) - 1.5) / 0.3) ** 2)) : 0); });
   const ths = densityMap(nv, 0, Math.PI, t => 1 + 2 * Math.exp(-(((t - 1.75) / 0.55) ** 2)));
   const g = gHeadPatch(P, hc, hr, phis, ths, 0, true);
   const nrm = g.attributes.normal, nu1 = nu + 1;
@@ -2135,12 +2146,12 @@ function humanEntryBase(L) {
     for (let j = 0; j <= 3; j++) ths.push(mb - 0.05 + 0.1 * j / 3);
     R.add(gHeadPatch(HP, hc, hr, phis, ths, 0.006, true), "mouth", 0x3a1210, "plain");
   } else R.add(gHead(HP, hc, hr), "head", skin, faceReg);
-  if (!L.noFace && !L.skull && !L.nose && L.ears !== "ursan" && !L.beak) faceNose(R, L, HP, hc, hr, skin, SKR);
+  if (L.doll && !L.noFace && !L.skull && !L.nose && !L.beak) faceNose(R, L, HP, hc, hr, skin, SKR);
   if (L.nose === "goblin") R.add(gTaper(V3(0, hc - hr * 0.05, hr * 0.8), V3(0, hc - hr * 0.42, hr * 1.75), hr * 0.2, hr * 0.05, 8), "head", skin, SKR);
   const earBone = s => { const n = "ear" + (s > 0 ? "L" : "R"); if (!R.byName[n]) R.bone(n, "head", s * hr * (L.ears === "cat" ? 0.55 : 0.88), hc + hr * (L.ears === "cat" ? 0.72 : 0.0), -hr * 0.05); return n; };
   for (const s of [-1, 1]) {
     if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.8, hc + hr * 0.05, -0.02), V3(s * (hr + 0.24), hc + hr * 0.75, -0.1), hr * 0.32, 0.005, 6, 0.45), "head", skin, SKR);
-    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.8, hc - hr * 0.06, -hr * 0.06), V3(s * (hr + 0.1), hc + hr * 0.45, -hr * 0.42), hr * 0.2, 0.004, 8, 0.4), earBone(s), skin, SKR);
+    else if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.86, hc - hr * 0.02, -hr * 0.04), V3(s * (hr * 0.98 + 0.05), hc + hr * 0.42, -hr * 0.34), hr * 0.17, 0.006, 10, 0.32), earBone(s), skin, SKR);
     else if (L.ears === "ursan") R.add(gTaper(V3(s * hr * 0.9, hc - hr * 0.05, -hr * 0.12), V3(s * (hr + 0.04), hc + hr * 0.08, -hr * 0.3), hr * 0.13, 0.006, 6, 0.4), "head", skin, SKR);
     else if (L.ears === "pip") R.add(gTaper(V3(s * hr * HEAD_SCALE[0] * 0.92, hc - hr * 0.08, -0.01), V3(s * (hr * HEAD_SCALE[0] + 0.16), hc + hr * 0.1, -hr * 0.1), hr * 0.32, 0.008, 10, 0.42), earBone(s), skin, SKR);
     else if (L.ears === "cat") { if (!(L.head && ["helm", "hood", "horned", "winged", "kabuto", "turban", "ninjahood", "jester"].includes(L.head.type))) { const eb = earBone(s); const ear = (a, b, ra, rb, th, col, reg) => { const g = new THREE.CylinderGeometry(rb, ra, a.distanceTo(b), 3, 1); g.scale(1, 1, th); R.add(orientBetween(g, a, b), eb, col, reg); };
@@ -2149,11 +2160,11 @@ function humanEntryBase(L) {
           R.add(gBall(a1, hr * 0.12, 1, 1.1, 0.5, 8), eb, L.hair.color, "hair");
           ear(V3(s * hr * 0.53, hc + hr * 0.7, -hr * 0.015), V3(s * hr * 0.76, hc + hr * 1.34, 0.012 + hr * 0.02), hr * 0.35, hr * 0.07, 0.3, 0xd89a9a, "skin"); } }
     else if (L.ears === "fin") R.add(gBall(V3(s * hr * 0.9, hc + hr * 0.05, -hr * 0.1), hr * 0.45, 0.15, 1.1, 0.8, 8), "head", L.finColor || skin, "scale");
-    else if (!L.skull && L.ears !== "none" && !L.noFace && !L.doll) humanEar(R, HP, hc, hr, skin, SKR, s);
+    else if (!L.skull && L.ears !== "none" && !L.noFace && !L.doll && HP.ear) {}
     else if (!L.skull && L.ears !== "none") R.add(gBall(V3(s * hr * 0.88, hc - hr * 0.08, -hr * 0.08), hr * 0.2, 0.4, 1.05, 0.7, 10), "head", skin, SKR);
     if (!L.skull && !L.doll && L.ears !== "none" && L.ears !== "cat" && L.ears !== "fin" && L.ears !== "ursan") {
       const ik = shadeHex(skin, 0.74);
-      if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.84, hc - hr * 0.04, -hr * 0.1), V3(s * (hr + 0.06), hc + hr * 0.3, -hr * 0.38), hr * 0.1, 0.003, 6, 0.4), earBone(s), ik, SKR);
+      if (L.ears === "elf") R.add(gTaper(V3(s * hr * 0.9, hc + hr * 0.0, -hr * 0.06), V3(s * (hr * 0.98 + 0.035), hc + hr * 0.33, -hr * 0.3), hr * 0.08, 0.003, 6, 0.3), earBone(s), ik, SKR);
       else if (L.ears === "pip") R.add(gTaper(V3(s * hr * HEAD_SCALE[0] * 0.95, hc - hr * 0.06, -hr * 0.03), V3(s * (hr * HEAD_SCALE[0] + 0.11), hc + hr * 0.08, -hr * 0.1), hr * 0.17, 0.005, 10, 0.4), earBone(s), ik, SKR);
       else if (L.ears === "goblin") R.add(gTaper(V3(s * hr * 0.82, hc + hr * 0.04, -0.03), V3(s * (hr + 0.18), hc + hr * 0.6, -0.1), hr * 0.14, 0.004, 6, 0.45), "head", ik, SKR);
       else if (L.noFace || L.doll) R.add(gBall(V3(s * hr * 0.93, hc - hr * 0.08, -hr * 0.05), hr * 0.1, 0.4, 1.05, 0.7, 8), "head", ik, SKR);

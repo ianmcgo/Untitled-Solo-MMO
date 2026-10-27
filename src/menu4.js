@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.82.0", date: "2026-10-27", title: "Sculpted, more lifelike heads", items: [
+    "<b>Noses and ears are part of the head.</b> Instead of separate pieces stuck on, the nose and ears are now shaped out of the head itself and blend smoothly into the face. Ears sit further forward at eye-to-nose height, with a rim, a hollow and a lobe. Elari ears are shorter and grow out of the same sculpted base.",
+    "<b>Lifelike human, elari and nekari heads.</b> Heads now have real brow ridges, eye sockets, cheekbones, a nose bridge and tip, a philtrum, a jaw angle and a chin, instead of a smooth doll-like face. Pipkins keep their cute style.",
+    "<b>Less cartoony faces.</b> Female eyes are much smaller and male eyes a little smaller, with thinner, warm-brown lash lines, small soft highlights, a shaded upper lid, faint blush and natural-toned lips.",
+  ] },
   { v: "19.81.0", date: "2026-10-27", title: "Noses, ears and more human faces", items: [
     "<b>Real noses.</b> Characters now have a sculpted nose that sticks out from the face: a bridge running down from between the eyes, a rounded tip and nostril wings with nostrils. Elari noses are a little longer, nekari and female noses smaller, and Pipkins get a little button nose.",
     "<b>Real ears.</b> Human-style ears are now shaped: a curled outer rim, a hollow inner bowl, an earlobe and the small flap in front, set at eye level and angled back.",
