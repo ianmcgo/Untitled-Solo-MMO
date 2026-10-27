@@ -24,7 +24,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.69 | Fish monsters scarier and more detailed | done |
 | 19.70 | Mandrake, rabbit, treant remodels; aprons | done |
 | 19.71 | Monster KO poses, fishing rod prop, staff cast glow | done |
-| 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | |
+| 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | done |
 | 19.73 | Build next zone during the walk (second scene root) | |
 | 19.74 | File size budget: audio as separate cached files | |
 | 19.75 | Painted foliage style, banded sky gradient | |

@@ -221,6 +221,21 @@ function ikRestore(v) {
   v.ikSaved = null;
 }
 function ikSave(v, list) { v.ikSaved = list.filter(Boolean).map(o => [o, o.quaternion.clone()]); }
+const DISSOLVE_TINT = { Undead: [0.35, 0.15, 0.55], Plantoid: [0.25, 0.45, 0.1], Aquan: [0.1, 0.35, 0.55], Amorph: [0.4, 0.5, 0.2], Arcana: [0.5, 0.4, 0.8], Lizard: [0.4, 0.3, 0.1], Vermin: [0.35, 0.3, 0.1] };
+function spawnFade(v, e) {
+  if (!isMob(e) || !v.mat) return;
+  if (v.popT == null) v.popT = e.spawnT != null && S.time - e.spawnT < 1.5 ? e.spawnT : -99;
+  const pk = (S.time - v.popT) / 0.45;
+  if (pk >= 0 && pk < 1) { const s2 = pk < 0.7 ? 0.3 + 0.8 * Math.sin(pk / 0.7 * Math.PI / 2) : 1.1 - 0.1 * (pk - 0.7) / 0.3; v.mesh.scale.setScalar(s2); }
+  else if (pk >= 1 && v.popT > -99) { v.mesh.scale.setScalar(1); v.popT = -99; }
+  const dead = e.alive === false && e.deadAt != null, dk = dead ? clamp((S.time - e.deadAt - 1.0) / 1.3, 0, 1) : 0;
+  if (dk > 0) {
+    if (!v.mat.transparent) { v.mat.transparent = true; v.mat.needsUpdate = true; }
+    v.mat.opacity = 1 - dk;
+    const ty = typeof BESTIARY !== "undefined" && BESTIARY[e.famKey] && BESTIARY[e.famKey].type, tc = DISSOLVE_TINT[ty] || [0.3, 0.28, 0.25];
+    v.mat.emissive.setRGB(tc[0] * dk, tc[1] * dk, tc[2] * dk); v.mat.emissiveIntensity = 0.8;
+  } else if (v.mat.transparent && v.mat.opacity < 1) { v.mat.opacity = 1; v.mat.transparent = false; v.mat.needsUpdate = true; }
+}
 const KO_KIND = { quad: [0, 1.45, 0.42], hare: [0, 1.4, 0.4], rarab: [0, 1.4, 0.4], crab: [0, Math.PI, 0.9], bee: [0, Math.PI, 0.7], crawler: [0, Math.PI, 0.7], fish: [0, Math.PI * 0.9, 0.75], bat: [-1.35, 0, 0.12], mandrake: [-1.4, 0, 0.3], shroom: [-1.3, 0, 0.3], bulb: [-1.2, 0, 0.3], worm: [0, 1.2, 0.25] };
 function koPose(v, e, g) {
   const ko = KO_KIND[v.kind];
@@ -472,7 +487,7 @@ function syncEntity(e, dt) {
   }
   if (isMob(e) && dead) {
     const k = (S.time - e.deadAt - 1.4) / 1.0;
-    g.position.y -= clamp(k, 0, 1) * 1.2;
+    g.position.y -= clamp(k, 0, 1) * 0.6;
     g.visible = !e.despawned && k < 1;
   } else g.visible = !(e === player && VIEW.first) && !((e.kind === "npc" || e.ambient) && e.away);
   if (e.flyer) {
@@ -482,6 +497,10 @@ function syncEntity(e, dt) {
     g.rotation.z += (clamp(-(e.bank || 0) * 0.32, -0.55, 0.55) * (up ? 1 : 0) - g.rotation.z) * Math.min(1, dt * 4);
   } else if (e.fly) g.position.y += e.fly + Math.sin(S.time * 0.8 + (e.home ? e.home.x : 0)) * 0.6;
   v.lookTgt = lookTargetOf(e);
+  const frozen = S.hitStop && S.time < S.hitStop.until && (e === S.hitStop.a || e === S.hitStop.t);
+  if (frozen) { if (e === S.hitStop.t) { const q = 1 + 0.06 * Math.sin((S.hitStop.until - S.time) / 0.09 * Math.PI); v.mesh.scale.set(q, 1 / q, q); } }
+  else {
+  if (v.mesh.scale.y !== 1 && !v.popT) v.mesh.scale.set(1, 1, 1);
   ikRestore(v);
   if (v.kind === "human") poseHuman(v, e, dt);
   else if (v.kind === "bat") poseBat(v, e, dt);
@@ -503,10 +522,12 @@ function syncEntity(e, dt) {
   placeTool(v, e);
   castGlow(v, e);
   koPose(v, e, g);
+  }
   if (v.weapon && v.weaponKind !== "staff") updateTrail(v, e, dt);
   const flash = e.flash > 0 ? e.flash / 0.15 : 0;
   v.mat.emissive.setRGB(flash, flash * 0.95, flash * 0.9);
   v.mat.emissiveIntensity = flash * 0.5;
+  spawnFade(v, e);
 }
 
 function entityHeight(e) {

@@ -1844,6 +1844,11 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.72.0", date: "2026-10-27", title: "Impact and fade", items: [
+    "<b>Weapon skills hit harder.</b> When a weapon skill lands, you and your target freeze for a split second and the target squashes from the blow, on top of the screen shake.",
+    "<b>Monsters pop in.</b> Newly spawned monsters spring up from small to full size with a little overshoot, instead of appearing instantly.",
+    "<b>Monsters fade away.</b> Defeated monsters dissolve after they fall. Undead fade into violet, plant creatures into green, sea creatures into blue, and so on, while sinking into the ground.",
+  ] },
   { v: "19.71.0", date: "2026-10-27", title: "Knockouts and glowing staves", items: [
     "<b>Monsters fall when defeated.</b> Animals keel over onto their side with a last kick, crabs, bees and crawlers flip onto their backs, fish roll belly-up, bats drop flat, and mandrakes, shroomlings and bulbs topple backwards, before fading into the ground.",
     "<b>Glowing staves.</b> While you or a monster casts with a staff, club or wand drawn, its tip glows in the spell's element colour, brightening as the spell nears release.",

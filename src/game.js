@@ -1370,7 +1370,7 @@ function buildMob(famKey, L, x, y, spawnIdx, jobWant) {
   if (js) { st.maxHp = Math.round(st.maxHp * js[0]); st.att = Math.round(st.att * js[1]); st.def = Math.round(st.def * js[2]); st.eva += js[3]; st.delay = +(f.delay * js[4]).toFixed(2); }
   const kit = job ? mobKit(job, L) : null;
   return {
-    id: ++S.mobSeq, kind: "mob", famKey, fam: f, name: job && JOBS[job] ? f.name + " " + JOBS[job].name : f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
+    id: ++S.mobSeq, spawnT: S.time, kind: "mob", famKey, fam: f, name: job && JOBS[job] ? f.name + " " + JOBS[job].name : f.name, lv: L, job, kit, spells: kit ? kit.spells : f.spells || null, castGap: kit ? kit.gap : f.castGap || [6, 9], stats: st, aggro: f.aggro, passive: !f.aggro, hp: st.maxHp, maxHp: st.maxHp, mp: 0, maxMp: 0, tp: 0,
     x, y, px: x, py: y, home: { x, y }, radius: Math.max(8, Math.round(f.radius * (f.scale || 1))), color: f.color, speed: f.speed * CONFIG.mobSpeedMul, delay: st.delay, swingTimer: st.delay,
     state: "idle", enmity: new Map(), face: Math.random() * Math.PI * 2, alive: true, buffs: {}, chain: null, burst: null,
     spawnIdx, wanderTimer: 0, wanderDir: { x: 0, y: 0 }, readying: null, flash: 0, casting: null, recasts: {}, deadAt: 0, target: null, moving: false,
@@ -3241,6 +3241,7 @@ function doWS(a, id, t) {
   t.tp = Math.min(CONFIG.tpMax, t.tp + 40);
   ring(t, "#ffd54f", 40, 0.5);
   S.shake = Math.max(S.shake, 0.2);
+  S.hitStop = { a, t, until: S.time + 0.09 };
   log("The " + t.name + " takes " + dmg + " damage.", cls(a));
   vfx("wsHit", { src: a, tgt: t, ws });
   applyDamage(a, t, dmg, { color: "#ffd54f", size: 26, life: 1.3, enmity: 80 + dmg * 2, phys: true });
