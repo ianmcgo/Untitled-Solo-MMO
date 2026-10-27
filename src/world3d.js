@@ -787,6 +787,44 @@ function lumpBlob(r, sx, sy, sz, cx, cy, cz, seed, amt) {
   }
   return g;
 }
+function logWob(y, sd) { return [Math.sin(y * 1.3 + sd * 2.1) * 0.07 + Math.sin(y * 3.1 + sd) * 0.015, Math.sin(y * 0.9 + sd * 1.3) * 0.05]; }
+function logRad(y, sd) { const t = (y + 1.3) / 2.6; return 0.33 - t * 0.07 + Math.sin(t * Math.PI) * 0.015 + (t < 0.1 ? (0.1 - t) * 0.5 : 0); }
+function logGeo(sd) {
+  return propGeo("log" + sd, () => {
+    const R = 10, H = 14, half = 1.3, pos = [], col = [];
+    const ring = (y, a) => { const r = logRad(y, sd), [wx, wz] = logWob(y, sd), ridge = Math.pow(Math.abs(Math.sin(a * 5.5 + NOISE.value(y * 0.8, a, sd, 531) * 2.5)), 3) * 0.07, n = (NOISE.value(Math.cos(a) * 2 + sd, Math.sin(a) * 2, y * 0.7, 533) - 0.5) * 0.08, rr = r * (1 + n - ridge); return [Math.cos(a) * rr + wx, y, Math.sin(a) * rr + wz, 0.78 + ridge * 4 + n * 2]; };
+    const V = [];
+    for (let j = 0; j <= H; j++) { const y = -half + j * 2 * half / H, row = []; for (let i = 0; i <= R; i++) row.push(ring(y, i / R * Math.PI * 2)); V.push(row); }
+    const push = q => { pos.push(q[0], q[1], q[2]); col.push(q[3] * 0.95, q[3] * 0.9, q[3] * 0.85); };
+    for (let j = 0; j < H; j++) for (let i = 0; i < R; i++) { const a = V[j][i], b = V[j][i + 1], c = V[j + 1][i], d = V[j + 1][i + 1]; push(a); push(c); push(b); push(b); push(c); push(d); }
+    const stubs = [[0.35, 0.6, 0.9], [-0.55, 2.4, 0.75], [0.8, 4.2, 0.6]];
+    const parts = [];
+    for (const [y, a, l] of stubs.slice(0, 2 + (sd % 2))) { const r = logRad(y, sd), [wx, wz] = logWob(y, sd); parts.push(new THREE.CylinderGeometry(0.045, 0.085, l * 0.5, 6).translate(0, l * 0.25, 0).rotateZ(-Math.PI / 2 + 0.5).rotateY(-a).translate(Math.cos(a) * r * 0.9 + wx, y, Math.sin(a) * r * 0.9 + wz)); }
+    const side = new THREE.BufferGeometry();
+    side.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    side.setAttribute("color", new THREE.Float32BufferAttribute(col, 3));
+    const sp = parts.map(g => { const n = g.toNonIndexed(); n.deleteAttribute("uv"); n.deleteAttribute("normal"); const c = new Float32Array(n.attributes.position.count * 3).fill(0.82); n.setAttribute("color", new THREE.BufferAttribute(c, 3)); return n; });
+    const uv = g => { const p = g.attributes.position, u = new Float32Array(p.count * 2); for (let i = 0; i < p.count; i++) { u[i * 2] = Math.atan2(p.getZ(i), p.getX(i)) / (Math.PI * 2) + 0.5; u[i * 2 + 1] = (p.getY(i) + 1.4) * 0.34; } g.setAttribute("uv", new THREE.BufferAttribute(u, 2)); return g; };
+    const bark = uv(THREE.mergeGeometries([side].concat(sp)));
+    bark.computeVertexNormals();
+    const cp = [], cc = [];
+    for (const e of [-1, 1]) {
+      const y = e * half, [wx, wz] = logWob(y, sd), RS = 4;
+      const pt = (k, i) => { if (k === 0) return [wx, y + e * 0.01, wz, 1]; const q = ring(y, i / R * Math.PI * 2), f = k / RS; return [wx + (q[0] - wx) * f, y + e * 0.01, wz + (q[2] - wz) * f, f]; };
+      const cpush = q => { cp.push(q[0], q[1], q[2]); const f = q[3], c = f > 0.86 ? 0.55 : 0.82 + Math.cos(f * Math.PI * 7) * 0.1 + (f < 0.2 ? -0.12 : 0); cc.push(c, c * 0.95, c * 0.88); };
+      for (let k = 0; k < RS; k++) for (let i = 0; i < R; i++) { const a = pt(k, i), b = pt(k, i + 1), c = pt(k + 1, i), d = pt(k + 1, i + 1); if (e > 0) { cpush(a); cpush(b); cpush(c); cpush(b); cpush(d); cpush(c); } else { cpush(a); cpush(c); cpush(b); cpush(b); cpush(c); cpush(d); } }
+    }
+    const cut = new THREE.BufferGeometry();
+    cut.setAttribute("position", new THREE.Float32BufferAttribute(cp, 3));
+    cut.setAttribute("color", new THREE.Float32BufferAttribute(cc, 3));
+    cut.computeVertexNormals();
+    const r = seeded(91 + sd * 17), ML = [];
+    for (let k = 0; k < 6 + sd * 2; k++) { const y = -1.1 + r() * 2.2, a = (r() - 0.5) * 2.2, rad = logRad(y, sd), [wx, wz] = logWob(y, sd); ML.push(lumpBlob(0.07 + r() * 0.07, 0.75, 1.3 + r() * 0.8, 1.1 + r() * 0.4, Math.cos(a) * rad * 0.97 + wx, y, Math.sin(a) * rad * 0.97 + wz, 70 + k + sd * 9, 0.3)); }
+    const moss = mergeNI(ML);
+    moss.computeVertexNormals();
+    return { bark, cut, moss };
+  });
+}
 function hedgeGeo(v, sd) {
   return propGeo("hedge" + v + "_" + sd, () => {
     const L = [], r = seeded(77 + v * 13 + sd * 211);
@@ -1156,7 +1194,7 @@ function buildVegetation(field, root) {
     const s = 0.8 + rnd() * 0.6, th = rnd() * 6.28, dx = -Math.cos(th) * 1.3 * s / U, dy = Math.sin(th) * 1.3 * s / U;
     const hA = field.heightAt(px + dx, py + dy), hB = field.heightAt(px - dx, py - dy), hM = field.heightAt(px, py);
     if (Math.abs(hA - hB) > 2.2 * s) continue;
-    const dl = Math.asin(clamp((hB - hA) / (2.6 * s), -0.8, 0.8)), cy = Math.max((hA + hB) / 2, hM - 0.08) + 0.24 * s;
+    const dl = Math.asin(clamp((hB - hA) / (2.6 * s), -0.8, 0.8)), cy = Math.max((hA + hB) / 2, hM - 0.08) + 0.2 * s;
     logs.push(mtx(px * U, cy, py * U, s, s, s, th, 0, Math.PI / 2 + dl));
     (field.logSpots = field.logSpots || []).push({ x: px, y: py, r: 1.6 * s / U });
     z.colliders.push({ x: px, y: py, r: 1.4 * s / U });
@@ -1233,8 +1271,18 @@ function buildVegetation(field, root) {
     root.add(im);
   }
   if (logs.length) {
-    const lg = THREE.mergeGeometries([bendGeo(new THREE.CylinderGeometry(0.28, 0.32, 2.6, 9, 6).translate(0, 1.3, 0), 0.05, 0.02, 41).translate(0, -1.3, 0), new THREE.CylinderGeometry(0.07, 0.09, 0.6, 5).rotateZ(Math.PI / 2).translate(0.3, 0.4, 0)]);
-    root.add(instanced(lg, barkMat, logs, true));
+    const lbm = std({ map: bark.map, normalMap: bark.normalMap, normalScale: new THREE.Vector2(1.6, 1.6), vertexColors: true });
+    const cutMat = std({ color: 0xd8b888, roughness: 0.95, vertexColors: true });
+    const mossMat = std({ map: leafTex.map, color: snowy ? 0xe8eef2 : 0x7a9a48, roughness: 1 });
+    addSeason(mossMat, "shrub");
+    for (let sd = 0; sd < 3; sd++) {
+      const L = logs.filter((m, i) => i % 3 === sd);
+      if (!L.length) continue;
+      const g = logGeo(sd);
+      root.add(tintInst(instanced(g.bark, lbm, L, true), rnd, 0.15));
+      root.add(instanced(g.cut, cutMat, L, false));
+      if (!desert && !volcanic) root.add(tintInst(instanced(g.moss, mossMat, L, false), rnd, 0.2));
+    }
   }
   const rockGeo = noisyGeo(new THREE.IcosahedronGeometry(1, 2), 0.22, 3);
   const rockMat = std({ map: rockTex.map, normalMap: rockTex.normalMap, normalScale: new THREE.Vector2(1.2, 1.2), color: volcanic ? 0x4a4244 : desert ? 0xd8a888 : 0xffffff });

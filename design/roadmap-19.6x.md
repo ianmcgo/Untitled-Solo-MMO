@@ -1,0 +1,28 @@
+# Roadmap 19.58 to 19.77
+
+One version per phase. Each phase updates Help, the Updates list, the title stamp (via build) and design.md.
+
+| Version | Phase | Status |
+|---|---|---|
+| 19.58 | Fences keep off scenery (no clipping, grounded posts) | done |
+| 19.59 | Hedges as lumpy leaf clumps | done |
+| 19.60 | Logs: faceted, tapered, bark ridges, cut rings, stubs, moss | done |
+| 19.61 | Trees: clumped faceted canopies, branches, root flare, variants | |
+| 19.62 | Waterfall: layered flow, foam, mist, plunge pool, rocks | |
+| 19.63 | Crafting and harvesting animations; remote players show work poses | |
+| 19.64 | Skeletons with real ribcage, spine, pelvis, limb bones (no tube) | |
+| 19.65 | Hay bales and wagon cargo detail | |
+| 19.66 | Two-handed weapons held by both hands (off hand floats) | |
+| 19.67 | Faces and clothes better painted and sculpted | |
+| 19.68 | Longnecks bigger and better sculpted | |
+| 19.69 | Fish monsters scarier and more detailed | |
+| 19.70 | Mandrake, rabbit, treant remodels; aprons | |
+| 19.71 | Monster KO poses, fishing rod prop, staff cast glow | |
+| 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | |
+| 19.73 | Build next zone during the walk (second scene root) | |
+| 19.74 | File size budget: audio as separate cached files | |
+| 19.75 | Painted foliage style, banded sky gradient | |
+| 19.76 | Mercenary sell-off server work (SQL run by the user) | |
+| 19.77 | Deferred spells (see design.md 17.2 list) | |
+
+Suggested model: Sonnet for scenery props (19.60, 19.62, 19.65, 19.74); Opus for rigs, animation, faces and systems (19.63, 19.64, 19.66, 19.67, 19.73, 19.76, 19.77).

@@ -3025,3 +3025,10 @@ Beat sheet (attack lasts 0.5 s, `ak` 0..1): wind-up 0–0.30 (two-handers 0.36),
 - hedgeGeo(v, sd) now builds 4-8 overlapping lumpBlob() icospheres (detail 1, radial noise, per-blob scale) per style: 0 neat (5-6 wide blobs plus 3 top tufts), 1 rounded (4-5 big domes plus a low base blob), 2 wild (6-7 uneven blobs plus 4 stems). Two seeds per style (sd 0/1) split by instance index so neighbouring runs differ.
 - After merging, vertex y is clamped to 0.04 for a flat base, a vertex colour attribute is added (0.6 at the base to 1.0 at the top 1.1, plus +-0.12 noise patches) and normals are recomputed non-indexed for a faceted look. The hedge material uses vertexColors.
 - Instance scale per hedge is x 0.88-1.08, y 0.7-1.05, z 0.85-1.15. Spacing and colliders are unchanged (40 px, three r 10 colliders).
+
+## 19.60.0 Gnarled, mossy logs
+- logGeo(sd) (sd 0-2, picked by instance index % 3) returns { bark, cut, moss }, all built along local y from -1.3 to 1.3 and laid flat by the existing rz = pi/2 + dl instance rotation (local +x is up).
+- Bark: 10 sides x 14 rows, hand-built non-indexed triangles. logRad tapers 0.33 to 0.26 with a root flare in the first 10%. logWob bends the trunk line by sin offsets in x and z. Ridges: |sin(5.5a + noise)|^3 * 0.07 inward, plus +-0.04 noise. Vertex colours are darker in the grooves. UV u = angle/2pi + 0.5, v = (y + 1.4) * 0.34 so v stays in 0-1 (the bark texture is not repeat-wrapped). Branch stubs: 2 or 3 short tilted cylinders. Material lbm uses the bark map with normalScale 1.6 and vertexColors.
+- Cut ends: 4 rings x 10 segments per end, matching the side ring. Colour bands cos(f * 7pi), a darker heart and a dark bark rim (f > 0.86). cutMat is 0xd8b888 with vertexColors.
+- Moss: 6-10 small lumpBlob patches on the top side, mossMat uses the leaf map and the shrub season; white in snow and skipped in desert or volcanic zones.
+- Log centre height lowered from +0.24s to +0.2s so logs sink a little into the ground.
