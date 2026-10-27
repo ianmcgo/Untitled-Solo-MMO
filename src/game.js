@@ -4200,7 +4200,13 @@ function updateMob(m, dt) {
   if (m.burst && S.time > m.burst.until) m.burst = null;
   if ((m.state === "idle" || m.state === "return") && m.hp < m.maxHp && S.time - (m.lastHit || -99) > 5) m.hp = Math.min(m.maxHp, m.hp + m.maxHp * CONFIG.mobRegen * dt);
   if (m.petOf && petStep(m, dt)) return;
+  if (m.state !== "idle" && m.amb) ambEnd(m);
+  if (m.state === "idle" && m.amb && mobAmbientStep(m, dt)) {
+    for (const p of S.party) if (p.alive && detects(m, p)) { ambEnd(m); aggro(m, p); break; }
+    return;
+  }
   if (m.state === "idle") {
+    if (S.time >= (m.ambNext || 0)) { m.ambNext = S.time + rand(5, 12); mobAmbientStart(m); }
     m.wanderTimer -= dt;
     if (m.wanderTimer <= 0) {
       m.wanderTimer = rand(1.5, 3.5);
@@ -5161,11 +5167,104 @@ function tfPickSpot(n, z) {
   const p = tfRoadPoint(z, r); if (!p) return null;
   return { x: p.x, y: p.y, face: Math.atan2(p.uy, p.ux) + (r() < 0.5 ? Math.PI : 0), work: role === "walk" && r() < 0.3 ? TF_WORK.walk[Math.floor(r() * 2)] : null };
 }
+
+const MOB_SPEAK = { goblin: ["Oi!", "Shinies?", "Heh heh.", "Boss says...", "Nah, mine!", "Grub time?"], orc: ["Hrrm.", "Smash later.", "Ha!", "Weak ones near.", "Grrah."], skeleton: ["*clatter*", "*rattle*", "...", "*creak*"], fishfolk: ["Blub.", "Glrk!", "Tide's turning.", "Hssss."], birdfolk: ["Kraa!", "Skree.", "Wind's good.", "Krr?"], ghoul: ["Hungry...", "Ghhh.", "*sniff*"], cactus: ["*rustle*", "Prrt."], human: ["Hm.", "Ha!", "Aye."] };
+const MOB_SOUND = { sheep: ["Baa.", "Mehh."], hare: ["*sniff*", "*thump*"], rarab: ["*sniff*"], bee: ["Bzz.", "Bzzz!"], crawler: ["*click*", "..."], lizard: ["Hss.", "*flick*"], longneck: ["Hmmf.", "*snort*"], bat: ["Eek!", "*squeak*"], toad: ["Ribbit.", "Croak."], crab: ["*clack*", "*click click*"], mandrake: ["Eep.", "*rustle*"], shroom: ["*puff*", "Pff."], fish: ["*blub*"], quad: ["*snort*", "Hrmf."], worm: ["*squelch*"], bulb: ["*hum*"], wisp: ["~"], bomb: ["*hiss*"] };
+const TF_TALK = ["Morning!", "Good to see you.", "Heard the goblins are bold lately.", "Fine weather, eh?", "Prices at the market, honestly...", "Off to work?", "Did you see the new guard?", "My back's killing me.", "Ha! You don't say.", "Watch out past the gate.", "How's the family?", "Busy day.", "Smells like rain.", "Mind how you go."];
+const TF_REPLY = ["Aye.", "Ha, true!", "Can't complain.", "Same to you.", "Really?", "Mm-hm.", "Oh, stop.", "Is that so?", "Take care now.", "Heh."];
+function mobModel(m) { const f = m.fam || {}; return f.model || m.famKey; }
+function mobChatter(m) { const md = mobModel(m), L = MOB_SPEAK[md] || MOB_SOUND[md]; return L || (m.fam && m.fam.aggro ? ["Grr."] : ["..."]); }
+function ambNear(m, r) { return player && dist(m, player) < r; }
+function ambOk(m) { return m.alive && m.state === "idle" && !m.amb && !m.petOf && !m.proxy && !(m.fam && m.fam.boss) && !m.nm; }
+function mobAmbientStart(m) {
+  if (!ambOk(m) || !S.zone || themeOf(S.zone) === "town") return;
+  const r = Math.random();
+  if (m.aggro && !m.passive && r < 0.14) {
+    let best = null, bd = 260;
+    for (const p of S.mobs) { if (p === m || !ambOk(p) || (p.aggro && !p.passive) || p.famKey === m.famKey) continue; const d = dist(m, p); if (d < bd) { bd = d; best = p; } }
+    if (best) { const fight = Math.random() < 0.45; m.amb = { kind: "hunt", other: best, until: S.time + 18, swing: 0.6 }; best.amb = { kind: fight ? "fight" : "flee", other: m, until: S.time + 18, swing: 1.0 }; if (ambNear(m, 700)) popText(m, pick(mobChatter(m)), "#ffb0a0", 13, 1.4, 14); return; }
+  }
+  if (r > 0.82) {
+    let best = null, bd = 150;
+    for (const p of S.mobs) { if (p === m || !ambOk(p) || p.famKey !== m.famKey) continue; const d = dist(m, p); if (d < bd) { bd = d; best = p; } }
+    if (best) { const until = S.time + 5 + Math.random() * 4; m.amb = { kind: "chat", other: best, until, next: S.time + 0.4 }; best.amb = { kind: "chat", other: m, until, next: S.time + 1.2 }; }
+  }
+}
+function ambEnd(m) {
+  const a = m.amb; m.amb = null;
+  if (a && a.other && a.other.amb && a.other.amb.other === m) { const o = a.other; o.amb = null; if (o.alive && o.state === "idle" && dist(o, o.home) > 120) o.state = "return"; }
+  if (m.alive && m.state === "idle" && dist(m, m.home) > 120) m.state = "return";
+}
+function mobAmbientStep(m, dt) {
+  const a = m.amb, o = a && a.other;
+  if (!a) return false;
+  if (!o || !o.alive || !o.amb || o.amb.other !== m || o.state !== "idle" || S.time > a.until || dist(m, m.home) > 480) { ambEnd(m); return false; }
+  const d = dist(m, o), ang = Math.atan2(o.y - m.y, o.x - m.x);
+  if (a.kind === "chat") {
+    if (d > 34) { moveToward(m, o.x, o.y, dt, 30, 0.45); m.face = ang; return true; }
+    m.face += normAng(ang - m.face) * Math.min(1, dt * 5);
+    if (S.time >= a.next) {
+      a.next = S.time + 1.6 + Math.random() * 1.4;
+      const hum = ["goblin", "orc", "skeleton", "fishfolk", "birdfolk", "ghoul", "cactus", "human"].includes(mobModel(m));
+      if (hum) m.emote = { id: pick(["laugh", "nod", "point", "shrug", "wave", "think"]), at: S.time };
+      else m.lastSwing = Math.random() < 0.3 ? S.time : m.lastSwing;
+      if (ambNear(m, 600)) popText(m, pick(mobChatter(m)), "#f0e6c8", 13, 1.6, 14);
+    }
+    return true;
+  }
+  if (a.kind === "hunt" || a.kind === "fight") {
+    if (a.kind === "fight" || d > mobReach(m) - 4) moveToward(m, o.x, o.y, dt, mobReach(m) - 8, a.kind === "hunt" ? 1 : 0.8);
+    m.face = ang;
+    a.swing -= dt;
+    if (a.swing <= 0 && d <= mobReach(m) + 4) {
+      a.swing = Math.max(1.2, (m.delay || 3) * 0.8);
+      m.lastSwing = S.time;
+      const dmg = Math.max(1, Math.round(o.maxHp * (a.kind === "hunt" ? 0.09 : 0.05)));
+      o.hp = Math.max(1, o.hp - dmg); o.lastHit = S.time; o.flash = 0.15;
+      if (ambNear(o, 650)) { popText(o, dmg, "#c8c0b0", 12, 0.8, 0, true); if (typeof sfx === "function" && ambNear(o, 420)) sfx("blunt", o); }
+      if (o.amb && o.hp < o.maxHp * 0.3) { if (ambNear(o, 700)) popText(o, pick(mobChatter(o)), "#a0d0ff", 13, 1.2, 14); o.amb.kind = "flee"; o.amb.until = S.time + 4; a.until = Math.min(a.until, S.time + 2.5); }
+    }
+    return true;
+  }
+  if (a.kind === "flee") {
+    const fx = m.x - Math.cos(ang) * 80, fy = m.y - Math.sin(ang) * 80;
+    moveToward(m, fx, fy, dt, 2, 1.1);
+    m.face = ang + Math.PI;
+    return true;
+  }
+  return false;
+}
+function tfChatStart(n) {
+  if (!player || dist(n, player) > 1400 || S.time < (n.tf.chatCool || 0)) return false;
+  for (const o of S.npcs) {
+    if (o === n || !o.tf || o.away || o.tf.state === "chat" || S.time < (o.tf.chatCool || 0) || player.target === o) continue;
+    if (dist(n, o) > 46) continue;
+    n.tf.chatCool = o.tf.chatCool = S.time + 40 + Math.random() * 40;
+    if (Math.random() > 0.4) return false;
+    const until = S.time + 4 + Math.random() * 5;
+    for (const [a, b, first] of [[n, o, true], [o, n, false]]) { a.tf.prevState = a.tf.state; a.tf.state = "chat"; a.tf.chat = { with: b, until, next: S.time + (first ? 0.2 : 1.5), first, line: 0 }; a.moving = false; a.emote = first ? { id: "wave", at: S.time } : null; }
+    return true;
+  }
+  return false;
+}
+function tfChatStep(n, dt) {
+  const c = n.tf.chat, o = c.with;
+  if (S.time > c.until || !o || o.away || !o.tf || o.tf.state !== "chat") { n.tf.state = n.tf.prevState === "go" ? "go" : "idle"; n.tf.chat = null; if (n.tf.state === "go") n.tf.giveUp = S.time + 40; else n.tf.until = S.time + 1; return; }
+  n.face += normAng(Math.atan2(o.y - n.y, o.x - n.x) - n.face) * Math.min(1, dt * 5);
+  if (S.time >= c.next) {
+    c.next = S.time + 2.2 + Math.random() * 1.2;
+    n.emote = { id: pick(c.first && !c.line ? ["wave", "nod"] : ["nod", "laugh", "shrug", "point", "think", "beckon"]), at: S.time };
+    if (dist(n, player) < 600) popText(n, c.first && !c.line ? pick(TF_TALK) : pick(c.first ? TF_TALK : TF_REPLY), "#fff4d8", 13, 2.2, 22);
+    c.line++;
+  }
+}
 function tfUpdate(n, dt) {
   const tf = n.tf, h = vana().hour, night = h >= 22 || h < 6;
   if (night !== !!n.away) { n.away = night; if (night && player.target === n) player.target = null; if (!night) { n.x = n.post.x; n.y = n.post.y; } }
   if (n.away) return;
   if (player.target === n && dist(n, player) < CONFIG.talkRange * 1.5) { n.moving = false; n.face += normAng(Math.atan2(player.y - n.y, player.x - n.x) - n.face) * Math.min(1, dt * 4); return; }
+  if (tf.state === "chat") { tfChatStep(n, dt); return; }
+  if (tf.state === "go" && !n.resting && tfChatStart(n)) return;
   if (tf.state === "go") {
     n.moving = true;
     if (navTo(n, tf.spot.x, tf.spot.y, dt, 5, 0.8) || S.time > tf.giveUp) {

@@ -1844,6 +1844,12 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.85.0", date: "2026-10-27", title: "Monsters and townsfolk interact", items: [
+    "<b>Monsters hunt each other.</b> Out in the field an aggressive monster will sometimes stalk a peaceful one of another kind nearby and attack it. You'll see grey damage numbers as they trade blows; the prey fights back, and when it is badly hurt it runs. Once the fight is over (or the prey escapes) the hunter heads home.",
+    "<b>Monsters socialise.</b> When two idle monsters of the same kind cross paths they walk up to each other, face one another and interact: beastmen gesture and chatter (goblins bicker, orcs grunt, skeletons rattle), animals sniff, chirp or growl. If you're nearby you'll see what they say above their heads.",
+    "<b>Busy monsters still notice you.</b> A monster that's hunting or chatting can still spot you and will break off to attack.",
+    "<b>Townsfolk chat.</b> Townspeople who pass each other in the street sometimes stop, wave and swap a line or two of small talk before carrying on with their errands."
+  ] },
   { v: "19.84.0", date: "2026-10-27", title: "Grain and shade", items: [
     "<b>More grain.</b> Every surface, textured or not (props, buildings, trees, rocks, characters and monsters), now has fine painted grain at three sizes. It fades out with distance so faraway things don't shimmer.",
     "<b>More shading.</b> Undersides of things are darker (the bottoms of crates, the undersides of branches, rails and arms), and objects grow darker toward the ground where they meet it: tree trunks, stumps, posts, rocks, grass and the feet and legs of characters and monsters. Everything sits in the world more solidly.",
@@ -4380,7 +4386,8 @@ function tabHelp() {
     "<b>Critters:</b> bees, crawlers, sheep, mandrakes, lizards, crabs, shroomlings, snappers, hares, bats, leeches and longnecks never start a fight. Some watch out for each other (bees, sheep, mandrakes): hit one and its neighbours join in. Watch their special moves: Gummed Strand slows, Dream Dust can put companions to sleep, Spore Cloud and Tail Whip hit everyone nearby.",
     "<b>Wandering Saplings and Strangler Saplings</b> are walking flower bulbs: a round brown body with eyes, stubby legs, root hairs and a green sprout on top. They never start a fight. When bothered they rear the sprout back and lash with it (Sprout Lash). Fire hurts them most. Elder Treants and Old Mossback are still great walking trees.",
     "<b>Ranged and dangerous:</b> Orc Stonechuckers and Needlekin attack from a distance, so close in or pull them around a corner. Ember Bombs swell up and Self-Destruct, a big area blast that also destroys the bomb; kill them fast or step away when they ready it. Elder Treants shake the ground around them.",
-    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away."
+    "<b>Aggro:</b> some monsters attack on sight, some when they hear you moving nearby, undead smell weakness when your HP is low, and critters like hares are peaceful until attacked (Inspect says <i>peaceful unless provoked</i>). Learn each kind by watching it; nothing on screen gives their range away.",
+    "<b>Wildlife lives its own life:</b> out in the field, aggressive monsters sometimes hunt peaceful ones of another kind (the prey fights back or runs when badly hurt), and monsters of the same kind that meet stop to grunt, chirp or chatter at each other. Townsfolk who pass each other stop for a short chat. If you come close while a monster is busy, it can still notice you and turn on you."
   ]));
   h += sec("🐾 Pets", ul([
     "Pets are small companions that follow you around for company. They never fight, can't be attacked and give no bonuses: " + Object.keys(BUDDIES).map(id => BUDDIES[id].icon + " " + BUDDIES[id].name).join(", ") + ".",
