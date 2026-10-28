@@ -1479,7 +1479,7 @@ function buildVegetation(field, root) {
     const bg = noisyGeo(THREE.mergeGeometries([new THREE.IcosahedronGeometry(0.7, 1).translate(0, 0.45, 0), new THREE.IcosahedronGeometry(0.55, 1).translate(0.5, 0.35, 0.2), new THREE.IcosahedronGeometry(0.5, 1).translate(-0.45, 0.35, -0.2)]), 0.2, 17);
     const bm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : 0x9aae86 });
     addWind(bm, 0.02);
-    addSeason(bm, "shrub");
+    if (!snowy) addSeason(bm, "shrub");
     root.add(tintInst(instanced(bg, bm, bushes, true), rnd, 0.2));
   }
   if (flowers.length) {
@@ -4480,30 +4480,22 @@ function* buildZone3DSteps() {
   root.add(terrain);
   if (themeOf(z) === "house") terrain.visible = false;
   W3.terrain = terrain;
-  yield { p: 0.78, t: "Growing trees and grass…" };
-  buildVegetation(field, root);
-  buildCliffs(field, root);
-  buildPathEdges(field, root);
-  buildProps(field, root);
-  yield { p: 0.88, t: "Raising buildings…" };
+  const th = themeOf(z), town = th === "town";
   W3.bees = []; W3.rainShrooms = []; W3.caveGlows = [];
-  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildFarms(field, root); buildSkyline(field, root); buildFarSea(field, root); }
-  if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
-  if (themeOf(z) === "crypt") buildCrypt(field, root);
-  buildDungeon(field, root);
-  if (z.glow) buildGlow(field, root);
-  if (themeOf(z) === "house") buildHouse(field, root);
-  buildRuins(field, root);
-  buildSites(field, root);
-  buildCamps(field, root);
-  buildHedges(field, root);
-  buildExits(field, root);
-  buildWater(field, root);
-  if (themeOf(z) === "town") buildMoats(field, root);
-  buildBackdrop(field, root);
-  buildExitBackdrops(field, root);
-  buildCaveMouths(field, root);
-  yield { p: 0.94, t: "Filling the water…" };
+  const steps = [
+    [0.78, "Growing trees and grass…", () => buildVegetation(field, root)],
+    [0.8, null, () => { buildCliffs(field, root); buildPathEdges(field, root); buildProps(field, root); }],
+    [0.82, "Raising buildings…", () => { if (town) buildTown(field, root); }],
+    [0.84, null, () => { if (town) buildCityWalls(field, root); }],
+    [0.86, null, () => { if (town) buildCityBuildings(field, root); }],
+    [0.88, null, () => { if (town) { buildFarms(field, root); buildSkyline(field, root); buildFarSea(field, root); } }],
+    [0.9, null, () => { if (th === "cave" || th === "crypt") buildCave(field, root); if (th === "crypt") buildCrypt(field, root); buildDungeon(field, root); if (z.glow) buildGlow(field, root); if (th === "house") buildHouse(field, root); }],
+    [0.91, null, () => { buildRuins(field, root); buildSites(field, root); buildCamps(field, root); buildHedges(field, root); buildExits(field, root); }],
+    [0.93, "Filling the water…", () => { buildWater(field, root); if (town) buildMoats(field, root); }],
+    [0.94, null, () => { buildBackdrop(field, root); buildExitBackdrops(field, root); buildCaveMouths(field, root); }]
+  ];
+  for (const [p, t, fn] of steps) { yield t ? { p, t } : { p }; fn(); }
+  yield { p: 0.95 };
   W3.scene.add(root);
   W3.lastSunY = -9;
   W3.envTimer = 0;

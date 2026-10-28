@@ -1844,6 +1844,14 @@ function initMenu() {
 
 const BUILD_INFO = "__VERSION__";
 const UPDATES = [
+  { v: "19.92.0", date: "2026-10-28", title: "Faster zoning and polish", items: [
+    "<b>The next area starts loading before you reach the exit.</b> When you come within about 23 yalms of a zone exit or city gate, the game quietly shapes the land and paints the ground of the area beyond in small slices while you walk (a few milliseconds a frame). By the time you step through, the slowest part of loading is already done, so the fade is much shorter, especially the first time you visit a place. If you turn towards a different exit, it switches to that one.",
+    "<b>Smoother loading screen.</b> Building trees, props, city buildings, walls, water and the distant scenery is now split into ten small steps instead of two big ones, so the loading bar keeps moving instead of freezing.",
+    "<b>Rain mushrooms are back.</b> A loading-order bug cleared the list of mushrooms that sprout after rain right after they were placed, so they never appeared. They now pop up after rain as intended.",
+    "<b>Revisiting is a little faster:</b> the saved ground texture is no longer re-processed when it is loaded from the cache.",
+    "<b>Ironvale's bushes stay snowy</b> instead of turning bright green with the season.",
+    "<b>Saltreach looks more coastal:</b> the open ground between streets has more sandy patches among the dry grass."
+  ] },
   { v: "19.91.0", date: "2026-10-28", title: "City ground and a different crystal stand in each city", items: [
     "<b>No more identical gazebos.</b> The covered stand over each home point crystal now fits its city. Ashenreach keeps a gazebo, rebuilt in wood: log posts, a braced log ring beam, rafters, an octagonal shake roof and a pennant. Saltreach has a white arcaded rotunda with arches between square pillars, a drum with small windows, a blue dome with a gold finial and potted plants on the floor. Ironvale has four massive tapering stone pillars with heavy stone lintels under a snow-capped slate hip roof with icicles, and an iron ring of lanterns hanging over the crystal.",
     "The floor of the stand matches too: planks in Ashenreach, sandstone in Saltreach and grey stone in Ironvale.",
@@ -4352,6 +4360,7 @@ function tabHelp() {
     "<b>Your residence:</b> the house in the Residential District has a sign reading Home of and your name (it changes if you rename), a gold house marker on the map and the minimap, and the first time you enter the district a title card and log line point it out.",
     "<b>Nothing stands in the roads.</b> Trees, people, stalls, benches, lamps, carts and every other object are kept off the streets and footpaths, in the cities and in the wilds.",
     "<b>Changing your name:</b> the Registrar in the Hall of Records (Ashenreach Government District) or the Council Hall (Ironvale Keep) enters a new name for " + RENAME_COST.toLocaleString() + " crystals: 2 to 12 letters, not already taken. Online, the game server checks the name and takes the crystals.",
+    "<b>Faster zoning:</b> when you walk near an exit or gate, the area beyond starts loading in the background, so stepping through takes only a short fade.",
     "<b>Getting around:</b> a district is about 240 yalms wide, so crossing one on foot takes roughly 24 seconds (about 16 sprinting with Shift), and a gate to the central square is about 12. Every district has a warp stone near its middle, standing beside a street and facing it; touching one makes the trip instant inside a city (you arrive on the street in front of the stone), and your companions follow through the gates.",
   ]));
   h += sec("🚶 City life", ul([

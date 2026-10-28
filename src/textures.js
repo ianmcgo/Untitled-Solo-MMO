@@ -364,7 +364,8 @@ function* bakeTerrainAlbedoSteps(field, size, keyOver) {
     const hc = makeCanvas(W, H);
     hc.getContext("2d").drawImage(pre, 0, 0, W, H);
     if (pre.close) pre.close();
-    const ht = toTexture(hc, true);
+    const ht = toTexture(hc, false);
+    ht.colorSpace = THREE.SRGBColorSpace;
     ht.wrapS = ht.wrapT = THREE.ClampToEdgeWrapping;
     PERF.slice("terrain cache hit", 0);
     return ht;
@@ -378,7 +379,7 @@ function* bakeTerrainAlbedoSteps(field, size, keyOver) {
     const n3 = NOISE.value(px * 0.25, py * 0.25, 0, 207);
     let r = mix(th.grassA[0], th.grassB[0], n1), g = mix(th.grassA[1], th.grassB[1], n1), b = mix(th.grassA[2], th.grassB[2], n1);
     if (th.moss) { const m = sstep(0.55, 0.7, n1); r = mix(r, th.moss[0], m); g = mix(g, th.moss[1], m); b = mix(b, th.moss[2], m); }
-    const patch = sstep(0.6, 0.72, n2) * 0.7;
+    const patch = CS === "harbor" ? Math.max(sstep(0.48, 0.66, n2) * 0.9, sstep(0.55, 0.7, n1) * 0.6) : sstep(0.6, 0.72, n2) * 0.7;
     r = mix(r, th.dirt[0], patch); g = mix(g, th.dirt[1], patch); b = mix(b, th.dirt[2], patch);
     const pw = field.pathWeight(px, py);
     if (pw > 0) {

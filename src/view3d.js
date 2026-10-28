@@ -468,6 +468,7 @@ function zoneFadeTo(op, secs) {
 }
 function zoneFadeOut() { VIEW.fadeIn = true; zoneFadeTo(1, 1.0); }
 function prefetchZone(id) {
+  if (W3.preField && W3.preField.id === id) return;
   W3.preTerrain = null;
   if (ZONES[id] && typeof buildFieldSteps === "function") { try { W3.preField = { id, gen: buildFieldSteps(ZONES[id]), field: null, p: 0, cached: null, bake: null }; } catch (e) { W3.preField = null; } }
   if (!W3.renderer || typeof cacheGet !== "function") return;
@@ -476,16 +477,26 @@ function prefetchZone(id) {
   W3.terrainFetch = { key, p };
   p.then(img => { if (pf) pf.cached = !!img; });
 }
-function tickPreField() {
+function preApproach(dt) {
+  VIEW.preT = (VIEW.preT || 0) - dt;
+  if (VIEW.preT > 0 || S.exitWalk || !S.zone || !player || !player.alive || (typeof zoneLoadingOn === "function" && zoneLoadingOn())) return;
+  VIEW.preT = 0.4;
+  let best = null, bd = 460;
+  for (const ex of S.zone.exits || []) { const d = Math.hypot(player.x - (ex.x + ex.w / 2), player.y - (ex.y + ex.h / 2)); if (d < bd) { bd = d; best = ex; } }
+  if (!best) return;
+  const to = best.resExit && save.resReturn && ZONES[save.resReturn.zone] ? save.resReturn.zone : best.to;
+  if (to && to !== S.zoneId && ZONES[to] && !(W3.preField && W3.preField.id === to)) prefetchZone(to);
+}
+function tickPreField(k) {
   const pf = W3.preField;
   if (!pf) return;
-  const t0 = performance.now();
+  const t0 = performance.now(), K = k || 1;
   try {
-    if (!pf.field && pf.gen) { while (performance.now() - t0 < 6) { const r = pf.gen.next(); if (r.done) { pf.field = r.value; pf.gen = null; break; } pf.p = typeof r.value === "number" ? r.value : pf.p; } return; }
+    if (!pf.field && pf.gen) { while (performance.now() - t0 < 6 * K) { const r = pf.gen.next(); if (r.done) { pf.field = r.value; pf.gen = null; break; } pf.p = typeof r.value === "number" ? r.value : pf.p; } return; }
     if (!pf.field || pf.cached !== false || pf.baked || typeof bakeTerrainAlbedoSteps !== "function") return;
     const key = "t|" + pf.id + "|" + terrainSize();
     if (!pf.bake) pf.bake = bakeTerrainAlbedoSteps(pf.field, terrainSize(), key);
-    while (performance.now() - t0 < 10) { const r = pf.bake.next(); if (r.done) { pf.baked = true; pf.bake = null; if (r.value && r.value.image) W3.preTerrain = { key, img: r.value.image }; break; } }
+    while (performance.now() - t0 < 10 * K) { const r = pf.bake.next(); if (r.done) { pf.baked = true; pf.bake = null; if (r.value && r.value.image) W3.preTerrain = { key, img: r.value.image }; break; } }
   } catch (e) { W3.preField = null; }
 }
 function loaderHide() {
@@ -754,7 +765,8 @@ function initView() {
 function draw(dt) {
   dt = dt || 1 / 60;
   perfTick(dt);
-  if (W3.preField && S.exitWalk) tickPreField();
+  preApproach(dt);
+  if (W3.preField) tickPreField(S.exitWalk ? 1 : 0.45);
   updateCamera(dt);
   updateSky(false);
   for (const p of S.party) syncEntity(p, dt);

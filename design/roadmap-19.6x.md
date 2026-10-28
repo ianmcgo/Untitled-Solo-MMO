@@ -25,7 +25,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.70 | Mandrake, rabbit, treant remodels; aprons | done |
 | 19.71 | Monster KO poses, fishing rod prop, staff cast glow | done |
 | 19.72 | Weapon-skill hit-stop, monster spawn and defeat fades | done |
-| 19.73 | Build next zone during the walk (second scene root) | partial: field prebuilt during the walk; terrain/props still built in the fade |
+| 19.73 | Build next zone during the walk (second scene root) | done in 19.92: field and terrain prebuilt while approaching an exit; props built in 10 short steps in the fade (a second scene root was dropped: builders share W3 globals and the walk is only ~1 s) |
 | 19.77 | File size budget: audio as separate cached files | done (page 9.66 -> 3.52 MB) |
 | 19.75 | Painted foliage style, banded sky gradient | done |
 | next | Mercenary sell-off server work: SQL and client already written (sql/m5d-run.sql, 18.35); run by the user on 2026-10-27 | done |

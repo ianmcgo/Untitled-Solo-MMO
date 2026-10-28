@@ -4921,7 +4921,7 @@ function startExitWalk(ex) {
   S.moveTarget = null; S.chase = false; S.pendingTalk = null;
   standUp(player, true);
   zoneFadeOut();
-  if (typeof prefetchZone === "function") prefetchZone(ex.to);
+  if (typeof prefetchZone === "function") prefetchZone(exitDest(ex).to);
   return false;
 }
 
