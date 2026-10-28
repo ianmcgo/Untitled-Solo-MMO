@@ -2052,25 +2052,28 @@ const CITY_TYPES = {
   smelter: { ground: "stone", upper: "stone", smelter: true, bigdoor: true }
 };
 const CITY_STYLES = {
-  frontier: { kit: "frontier", plaster: [0xeadcb8, 0xdcc89c, 0xe6d6c0, 0xd2bc94], roof: [0xd8c8b8, 0xb8aca0, 0xe8d0b0, 0xa89888], thatch: [0xf4e8cc, 0xdcd0b4, 0xecdcb4, 0xccc0a6], shutter: [0x4a5a32, 0x6a3a22, 0x3a4a5a, 0x7a5a2a], pitch: 0.5 },
+  frontier: { kit: "frontier", plaster: [0xeadcb8, 0xdcc89c, 0xe6d6c0, 0xd2bc94], roof: [0xd8c8b8, 0xb8aca0, 0xe8d0b0, 0xa89888], thatch: [0xf4e8cc, 0xdcd0b4, 0xecdcb4, 0xccc0a6], skyRoof: [0x6e5a48, 0x5e4e40, 0x7a6450, 0x52463c], shutter: [0x4a5a32, 0x6a3a22, 0x3a4a5a, 0x7a5a2a], pitch: 0.5 },
   default: { plaster: [0xf4ead4, 0xe8d0a0, 0xd8e0e4, 0xf0d8c8], roof: [0xb05a44, 0x6a7a90, 0x8a6040, 0x5a4a44], shutter: [0x3a5a3a, 0x5a2a2a, 0x2a3a5a, 0x6a5a2a], pitch: 0.36 },
-  harbor: { kit: "harbor", plaster: [0xffffff, 0xe8f0fa, 0xfff0d8, 0xffe4dc], roof: [0xffffff, 0xf0dcc8, 0xffe6cc, 0xe4ccbc], shutter: [0x2a6aa8, 0x2a8a8a, 0x1a4a8a, 0xd8a838], pitch: 0.26, flat: 0.35 },
-  mountain: { plaster: [0xd8d0c4, 0xc8c0b4, 0xe0d8c8, 0xb8b4ac], roof: [0x3a4048, 0x4a4a52, 0x5a4a40, 0x2e343c], shutter: [0x5a3a24, 0x3a2a1a, 0x6a4a2a, 0x4a3a2a], pitch: 0.55, stoneUpper: true }
+  harbor: { kit: "harbor", plaster: [0xffffff, 0xe8f0fa, 0xfff0d8, 0xffe4dc], roof: [0xffffff, 0xf0dcc8, 0xffe6cc, 0xe4ccbc], shutter: [0x2a6aa8, 0x2a8a8a, 0x1a4a8a, 0xd8a838], pitch: 0.26, flat: 0.35, skyRoof: [0xc0603a, 0xb05a38, 0xc87048, 0xa85030] },
+  mountain: { kit: "mountain", plaster: [0xd8d0c4, 0xc8c0b4, 0xe0d8c8, 0xb8b4ac], roof: [0xe8ecf4, 0xd0d4dc, 0xdcd8d4, 0xc0c6d0], shutter: [0x5a3a24, 0x3a2a1a, 0x6a4a2a, 0x4a3a2a], pitch: 0.55, stoneUpper: true, skyRoof: [0xe4e8ee, 0xd4d8e0, 0xe8eaec, 0xc8ced8], skyWall: [0x9a968e, 0x8e8a84, 0xa49e94, 0x86848a] }
 };
 function buildCityBuildings(field, root) {
   const z = field.zone;
   if (!(z.houses || []).some(h => h.type)) return;
   const bricks = texBricks(), plaster = texPlaster(), shingle = texShingle(), planks = texPlanks();
   const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default, KIT = ST.kit || "";
-  const thatchT = ST.thatch ? texThatch() : null, HB = KIT === "harbor";
-  const wallT = HB ? texAshlar() : bricks, wwT = HB ? texWhitewash() : plaster, tileT = HB ? texTiles() : null;
+  const thatchT = ST.thatch ? texThatch() : null, HB = KIT === "harbor", MT = KIT === "mountain";
+  const wallT = HB || MT ? texAshlar() : bricks, wwT = HB ? texWhitewash() : plaster, tileT = HB ? texTiles() : MT ? texSlate() : null;
   if (tileT) { tileT.map.repeat.set(0.55, 0.55); tileT.normalMap.repeat.set(0.55, 0.55); }
   if (thatchT) { thatchT.map.repeat.set(0.42, 0.42); thatchT.normalMap.repeat.set(0.42, 0.42); }
   const M = {
-    stone: std({ map: wallT.map, normalMap: wallT.normalMap, color: HB ? 0xf4e6c8 : 0xd8d0c4 }),
+    stone: std({ map: wallT.map, normalMap: wallT.normalMap, color: HB ? 0xf4e6c8 : MT ? 0xc4c2bc : 0xd8d0c4 }),
+    snow: std({ color: 0xf2f6fa, roughness: 0.9 }),
+    ice: std({ color: 0xcfe6f4, roughness: 0.15, metalness: 0.1, transparent: true, opacity: 0.85 }),
+    darkwood: std({ map: planks.map, normalMap: planks.normalMap, color: 0x6a5040, roughness: 0.92 }),
     planks: std({ map: planks.map, normalMap: planks.normalMap, color: 0xc8a888 }),
     plaster: ST.plaster.map(c => std({ map: wwT.map, normalMap: wwT.normalMap, color: c, roughness: 0.95 })),
-    roof: (() => { const rt = KIT === "frontier" ? texShakes() : HB ? tileT : shingle; return ST.roof.map(c => std({ map: rt.map, normalMap: rt.normalMap, color: c, roughness: 0.88 })); })(),
+    roof: (() => { const rt = KIT === "frontier" ? texShakes() : HB || MT ? tileT : shingle; return ST.roof.map(c => std({ map: rt.map, normalMap: rt.normalMap, color: c, roughness: 0.88 })); })(),
     beam: std({ color: 0x3e2a1a, roughness: 0.9 }),
     frame: std({ color: HB ? 0x2e5c8a : 0x5a3e26, roughness: 0.85 }),
     trim: std({ color: HB ? 0xf2eee6 : 0xb8b0a0, roughness: 0.85 }),
@@ -2109,7 +2112,8 @@ function buildCityBuildings(field, root) {
     const gy = field.heightAt(hs.x, hs.y) - 0.2;
     const B = new THREE.Matrix4().makeRotationY(houseAng(hs)).setPosition(hs.x * U, gy, hs.y * U);
     const tint = hs.tint != null ? hs.tint : Math.floor(rnd() * 4);
-    const matOf = k => k === "stone" ? M.stone : k === "planks" ? M.planks : M.plaster[tint % 4];
+    const mtUp = MT && rnd() < 0.35;
+    const matOf = k => MT ? (k === "planks" ? M.darkwood : M.stone) : k === "stone" ? M.stone : k === "planks" ? M.planks : M.plaster[tint % 4];
     if (T.open) {
       bt.add(M.stone, box(bw + 0.4, 0.3, bd + 0.4), B, 0, 0.1, 0);
       const np = Math.max(2, Math.round(bw / 3));
@@ -2139,7 +2143,12 @@ function buildCityBuildings(field, root) {
     let depth = bd, topY = PL;
     for (let f = 0; f < n; f++) {
       const jet = T.timber && f > 0 ? 0.22 * f : 0, d = bd + jet * 2, y0 = PL + f * FH;
-      bt.add(f === 0 && logGround ? M.logwall : matOf(f ? T.upper : T.ground), box(bw, FH, d), B, 0, y0 + FH / 2, 0);
+      bt.add(f === 0 && logGround ? M.logwall : mtUp && f > 0 ? M.darkwood : matOf(f ? T.upper : T.ground), box(bw, FH, d), B, 0, y0 + FH / 2, 0);
+      if (MT && f === 0) {
+        bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2, Math.SQRT1_2 * 1.1, 1, 4).rotateY(Math.PI / 4), B, 0, y0 + 0.55, 0, 0, 0, 0, bw + 0.28, 1.4, d + 0.28);
+        for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * 0.55, Math.SQRT1_2 * 0.85, FH * 0.95, 4).rotateY(Math.PI / 4), B, sx * (bw / 2 + 0.05), y0 + FH * 0.47, sz * (d / 2 + 0.05), 0, 0, 0, 1, 1, 1);
+      }
+      if (mtUp && f > 0) for (const face of [1, -1]) { for (let k = 0; k <= Math.round(bw / 1.2); k++) bt.add(M.beam, box(0.14, FH, 0.08), B, -bw / 2 + k * bw / Math.round(bw / 1.2), y0 + FH / 2, face * (d / 2 + 0.04)); bt.add(M.beam, box(bw + 0.1, 0.16, 0.1), B, 0, y0 + 0.08, face * (d / 2 + 0.05)); }
       if (f === 0 && logGround) for (const sx of [-1, 1]) for (const sz of [-1, 1]) for (let k = 0; k < 6; k++) bt.add(M.bark, cyl(0.15, 0.15, 0.5, 6), B, sx * (bw / 2 + 0.06), y0 + 0.25 + k * 0.5, sz * (d / 2 + 0.06), 0, Math.PI / 2 * (k % 2), Math.PI / 2 * ((k + 1) % 2));
       if (f > 0) bt.add(T.timber ? M.beam : M.trim, box(bw + 0.14, 0.2, d + 0.14), B, 0, y0, 0);
       if (T.timber && (f > 0 || T.ground !== "stone")) {
@@ -2175,6 +2184,7 @@ function buildCityBuildings(field, root) {
           bt.add(M.frame, box(1.1, 0.08, 0.24), B, wx, wy - 0.6, fz + face * 0.1);
           if (T.shutters && face > 0) for (const s2 of [-1, 1]) bt.add(M.shutter[(tint + idx) % 4], box(0.42, 0.95, 0.05), B, wx + s2 * 0.72, wy, fz + face * 0.08, s2 * 0.3);
           if (HB) bt.add(M.trim, new THREE.TorusGeometry(0.54, 0.075, 4, 10, Math.PI), B, wx, wy + 0.57, fz + face * 0.07, face > 0 ? 0 : Math.PI);
+          if (MT) { bt.add(M.stone, box(1.45, 0.3, 0.26), B, wx, wy + 0.68, fz + face * 0.1); bt.add(M.snow, box(1.4, 0.06, 0.22), B, wx, wy + 0.86, fz + face * 0.1); bt.add(M.snow, box(1.1, 0.05, 0.22), B, wx, wy - 0.54, fz + face * 0.12); }
           if (face > 0 && f > 0 && rnd() < (T.flowers || 0)) { bt.add(M.frame, box(0.95, 0.2, 0.24), B, wx, wy - 0.7, fz + 0.16); for (let k = 0; k < 4; k++) bt.add(M.leaf, new THREE.IcosahedronGeometry(0.11, 0), B, wx - 0.33 + k * 0.22, wy - 0.52, fz + 0.18); }
         }
       }
@@ -2218,6 +2228,7 @@ function buildCityBuildings(field, root) {
       if (hip) {
         const hr = rh * 0.8, cg = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4, 1).rotateY(Math.PI / 4).scale(bw + 0.6, hr, depth + 0.6);
         bt.add(roofM, cg, B, 0, topY + hr / 2, 0);
+        if (MT) bt.add(M.snow, cg.clone().scale(0.62, 0.62, 0.62), B, 0, topY + hr * 0.69 + 0.08, 0);
         bt.add(M.trim, box(bw + 0.7, 0.16, depth + 0.7), B, 0, topY + 0.02, 0);
       } else {
         if (thatched) {
@@ -2225,6 +2236,11 @@ function buildCityBuildings(field, root) {
           bt.add(roofM, roughen(new THREE.CylinderGeometry(0.34, 0.34, depth + 1.2, 7, 6).rotateX(Math.PI / 2), 0.1, 3, idx + 1), B, 0, topY + rh + 0.06, 0);
           for (const sx of [-1, 1]) bt.add(roofM, roughen(new THREE.CylinderGeometry(0.2, 0.2, depth + 1.15, 6, 6).rotateX(Math.PI / 2), 0.08, 3, idx + 2 + sx), B, sx * (bw / 2 + 0.52), topY - 0.1, 0);
         } else bt.add(roofM, roofGeo(bw, depth, rh), B, 0, topY, 0);
+        if (MT) {
+          const k = 0.55 + rnd() * 0.15, sg = roughen(roofGeo(bw * k + 0.25, depth + 0.1, rh * k + 0.12), 0.06, 3, idx);
+          bt.add(M.snow, sg, B, 0, topY + rh * (1 - k) - 0.02, 0);
+          for (const sx of [-1, 1]) { const n = Math.floor((depth + 0.5) / 0.32); for (let q = 0; q < n; q++) { if (rnd() < 0.35) continue; const ln = 0.12 + rnd() * rnd() * 0.7; bt.add(M.ice, new THREE.ConeGeometry(0.045, ln, 5), B, sx * (bw / 2 + 0.28), topY - ln / 2 - 0.02, -depth / 2 - 0.2 + (q + 0.5) * (depth + 0.4) / n, 0, Math.PI, 0); } }
+        }
         const gable = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(-bw / 2, 0), new THREE.Vector2(bw / 2, 0), new THREE.Vector2(0, rh * 0.94)]));
         for (const face of [1, -1]) bt.add(ST.stoneUpper && !T.timber ? M.stone : matOf(T.upper), gable, B, 0, topY, face * (depth / 2 + 0.01), face > 0 ? 0 : Math.PI);
         if (n >= 2 && bw > 5) bt.add(win, box(0.6, 0.6, 0.1), B, 0, topY + rh * 0.4, depth / 2 + 0.04);
@@ -2527,6 +2543,60 @@ function buildCityBuildings(field, root) {
       bt.add(M.iron, cyl(0.55, 0.4, 0.5, 10), B, 0, 9.0, 0);
       bt.add(M.red, new THREE.ConeGeometry(0.9, 1.0, 12), B, 0, 10.4, 0);
       fxAdd(B, 0, 9.1, 0, "flame");
+    } else if (o.t === "smithstatue") {
+      col(o.x, o.y, 40);
+      const bz = std({ color: 0x8a6a3e, roughness: 0.45, metalness: 0.65 });
+      bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * 4.2, Math.SQRT1_2 * 5.2, 1.2, 4).rotateY(Math.PI / 4), B, 0, 0.4, 0);
+      bt.add(M.stone, box(3.6, 2.6, 3.6), B, 0, 2.3, 0);
+      bt.add(M.stone, box(4.0, 0.35, 4.0), B, 0, 3.75, 0);
+      bt.add(M.snow, box(4.0, 0.08, 4.0), B, 0, 3.96, 0);
+      for (const sx of [-1, 1]) { bt.add(bz, cyl(0.42, 0.5, 1.9, 8), B, sx * 0.55, 4.9, 0); bt.add(bz, box(0.75, 0.35, 1.1), B, sx * 0.55, 4.1, 0.15); }
+      bt.add(bz, cyl(1.15, 1.0, 2.4, 10), B, 0, 7.0, 0);
+      bt.add(M.iron, cyl(1.18, 1.18, 0.28, 10), B, 0, 6.1, 0);
+      bt.add(bz, new THREE.SphereGeometry(0.75, 12, 10), B, 0, 8.85, 0.05);
+      bt.add(bz, new THREE.ConeGeometry(0.7, 1.9, 9).rotateX(Math.PI), B, 0, 7.75, 0.55, 0, -0.25, 0);
+      bt.add(bz, new THREE.CylinderGeometry(0.8, 0.82, 0.5, 12), B, 0, 9.35, 0);
+      bt.add(bz, new THREE.ConeGeometry(0.82, 0.6, 12), B, 0, 9.85, 0);
+      for (const sx of [-1, 1]) bt.add(bz, new THREE.ConeGeometry(0.16, 0.9, 6), B, sx * 0.85, 9.6, 0, 0, 0, sx * -1.1);
+      bt.add(bz, cyl(0.3, 0.26, 2.0, 8), B, -1.3, 7.6, 0.3, 0, 0, 0.5);
+      bt.add(bz, cyl(0.3, 0.26, 2.0, 8), B, 1.25, 8.4, 0.2, 0, 0, -0.9);
+      bt.add(bz, cyl(0.08, 0.08, 2.8, 6), B, 2.0, 9.6, 0.2, 0, 0, -0.35);
+      bt.add(M.iron, box(1.2, 0.7, 0.7), B, 2.5, 10.9, 0.2, 0, 0, -0.35);
+      bt.add(M.iron, box(1.6, 0.6, 0.7), B, -1.9, 6.75, 0.6);
+      bt.add(M.iron, box(0.9, 0.35, 0.5), B, -1.9, 7.2, 0.6);
+      for (const sx of [-1, 1]) { bt.add(M.stone, cyl(0.3, 0.45, 1.6, 8), B, sx * 2.9, 0.8, 2.6); bt.add(M.iron, cyl(0.6, 0.35, 0.45, 8), B, sx * 2.9, 1.8, 2.6); fxAdd(B, sx * 2.9, 1.9, 2.6, "flame"); }
+    } else if (o.t === "forgestack") {
+      col(o.x, o.y, 40);
+      bt.add(M.stone, box(6.0, 1.0, 6.0), B, 0, 0.3, 0);
+      bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * 2.6, Math.SQRT1_2 * 4.8, 6, 4).rotateY(Math.PI / 4), B, 0, 3.6, 0);
+      bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * 2.0, Math.SQRT1_2 * 2.6, 13, 4).rotateY(Math.PI / 4), B, 0, 13.1, 0);
+      for (const y of [8.5, 12.5, 16.5, 19.4]) bt.add(M.iron, new THREE.CylinderGeometry(Math.SQRT1_2 * (2.62 - (y - 6.6) * 0.046), Math.SQRT1_2 * (2.66 - (y - 6.6) * 0.046), 0.25, 4).rotateY(Math.PI / 4), B, 0, y, 0);
+      bt.add(M.snow, new THREE.CylinderGeometry(Math.SQRT1_2 * 2.65, Math.SQRT1_2 * 4.7, 0.2, 4).rotateY(Math.PI / 4), B, 0, 6.65, 0);
+      { const em = new THREE.Mesh(new THREE.CylinderGeometry(0.85, 0.85, 0.1, 12), new THREE.MeshBasicMaterial({ color: 0xff7030 })); em.position.set(0, 19.65, 0); em.applyMatrix4(B); root.add(em); }
+      glowAt(B, 0, 20.0, 0, 5); fxAdd(B, 0, 20.0, 0, "smoke");
+      { const mouth = new THREE.Mesh(new THREE.CircleGeometry(1.1, 14, 0, Math.PI), new THREE.MeshBasicMaterial({ color: 0xff7a30 })); mouth.position.set(0, 1.0, 2.45); mouth.applyMatrix4(B); root.add(mouth); }
+      bt.add(M.stone, new THREE.TorusGeometry(1.25, 0.25, 6, 14, Math.PI), B, 0, 1.0, 2.5);
+      bt.add(M.darkwood, box(1.2, 0.7, 1.8), B, 2.2, 0.9, 2.9, 0.3);
+      bt.add(M.ore, new THREE.ConeGeometry(1.2, 1.1, 7), B, -2.6, 0.55, 3.0);
+      bt.add(M.iron, box(0.9, 0.5, 0.45), B, 1.0, 1.0, 4.2); bt.add(M.stone, box(0.6, 0.75, 0.6), B, 1.0, 0.38, 4.2);
+      if (W3.quality !== "low") { const L = new THREE.PointLight(0xff8a3a, 14, 16, 1.6); L.position.set(0, 1.4, 3.6).applyMatrix4(B); L.userData.phase = o.x; root.add(L); W3.torchLights.push(L); }
+    } else if (o.t === "hearthshrine") {
+      col(o.x, o.y, 40);
+      bt.add(M.stone, cyl(4.2, 4.5, 0.4, 16), B, 0, 0.1, 0);
+      for (let k = 0; k < 7; k++) { const a = k / 7 * Math.PI * 2 + 0.3, h = 2.6 + (k % 3) * 0.6; bt.add(M.rock, lumpBlob(0.6, 0.8, h / 1.2, 0.55, 0, 0, 0, k * 3 + 1, 0.18), B, Math.cos(a) * 3.4, h / 2 + 0.1, Math.sin(a) * 3.4, -a); bt.add(M.snow, lumpBlob(0.35, 1.1, 0.35, 0.8, 0, 0, 0, k, 0.2), B, Math.cos(a) * 3.4, h + 0.15, Math.sin(a) * 3.4, -a); }
+      for (const sx of [-1, 1]) bt.add(M.stone, box(0.8, 4.2, 0.8), B, sx * 1.4, 2.2, -2.2);
+      bt.add(M.stone, box(3.8, 0.8, 1.0), B, 0, 4.6, -2.2);
+      bt.add(M.snow, box(3.8, 0.12, 1.0), B, 0, 5.05, -2.2);
+      bt.add(M.gold, new THREE.OctahedronGeometry(0.4, 0), B, 0, 5.6, -2.2);
+      bt.add(M.stone, cyl(0.9, 1.1, 0.9, 10), B, 0, 0.55, 0);
+      bt.add(M.iron, cyl(1.0, 0.7, 0.4, 10), B, 0, 1.15, 0);
+      fxAdd(B, 0, 1.3, 0, "flame");
+    } else if (o.t === "cairnbeacon") {
+      col(o.x, o.y, 26);
+      for (let k = 0; k < 9; k++) { const r = 1.6 - k * 0.12; bt.add(M.rock, lumpBlob(r, 1, 0.55, 1, 0, 0, 0, k * 7 + 2, 0.22), B, (k % 2 - 0.5) * 0.15, 0.4 + k * 0.75, ((k + 1) % 2 - 0.5) * 0.15, k); }
+      bt.add(M.snow, lumpBlob(0.8, 1, 0.3, 1, 0, 0, 0, 5, 0.2), B, 0, 7.0, 0);
+      bt.add(M.iron, cyl(0.75, 0.45, 0.6, 8), B, 0, 7.3, 0);
+      fxAdd(B, 0, 7.5, 0, "flame");
     } else if (o.t === "belltower") {
       col(o.x, o.y, 44);
       bt.add(M.stone, box(4.2, 0.8, 4.2), B, 0, 0.4, 0);
@@ -2823,6 +2893,7 @@ function buildCityBuildings(field, root) {
             continue;
           }
           bt.add(stone, uvBox(horiz ? Lm : 1.8, top - y0, horiz ? 1.8 : Lm, 2.4), new THREE.Matrix4(), px * U, (y0 + top) / 2, py * U);
+          if (MT) { bt.add(M.snow, box(horiz ? Lm : 1.9, 0.16, horiz ? 1.9 : Lm), B0, px * U, top + 0.07, py * U); for (let q = 0; q < Math.floor(Lm / 2.5); q++) bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * 0.5, Math.SQRT1_2 * 0.9, 1, 4).rotateY(Math.PI / 4), B0, px * U + (horiz ? (q + 0.5) * 2.5 - Lm / 2 : (i === 1 ? -1 : 1) * 1.15), y0 + (top - y0) * 0.4, py * U + (horiz ? (i === 2 ? -1 : 1) * 1.15 : (q + 0.5) * 2.5 - Lm / 2), 0, 0, 0, 1, (top - y0) * 0.8, 1); }
           const m = Math.max(1, Math.floor(Lm / 1.5));
           for (let q = 0; q < m; q++) { const t = (q + 0.5) / m - 0.5; bt.add(stone, box(0.62, 0.72, 0.4), new THREE.Matrix4(), px * U + (horiz ? t * Lm : (i === 1 ? -1 : 1) * 0.7), top + 0.36, py * U + (horiz ? (i === 2 ? -1 : 1) * 0.7 : t * Lm)); }
         }
@@ -2850,7 +2921,7 @@ function buildCityBuildings(field, root) {
         bt.add(M.roof[0], new THREE.ConeGeometry(pw * 1.9, 2.4, 4).rotateY(Math.PI / 4), B0, x * U, gy + h + 3.2, y * U);
         bt.add(M.bark, new THREE.ConeGeometry(0.1, 0.8, 5), B0, x * U, gy + h + 4.7, y * U);
         return;
-      } bt.add(stone, uvBox(3.2, h + 1, 3.2, 2.4), new THREE.Matrix4(), x * U, gy - 0.5 + h / 2, y * U); bt.add(M.trim, box(3.7, 0.35, 3.7), new THREE.Matrix4(), x * U, gy + h, y * U); bt.add(M.roof[0], new THREE.ConeGeometry(3.0, 3.2, 4).rotateY(Math.PI / 4), new THREE.Matrix4(), x * U, gy + h + 1.75, y * U); };
+      } bt.add(stone, uvBox(3.2, h + 1, 3.2, 2.4), new THREE.Matrix4(), x * U, gy - 0.5 + h / 2, y * U); bt.add(M.trim, box(3.7, 0.35, 3.7), new THREE.Matrix4(), x * U, gy + h, y * U); bt.add(M.roof[0], new THREE.ConeGeometry(3.0, 3.2, 4).rotateY(Math.PI / 4), new THREE.Matrix4(), x * U, gy + h + 1.75, y * U); if (MT) bt.add(M.snow, new THREE.ConeGeometry(1.9, 2.05, 4).rotateY(Math.PI / 4), B0, x * U, gy + h + 2.38, y * U); };
     [[L0, L0, 0, 3], [z.w - L0, L0, 0, 1], [L0, z.h - L0, 2, 3], [z.w - L0, z.h - L0, 1, 2]].forEach(([x, y, a1, a2]) => { if (sideOn(a1) || sideOn(a2)) tower(x, y, 9); });
     for (const g of gaps) {
       const vert = g.side === "e" || g.side === "w", ex = g.side === "e" ? z.w - L0 : g.side === "w" ? L0 : 0, ey = g.side === "s" ? z.h - L0 : g.side === "n" ? L0 : 0;
@@ -3113,7 +3184,7 @@ function buildSkyline(field, root) {
   const z = field.zone, G = z.ghost;
   if (!G || (!G.houses.length && !(G.marks || []).length)) return;
   const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default;
-  const wallM = ST.plaster.map(c => std({ color: c, roughness: 0.95 })), roofM = ST.roof.map(c => std({ color: c, roughness: 0.85 })), stoneM = std({ color: 0xbcb4a6, roughness: 0.95 }), winM = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
+  const wallM = (ST.skyWall || ST.plaster).map(c => std({ color: c, roughness: 0.95 })), roofM = (ST.skyRoof || ST.roof).map(c => std({ color: c, roughness: 0.85 })), stoneM = std({ color: 0xbcb4a6, roughness: 0.95 }), winM = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
   W3.windowMats.push(winM);
   const thM = ST.thatch ? std({ color: 0xb89a66, roughness: 1 }) : null;
   const bt = cityBatch(), box = (a, b, c) => new THREE.BoxGeometry(a, b, c);
@@ -3141,6 +3212,9 @@ function buildSkyline(field, root) {
     else if (m.t === "harbortower") { bt.add(wallM[0], box(3.8, sh(17.2), 3.8), B, 0, sh(17.2) / 2, 0); bt.add(std({ color: 0x2f6aa8 }), new THREE.SphereGeometry(1.55, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), B, 0, sh(18.1), 0); }
     else if (m.t === "seachapel") { bt.add(wallM[0], box(6.2, sh(5.4), 8.2), B, 0, sh(5.4) / 2, 0); bt.add(std({ color: 0x2f6aa8 }), new THREE.SphereGeometry(2.1, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), B, 0, sh(7.1), 0); }
     else if (m.t === "lightbeacon") { bt.add(redM, new THREE.CylinderGeometry(0.9, 1.4, sh(8.6), 10), B, 0, sh(8.6) / 2, 0); bt.add(fireM, new THREE.ConeGeometry(0.7, 1.8, 7), B, 0, sh(9.6), 0); }
+    else if (m.t === "smithstatue") { bt.add(stoneM, box(3.6, sh(3.9), 3.6), B, 0, sh(3.9) / 2, 0); bt.add(woodM, new THREE.CylinderGeometry(1.0, 1.1, 6.0, 8), B, 0, sh(7.0), 0); }
+    else if (m.t === "forgestack") { bt.add(stoneM, new THREE.CylinderGeometry(1.5, 3.0, sh(19.6), 4), B, 0, sh(19.6) / 2, 0, Math.PI / 4); }
+    else if (m.t === "cairnbeacon") { bt.add(stoneM, new THREE.CylinderGeometry(0.6, 1.6, sh(7.2), 7), B, 0, sh(7.2) / 2, 0); bt.add(fireM, new THREE.ConeGeometry(0.7, 1.8, 7), B, 0, sh(8.4), 0); }
     else if (m.t === "chimney") { bt.add(stoneM, new THREE.CylinderGeometry(0.95, 1.35, sh(17.6), 10), B, 0, sh(17.6) / 2, 0); }
     else if (m.t === "crane") { bt.add(woodM, box(2.2, sh(11.4), 2.2), B, 0, sh(11.4) / 2, 0); bt.add(woodM, box(10.5, 0.42, 0.42), B, 3.4, sh(12.0), 0, 0, 0, 0.16); }
     else if (m.t === "beacon") { bt.add(stoneM, box(1.7, sh(7.9), 1.7), B, 0, sh(7.9) / 2, 0); bt.add(fireM, new THREE.ConeGeometry(0.7, 1.8, 7), B, 0, sh(9.4), 0); }

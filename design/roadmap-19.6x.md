@@ -36,7 +36,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.85 | Monsters hunt peaceful monsters and chat with their own kind; townsfolk chat | done |
 | 19.86 | Ashenreach frontier look: thatch, shakes, heavy timber, log palisade, timber landmarks | done |
 | 19.87 | Saltreach seaside look, open sea, real boats | done |
-| 19.88 | Ironvale mountain stone look | planned |
+| 19.88 | Ironvale mountain stone look: ashlar, snowy slate, icicles, forge stacks, smith statue | done |
 | 19.89 | Per-city trees, lamps, banners, townsfolk clothes | planned |
 | 19.80 | Finish zone prebuild: terrain painted during the exit walk | done (field + terrain bake prebuilt and resumed; props still built in the fade) |
 

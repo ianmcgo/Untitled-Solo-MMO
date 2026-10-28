@@ -3702,14 +3702,14 @@ const DEPTH_ZONES = {
   harbor_ngate: { role: "gate", pieces: ["lightbeacon"] },
   harbor_egate: { role: "gate", pieces: ["lightbeacon"] },
   ironvale_keep: { role: "civic", terrace: 1.2 },
-  ironvale: { role: "market", pieces: ["belltower"], scene: true },
-  ironvale_south: { role: "res", pieces: ["spire"] },
-  ironvale_forge: { role: "work", pieces: ["chimney", "chimney"] },
-  ironvale_gate: { role: "gate", pieces: ["beacon"] },
-  ironvale_sgate: { role: "gate", pieces: ["beacon"] }
+  ironvale: { role: "market", pieces: ["smithstatue"], scene: true },
+  ironvale_south: { role: "res", pieces: ["hearthshrine"] },
+  ironvale_forge: { role: "work", pieces: ["forgestack", "forgestack"] },
+  ironvale_gate: { role: "gate", pieces: ["cairnbeacon"] },
+  ironvale_sgate: { role: "gate", pieces: ["cairnbeacon"] }
 };
-const PIECE_R = { harbortower: 66, seachapel: 76, lightbeacon: 36, watchtower: 64, chapel: 70, kiln: 46, signalfire: 36, belltower: 72, spire: 66, chimney: 40, crane: 70, beacon: 34, loading: 62, banner: 9, barrelstack: 16, ropecoil: 14, goodsrack: 24, armorstand: 12, planter: 16, woodpile: 16, netrack: 24 };
-const PIECE_TALL = { harbortower: 1, seachapel: 1, lightbeacon: 1, watchtower: 1, chapel: 1, signalfire: 1, belltower: 1, spire: 1, chimney: 1, crane: 1, beacon: 1 };
+const PIECE_R = { smithstatue: 72, forgestack: 66, hearthshrine: 70, cairnbeacon: 36, harbortower: 66, seachapel: 76, lightbeacon: 36, watchtower: 64, chapel: 70, kiln: 46, signalfire: 36, belltower: 72, spire: 66, chimney: 40, crane: 70, beacon: 34, loading: 62, banner: 9, barrelstack: 16, ropecoil: 14, goodsrack: 24, armorstand: 12, planter: 16, woodpile: 16, netrack: 24 };
+const PIECE_TALL = { smithstatue: 1, forgestack: 1, cairnbeacon: 1, harbortower: 1, seachapel: 1, lightbeacon: 1, watchtower: 1, chapel: 1, signalfire: 1, belltower: 1, spire: 1, chimney: 1, crane: 1, beacon: 1 };
 const STREET_KIT = { market: ["goodsrack", "barrelstack", "banner", "goodsrack"], civic: ["banner", "armorstand", "banner", "planter"], res: ["planter", "banner", "planter"], work: ["barrelstack", "woodpile", "barrelstack", "banner"], docks: ["ropecoil", "barrelstack", "netrack", "ropecoil"], gate: ["banner", "armorstand", "barrelstack"] };
 function depthClear(z, x, y, skip) {
   let c = Math.min(x - 120, y - 120, z.w - 120 - x, z.h - 120 - y);
