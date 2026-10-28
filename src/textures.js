@@ -492,17 +492,17 @@ function texAshlar() {
     (x, y) => { const a = ashlarInfo(x, y), mortar = a.d < 2.5 ? -0.75 : 0, bev = a.d < 7 ? -(7 - a.d) * 0.035 : 0; return mortar + bev + NOISE.fbm(x / 256 * 12, y / 256 * 12, 3, 12, 131) * 0.32 + NOISE.ridge(x / 256 * 30, y / 256 * 30, 2, 30, 133) * 0.12 + (NOISE.hash2(a.id, 9) - 0.5) * 0.2; },
     (x, y, hv, o) => {
       const a = ashlarInfo(x, y), t = 0.82 + NOISE.hash2(a.id, 11) * 0.34, warm = NOISE.hash2(a.id, 13), soot = sstep(0.6, 0.85, NOISE.fbm(x / 256 * 4, y / 256 * 4, 3, 4, 135)) * 0.3;
-      if (a.d < 2.5) { setRGB(o, 74, 70, 64); return; }
-      const v = (96 + hv * 70) * t * (1 - soot);
+      if (a.d < 2.5) { setRGB(o, 92, 88, 80); return; }
+      const v = (128 + hv * 66) * t * (1 - soot);
       setRGB(o, v * (1.0 + warm * 0.1), v * (0.97 + warm * 0.03), v * (0.94 - warm * 0.06));
     }, 7);
 }
 function texWhitewash() {
   return texPair("whitewash", 256, 256,
-    (x, y) => NOISE.fbm(x / 256 * 8, y / 256 * 8, 4, 8, 141) * 0.5 + NOISE.value(x / 256 * 60, y / 256 * 60, 60, 142) * 0.18 - sstep(0.72, 0.8, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)) * 0.4,
+    (x, y) => NOISE.fbm(x / 256 * 8, y / 256 * 8, 4, 8, 141) * 0.5 + NOISE.value(x / 256 * 60, y / 256 * 60, 60, 142) * 0.18 - sstep(0.8, 0.86, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)) * 0.3,
     (x, y, hv, o) => {
-      const peel = sstep(0.72, 0.8, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)), drip = sstep(0.6, 0.9, NOISE.fbm(x / 256 * 14, y / 256 * 2, 2, 14, 145)) * 0.12, v = 228 + hv * 22;
-      if (peel > 0.5) { const s = 150 + hv * 40; setRGB(o, s * 1.05, s * 0.95, s * 0.82); return; }
+      const peel = sstep(0.8, 0.86, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)), drip = sstep(0.6, 0.9, NOISE.fbm(x / 256 * 14, y / 256 * 2, 2, 14, 145)) * 0.12, v = 228 + hv * 22;
+      if (peel > 0.5) { const s = 196 + hv * 30; setRGB(o, s * 1.04, s * 0.97, s * 0.88); return; }
       setRGB(o, v * (1 - drip * 0.5), v * (0.99 - drip * 0.6), v * (0.97 - drip * 0.8));
     }, 3);
 }

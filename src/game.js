@@ -3933,6 +3933,7 @@ function navGrid(z) {
   for (const r of rects) mark(r.x - 8, r.y - 8, r.x + r.w + 8, r.y + r.h + 8);
   for (const c of cs) { const R = c.r + 5; for (let gy = Math.max(0, Math.floor((c.y - R) / C)); gy <= Math.min(H - 1, Math.floor((c.y + R) / C)); gy++) for (let gx = Math.max(0, Math.floor((c.x - R) / C)); gx <= Math.min(W - 1, Math.floor((c.x + R) / C)); gx++) { const cx = (gx + 0.5) * C, cy = (gy + 0.5) * C; if (Math.hypot(cx - c.x, cy - c.y) < R + C * 0.35) b[gy * W + gx] = 1; } }
   for (const w of z.water || []) { const R = w.r + 10; for (let gy = Math.max(0, Math.floor((w.y - R) / C)); gy <= Math.min(H - 1, Math.floor((w.y + R) / C)); gy++) for (let gx = Math.max(0, Math.floor((w.x - R) / C)); gx <= Math.min(W - 1, Math.floor((w.x + R) / C)); gx++) if (Math.hypot((gx + 0.5) * C - w.x, (gy + 0.5) * C - w.y) < R) b[gy * W + gx] = 1; }
+  if (seaY(z) != null) for (let gx = 0; gx < W; gx++) { const sy = seaShore(z, (gx + 0.5) * C) - 30; for (let gy = Math.max(0, Math.floor(sy / C)); gy < H; gy++) b[gy * W + gx] = 1; }
   for (let gx = 0; gx < W; gx++) { b[gx] = 1; b[(H - 1) * W + gx] = 1; }
   for (let gy = 0; gy < H; gy++) { b[gy * W] = 1; b[gy * W + W - 1] = 1; }
   return z._nav = { C, W, H, b, nc, nr };
@@ -4031,10 +4032,13 @@ function pondLobe(w, a) {
   if (w.irr) return 0.86 + 0.6 * (0.17 * Math.sin(2 * a + s) + 0.11 * Math.sin(3 * a + s * 2.3) + 0.07 * Math.sin(5 * a + s * 3.1) + 0.04 * Math.sin(7 * a + s * 4.7));
   return 1 + 0.085 * Math.sin(2 * a + s) + 0.055 * Math.sin(3 * a + s * 2.3) + 0.03 * Math.sin(5 * a + s * 3.1);
 }
+function seaY(z) { if (!z) return null; if (z._seaY !== undefined) return z._seaY; const W = z.water || []; return z._seaY = z.cityStyle === "harbor" && W.length >= 3 && W.every(w => w.y + w.r > z.h - 10) ? Math.min(...W.map(w => w.y - w.r * 0.6)) : null; }
+function seaShore(z, x) { const s = seaY(z); return s == null ? null : s + (NOISE.fbm(x * 0.0035 + 3.1, 0.7, 3, 0, 761) - 0.5) * 150; }
 function pondDist(w, x, y) { const dx = x - w.x, dy = y - w.y; return Math.hypot(dx, dy) - w.r * (pondLobe(w, Math.atan2(dy, dx)) - 1); }
 
 function keepOutOfWater(e) {
   if (!FEATURES.water || !S.zone.water) return;
+  { const sy = seaShore(S.zone, e.x); if (sy != null && e.y > sy - 26 - e.radius * 0.6) e.y = sy - 26 - e.radius * 0.6; }
   for (const w of S.zone.water) {
     const d = pondDist(w, e.x, e.y);
     const min = w.r + e.radius * 0.6;
