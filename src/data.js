@@ -1480,7 +1480,7 @@ function buildCity(C) {
   return z;
 }
 function distToSegPt(x, y, a, b) { const dx = b[0] - a[0], dy = b[1] - a[1], L = dx * dx + dy * dy || 1, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (y - a[1]) * dy) / L)); return Math.hypot(x - a[0] - dx * t, y - a[1] - dy * t); }
-ZONES.outpost = buildCity({ id: "outpost", seed: "ashenreach-city-1", name: "Ashenreach Outpost", city: "Ashenreach", plan: OUTPOST_PLAN, fill: OUT_FILL, gates: OUTPOST_GATES, signs: OUT_SIGNS, w: OUT_DW * 2 + 1000, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030] });
+ZONES.outpost = buildCity({ id: "outpost", seed: "ashenreach-city-1", name: "Ashenreach Outpost", city: "Ashenreach", cityStyle: "frontier", plan: OUTPOST_PLAN, fill: OUT_FILL, gates: OUTPOST_GATES, signs: OUT_SIGNS, w: OUT_DW * 2 + 1000, h: OUT_DH * 3, walls: [[2400, 1800, 2400, 3600], [4800, 1800, 4800, 3600], [2400, 1800, 4800, 1800], [2400, 3600, 4800, 3600]], start: ["market", 1200, 1030] });
 ZONES.den.exits.push({ x: 1150, y: 1576, w: 100, h: 24, to: "crypt", tx: 120, ty: 700, label: "Sunken Crypt" });
 const HBR_SIGNS = ["Net Maker", "Sailmaker", "Chandler", "Smokehouse", "Ropewalk", "Salter", "Cooper", "Pilot's Office", "Oilskins", "Ship's Biscuit", "Brine & Barrel", "Lamp Oil", "Compass Maker", "Tackle Shop", "Shell Curios", "Tar & Pitch", "Rigger", "Fishwife", "Oyster Bar", "Chart Seller", "Anchor Smith", "Sea Chest", "Tide Tables", "Salt Cellar"];
 const HBR_FILL = {
@@ -3689,12 +3689,12 @@ for (const zid in ZONES) for (const n of ZONES[zid].npcs || []) {
   if (e) { NPCS[n.id].signTo = e.to; NPCS[n.id].name = "To " + ZONES[e.to].name; }
 }
 const DEPTH_ZONES = {
-  outpost: { role: "market", pieces: ["belltower"], scene: true },
+  outpost: { role: "market", pieces: ["watchtower"], scene: true },
   outpost_gov: { role: "civic", terrace: 1.0 },
-  outpost_res: { role: "res", pieces: ["spire"] },
-  outpost_ind: { role: "work", pieces: ["chimney", "chimney"] },
-  outpost_gate: { role: "gate", pieces: ["beacon"] },
-  outpost_hgate: { role: "gate", pieces: ["beacon"] },
+  outpost_res: { role: "res", pieces: ["chapel"] },
+  outpost_ind: { role: "work", pieces: ["kiln", "kiln"] },
+  outpost_gate: { role: "gate", pieces: ["signalfire"] },
+  outpost_hgate: { role: "gate", pieces: ["signalfire"] },
   harbor: { role: "market", pieces: ["belltower"], terrace: 0.8 },
   harbor_fish: { role: "docks", pieces: ["spire"] },
   harbor_yard: { role: "work", pieces: ["crane"] },
@@ -3708,8 +3708,8 @@ const DEPTH_ZONES = {
   ironvale_gate: { role: "gate", pieces: ["beacon"] },
   ironvale_sgate: { role: "gate", pieces: ["beacon"] }
 };
-const PIECE_R = { belltower: 72, spire: 66, chimney: 40, crane: 70, beacon: 34, loading: 62, banner: 9, barrelstack: 16, ropecoil: 14, goodsrack: 24, armorstand: 12, planter: 16, woodpile: 16, netrack: 24 };
-const PIECE_TALL = { belltower: 1, spire: 1, chimney: 1, crane: 1, beacon: 1 };
+const PIECE_R = { watchtower: 64, chapel: 70, kiln: 46, signalfire: 36, belltower: 72, spire: 66, chimney: 40, crane: 70, beacon: 34, loading: 62, banner: 9, barrelstack: 16, ropecoil: 14, goodsrack: 24, armorstand: 12, planter: 16, woodpile: 16, netrack: 24 };
+const PIECE_TALL = { watchtower: 1, chapel: 1, signalfire: 1, belltower: 1, spire: 1, chimney: 1, crane: 1, beacon: 1 };
 const STREET_KIT = { market: ["goodsrack", "barrelstack", "banner", "goodsrack"], civic: ["banner", "armorstand", "banner", "planter"], res: ["planter", "banner", "planter"], work: ["barrelstack", "woodpile", "barrelstack", "banner"], docks: ["ropecoil", "barrelstack", "netrack", "ropecoil"], gate: ["banner", "armorstand", "barrelstack"] };
 function depthClear(z, x, y, skip) {
   let c = Math.min(x - 120, y - 120, z.w - 120 - x, z.h - 120 - y);

@@ -438,3 +438,76 @@ function cobbleHeight(x, y) {
 }
 
 function bakeTerrainAlbedo(field, size) { return runSteps(bakeTerrainAlbedoSteps(field, size)); }
+
+function thatchInfo(y, x) {
+  const row = Math.floor(y / 32), v = (y % 32) / 32, jit = NOISE.hash2(Math.floor(x / 8) + row * 37, row) * 0.18;
+  const vv = v - jit * (1 - v), str = NOISE.value(x / 256 * 128, y / 256 * 5 + row * 0.7, 128, 101 + row % 3), str2 = NOISE.value(x / 256 * 64 + 0.3, y / 256 * 9, 64, 103);
+  return { row, v: vv, str, str2 };
+}
+function texThatch() {
+  return texPair("thatch", 256, 256,
+    (x, y) => { const t = thatchInfo(x, y), bulge = Math.sin(clamp(t.v, 0, 1) * Math.PI * 0.9) * 0.35, lip = t.v > 0.86 ? -0.45 * (t.v - 0.86) / 0.14 : 0; return bulge + lip + t.str * 0.35 + t.str2 * 0.15 + NOISE.fbm(x / 256 * 6, y / 256 * 6, 2, 6, 105) * 0.15; },
+    (x, y, hv, o) => {
+      const t = thatchInfo(x, y), age = NOISE.fbm(x / 256 * 3, y / 256 * 3, 3, 3, 107), moss = sstep(0.62, 0.75, NOISE.fbm(x / 256 * 7, y / 256 * 7, 3, 7, 109)), dark = t.v > 0.82 ? 0.62 : 1, fleck = t.str > 0.78 ? 1.18 : t.str < 0.22 ? 0.8 : 1;
+      const v = (84 + hv * 64) * dark * fleck * (0.86 + age * 0.26), grey = sstep(0.4, 0.8, age) * 0.45;
+      const r = v * (1.16 - grey * 0.22), g = v * (0.98 - grey * 0.1), b = v * (0.64 + grey * 0.2);
+      setRGB(o, r * (1 - moss * 0.18), g * (1 - moss * 0.04), b * (1 - moss * 0.12));
+    }, 7);
+}
+function texTiles() {
+  return texPair("tiles", 256, 256,
+    (x, y) => { const row = Math.floor(y / 32), off = row % 2 ? 0 : 0, u = ((x + off) % 32) / 32, v = (y % 32) / 32, col = Math.floor((x + off) / 32); const barrel = Math.cos((u - 0.5) * Math.PI) * 0.7, step = v > 0.9 ? -0.5 : 0, chip = NOISE.hash2(col, row) > 0.92 && v > 0.75 ? -0.3 : 0; return barrel * (0.75 + v * 0.35) + step + chip + NOISE.fbm(x / 256 * 20, y / 256 * 20, 2, 20, 111) * 0.12; },
+    (x, y, hv, o) => {
+      const row = Math.floor(y / 32), col = Math.floor(x / 32), t = 0.8 + NOISE.hash2(col * 5, row * 3) * 0.4, burn = NOISE.hash2(col * 13, row * 7), lich = sstep(0.68, 0.8, NOISE.fbm(x / 256 * 9, y / 256 * 9, 3, 9, 113)), salt = sstep(0.6, 0.85, NOISE.fbm(x / 256 * 4, y / 256 * 4, 2, 4, 115)) * 0.25;
+      const v = (hv < -0.2 ? 52 : 92 + hv * 62) * t;
+      let r = v * (1.42 - burn * 0.2), g = v * (0.68 + burn * 0.08), b = v * (0.44 + burn * 0.06);
+      r = mix(r, 210, salt); g = mix(g, 200, salt); b = mix(b, 186, salt);
+      setRGB(o, r * (1 - lich * 0.2), g * (1 + lich * 0.12), b * (1 - lich * 0.1));
+    }, 6);
+}
+function slateInfo(x, y) {
+  const row = Math.floor(y / 21.3333), rv = (y - row * 21.3333) / 21.3333, off = NOISE.hash2(row, 3) * 32, xx = x + off, col = Math.floor(xx / 32), u = (xx % 32) / 32;
+  return { row, rv, col, u };
+}
+function texSlate() {
+  return texPair("slate", 256, 256,
+    (x, y) => { const s = slateInfo(x, y), gap = s.u < 0.05 ? -0.45 : 0, edge = s.rv > 0.9 ? -0.55 : 0, chip = NOISE.hash2(s.col, s.row * 3) > 0.85 && s.rv > 0.7 && s.u > 0.7 ? -0.4 : 0; return 0.25 + s.rv * 0.45 + gap + edge + chip + NOISE.ridge(x / 256 * 14, y / 256 * 28, 2, 14, 121) * 0.12; },
+    (x, y, hv, o) => {
+      const s = slateInfo(x, y), t = 0.78 + NOISE.hash2(s.col * 7, s.row * 5) * 0.42, warm = NOISE.hash2(s.col * 3, s.row * 11), sheen = NOISE.value(x / 256 * 40, y / 256 * 12, 40, 123) > 0.8 ? 1.12 : 1;
+      const v = (hv < -0.2 ? 30 : 62 + hv * 52) * t * sheen;
+      setRGB(o, v * (0.92 + warm * 0.12), v * (0.96 + warm * 0.02), v * (1.1 - warm * 0.1));
+    }, 7);
+}
+const ASHLAR_ROWS = [0, 36, 64, 104, 136, 172, 200, 232, 256];
+function ashlarInfo(x, y) {
+  let r = 0; while (ASHLAR_ROWS[r + 1] <= y) r++;
+  const y0 = ASHLAR_ROWS[r], h = ASHLAR_ROWS[r + 1] - y0, off = NOISE.hash2(r, 5) * 64, xx = (x + off) % 256, cuts = [0];
+  for (let k = 0; cuts[cuts.length - 1] < 256; k++) cuts.push(Math.min(256, cuts[cuts.length - 1] + 34 + Math.floor(NOISE.hash2(r * 9 + k, 7) * 40)));
+  let c = 0; while (cuts[c + 1] <= xx) c++;
+  const bx = xx - cuts[c], bw = cuts[c + 1] - cuts[c], by = y - y0;
+  return { id: r * 31 + c, bx, bw, by, h, d: Math.min(bx, bw - bx, by, h - by) };
+}
+function texAshlar() {
+  return texPair("ashlar", 256, 256,
+    (x, y) => { const a = ashlarInfo(x, y), mortar = a.d < 2.5 ? -0.75 : 0, bev = a.d < 7 ? -(7 - a.d) * 0.035 : 0; return mortar + bev + NOISE.fbm(x / 256 * 12, y / 256 * 12, 3, 12, 131) * 0.32 + NOISE.ridge(x / 256 * 30, y / 256 * 30, 2, 30, 133) * 0.12 + (NOISE.hash2(a.id, 9) - 0.5) * 0.2; },
+    (x, y, hv, o) => {
+      const a = ashlarInfo(x, y), t = 0.82 + NOISE.hash2(a.id, 11) * 0.34, warm = NOISE.hash2(a.id, 13), soot = sstep(0.6, 0.85, NOISE.fbm(x / 256 * 4, y / 256 * 4, 3, 4, 135)) * 0.3;
+      if (a.d < 2.5) { setRGB(o, 74, 70, 64); return; }
+      const v = (96 + hv * 70) * t * (1 - soot);
+      setRGB(o, v * (1.0 + warm * 0.1), v * (0.97 + warm * 0.03), v * (0.94 - warm * 0.06));
+    }, 7);
+}
+function texWhitewash() {
+  return texPair("whitewash", 256, 256,
+    (x, y) => NOISE.fbm(x / 256 * 8, y / 256 * 8, 4, 8, 141) * 0.5 + NOISE.value(x / 256 * 60, y / 256 * 60, 60, 142) * 0.18 - sstep(0.72, 0.8, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)) * 0.4,
+    (x, y, hv, o) => {
+      const peel = sstep(0.72, 0.8, NOISE.fbm(x / 256 * 5, y / 256 * 5, 3, 5, 143)), drip = sstep(0.6, 0.9, NOISE.fbm(x / 256 * 14, y / 256 * 2, 2, 14, 145)) * 0.12, v = 228 + hv * 22;
+      if (peel > 0.5) { const s = 150 + hv * 40; setRGB(o, s * 1.05, s * 0.95, s * 0.82); return; }
+      setRGB(o, v * (1 - drip * 0.5), v * (0.99 - drip * 0.6), v * (0.97 - drip * 0.8));
+    }, 3);
+}
+function texShakes() {
+  return texPair("shakes", 256, 256,
+    (x, y) => { const row = Math.floor(x / 21.3333), u = (x - row * 21.3333) / 21.3333, off = NOISE.hash2(row, 17) * 24, yy = y + off, col = Math.floor(yy / 24), v = (yy % 24) / 24, grain = NOISE.value(x / 256 * 6, yy / 256 * 90, 6, 151 + row % 4); return 0.25 + u * 0.5 - (v < 0.07 ? 0.45 : 0) + grain * 0.25 + NOISE.hash2(col, row) * 0.15 - (u > 0.92 ? 0.4 : 0); },
+    (x, y, hv, o) => { const row = Math.floor(x / 21.3333), off = NOISE.hash2(row, 17) * 24, col = Math.floor((y + off) / 24), t = 0.78 + NOISE.hash2(col * 3, row * 7) * 0.42, grey = sstep(0.4, 0.8, NOISE.fbm(x / 256 * 3, y / 256 * 3, 3, 3, 155)) * 0.5, moss = sstep(0.7, 0.8, NOISE.fbm(x / 256 * 8, y / 256 * 8, 3, 8, 157)); const v = (70 + hv * 64) * t; setRGB(o, v * (1.12 - grey * 0.18) * (1 - moss * 0.2), v * (0.92 - grey * 0.02), v * (0.7 + grey * 0.2) * (1 - moss * 0.15)); }, 6);
+}
