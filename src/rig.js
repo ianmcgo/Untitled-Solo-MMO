@@ -2963,6 +2963,22 @@ function walkerCoded(seed, district, night) {
   return L;
 }
 
+const CITY_DRESS = {
+  frontier: { tops: [0x7a5a3a, 0x5a6a3a, 0x8a6a4a, 0x6a4a2a, 0x9a8a5a, 0x4a5a3a, 0x8a4a2a], types: ["vest", "tunic", "coat", "apron", "tunic"], hats: [[0.25, { type: "widebrim", color: 0x5a4a32, color2: 0x8a6a40 }], [0.4, { type: "furhat", color: 0x6a4a30 }]], cape: [0.22, [0x5a4a32, 0x4a5a3a, 0x7a5a3a]], gloves: 0.3, legs: [0x4a3a2c, 0x3a3028, 0x5a4a38] },
+  harbor: { tops: [0xece8e0, 0x2e5c8a, 0x3a6a9a, 0xc0392b, 0xd8c8a8, 0x2a8a8a, 0xe0b040], types: ["shirt", "vest", "shirt", "tunic", "apron"], hats: [[0.38, { type: "bandana", color: 0x2e5c8a }], [0.5, { type: "bandana", color: 0xc0392b }], [0.62, { type: "widebrim", color: 0xd8c890, color2: 0x2e5c8a }]], cape: [0.04, [0x2e5c8a]], gloves: 0, legs: [0xd8d0c0, 0x3a4a6a, 0x5a5a62, 0x2e3a52] },
+  mountain: { tops: [0x5a4a42, 0x3a3a46, 0x6a3a2a, 0x4a5a5a, 0x7a6a5a, 0x3a4a3a, 0x6a5040], types: ["coat", "coat", "tunic", "vest", "apron"], hats: [[0.45, { type: "furhat", color: 0x7a6a5a }], [0.55, { type: "furhat", color: 0x4a3a2e }]], cape: [0.38, [0x8a847a, 0x5a4a3e, 0x6a6e74]], gloves: 0.65, legs: [0x3a3028, 0x2a2a30, 0x4a3a2c] }
+};
+function cityDress(L, style, seed, part) {
+  const D = CITY_DRESS[style];
+  if (!D || !L) return L;
+  const r = seeded(hashStr("cd" + style + seed)), pick = a => a[Math.floor(r() * a.length)], O = Object.assign({}, L);
+  const tt = pick(D.types), tc = pick(D.tops), lg = pick(D.legs);
+  if (!part) { O.top = Object.assign({}, L.top || {}, { type: tt, color: tc }); O.legs = lg; }
+  const h = r(); O.head = null; for (const [p, hat] of D.hats) if (h < p) { O.head = Object.assign({}, hat); break; }
+  O.cape = r() < D.cape[0] ? pick(D.cape[1]) : null;
+  if (r() < D.gloves) O.gloves = pick([0x5a3a22, 0x3a2a1a, 0x6a5a4a]);
+  return O;
+}
 function walkerLook(seed, district, night) {
   if (district) return walkerCoded(seed, district, night);
   const r = seeded(hashStr("walker" + seed));
@@ -4028,7 +4044,8 @@ function buildEntityRig(e) {
     if (nd && (nd.prop || nd.crystal || nd.hidden)) return null;
     const L0 = NPC_LOOK[e.id] || (nd && NPC_LOOK[nd.model]) || (nd ? walkerLook(hashStr(e.id) % 997) : null);
     if (!L0) return null;
-    const L = typeof NPC_IDENTITY !== "undefined" && NPC_IDENTITY[e.id] ? identityLook(L0, NPC_IDENTITY[e.id]) : L0;
+    const L1 = typeof NPC_IDENTITY !== "undefined" && NPC_IDENTITY[e.id] ? identityLook(L0, NPC_IDENTITY[e.id]) : L0;
+    const L = nd && nd.townsfolk && typeof S !== "undefined" && S.zone ? cityDress(L1, S.zone.cityStyle, e.id) : L1;
     sig = "n|" + e.id;
     const held = L.held !== undefined ? L.held : NPC_HELD[e.id] || (nd && NPC_HELD[nd.model]) || null;
     const LF = Object.assign({}, npcFace(L, hashStr(e.id)), { held });
@@ -4036,7 +4053,7 @@ function buildEntityRig(e) {
     weaponKind = L.weapon; alwaysDrawn = !!L.alwaysDrawn;
   } else if (e.ambient) {
     sig = "amb|" + e.type + "|" + (e.seed || 0) + "|" + (e.look || "") + (e.critter ? "|" + (e.col || 0) : "") + (e.district ? "|" + e.district + (e.time === "night" ? "n" : "") : "");
-    if (e.type === "walker") { const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : walkerLook(e.seed || 0, e.district, e.time === "night"), LW = npcFace(L, hashStr("w" + (e.seed || 0) + (e.look || ""))); make = () => humanEntry(LW); }
+    if (e.type === "walker") { const cs = !e.look && typeof S !== "undefined" && S.zone && S.zone.cityStyle; if (cs) sig += "|" + cs; const L = e.look && NPC_LOOK[e.look] ? NPC_LOOK[e.look] : cityDress(walkerLook(e.seed || 0, e.district, e.time === "night"), cs, e.seed || 0, !!e.district), LW = npcFace(L, hashStr("w" + (e.seed || 0) + (e.look || ""))); make = () => humanEntry(LW); }
     else if (e.type === "chicken") make = () => birdEntry(e.col || 0xf2ece0, 0xd03020);
     else if (e.type === "owl") make = () => birdEntry(e.col || 0x7a5a3a, null, 0x3a3020);
     else if (e.type === "nbat") make = () => batEntry(e.col || 0x3a2e2a, 0x1a1010);

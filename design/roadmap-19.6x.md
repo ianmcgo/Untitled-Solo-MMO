@@ -37,7 +37,7 @@ One version per phase. Each phase updates Help, the Updates list, the title stam
 | 19.86 | Ashenreach frontier look: thatch, shakes, heavy timber, log palisade, timber landmarks | done |
 | 19.87 | Saltreach seaside look, open sea, real boats | done |
 | 19.88 | Ironvale mountain stone look: ashlar, snowy slate, icicles, forge stacks, smith statue | done |
-| 19.89 | Per-city trees, lamps, banners, townsfolk clothes | planned |
+| 19.89 | Per-city trees, lamps, banners, townsfolk clothes | done |
 | 19.80 | Finish zone prebuild: terrain painted during the exit walk | done (field + terrain bake prebuilt and resumed; props still built in the fade) |
 
 Suggested model: Sonnet for scenery props (19.60, 19.62, 19.65, 19.74); Opus for rigs, animation, faces and systems (19.63, 19.64, 19.66, 19.67, 19.73, 19.76, 19.77).

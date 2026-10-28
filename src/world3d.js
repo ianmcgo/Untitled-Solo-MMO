@@ -1050,7 +1050,7 @@ function buildHedges(field, root) {
     if (!L.length) continue;
     const hm = std({ map: leafTex.map, normalMap: leafTex.normalMap, color: snowy ? 0xdfe6e8 : cols[v], vertexColors: true });
     addWind(hm, 0.01);
-    addSeason(hm, "shrub");
+    if (!snowy) addSeason(hm, "shrub");
     for (let sd = 0; sd < 2; sd++) { const Ls = L.filter((m, i) => i % 2 === sd); if (Ls.length) root.add(tintInst(instanced(hedgeGeo(v, sd), hm, Ls, true), rnd, 0.12)); }
     if (v === 2 && !snowy) {
       const bm = std({ color: 0xb02a3a, roughness: 0.5 }); addSeason(bm, "flower");
@@ -1757,17 +1757,46 @@ function buildTown(field, root) {
   W3.windowMats.push(lampGlass);
   (z.lamps || []).forEach(([lx, ly], i) => {
     if (z.colliders) z.colliders.push({ x: lx, y: ly, r: 4 });
-    const g = new THREE.Group();
-    const pole = new THREE.Mesh(lampPostGeo(), lampPostMat);
-    const frame = new THREE.Mesh(lanternGeo(), lampPostMat);
-    frame.position.set(0.38, 2.62, 0);
-    const head = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.26, 6), lampGlass);
-    head.position.set(0.38, 2.82, 0);
-    g.add(pole, frame, head);
+    const g = new THREE.Group(), kit = (CITY_STYLES[z.cityStyle] || {}).kit;
+    let pole, lpos = [0.38, 2.8, 0];
+    if (kit === "frontier") {
+      const bk = texBark(), wood = std({ map: bk.map, normalMap: bk.normalMap, color: 0xa08068, roughness: 0.95 }), V = (a, b, c) => new THREE.Vector3(a, b, c);
+      pole = new THREE.Mesh(logPiece(V(0, -0.2, 0), V(0.02, 3.1, 0.01), 0.11, 0.08, 7, i, 0.02), wood);
+      const arm = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.09, 0.09), wood); arm.position.set(0.3, 2.95, 0);
+      const brace = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.55, 0.06), wood); brace.position.set(0.16, 2.72, 0); brace.rotation.z = 0.8;
+      const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.25, 4), lampPostMat); chain.position.set(0.58, 2.8, 0);
+      const frame = new THREE.Mesh(lanternGeo(), lampPostMat); frame.position.set(0.58, 2.42, 0);
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.26, 6), lampGlass); head.position.set(0.58, 2.6, 0);
+      g.add(pole, arm, brace, chain, frame, head); lpos = [0.58, 2.6, 0];
+    } else if (kit === "harbor") {
+      const white = std({ color: 0xeeeae2, metalness: 0.3, roughness: 0.5 }), blue = std({ color: 0x2e5c8a, metalness: 0.3, roughness: 0.5 });
+      pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.09, 3.0, 8), white); pole.position.y = 1.5;
+      const base = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 0.4, 8), blue); base.position.y = 0.2;
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.1, 0.025, 5, 10), blue); ring.rotation.x = Math.PI / 2; ring.position.y = 3.0;
+      const globe = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), lampGlass); globe.position.y = 3.22;
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.18, 8), blue); cap.position.y = 3.5;
+      g.add(pole, base, ring, globe, cap); lpos = [0, 3.22, 0];
+    } else if (kit === "mountain") {
+      const ash = texAshlar(), st = std({ map: ash.map, normalMap: ash.normalMap, color: 0xc4c2bc, roughness: 0.95 }), snow = std({ color: 0xf2f6fa, roughness: 0.9 });
+      pole = new THREE.Mesh(new THREE.CylinderGeometry(Math.SQRT1_2 * 0.36, Math.SQRT1_2 * 0.56, 1.7, 4).rotateY(Math.PI / 4), st); pole.position.y = 0.85;
+      const top = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.12, 0.5), st); top.position.y = 1.76;
+      const cage = new THREE.Mesh(lanternGeo(), lampPostMat); cage.scale.setScalar(1.5); cage.position.y = 1.85;
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.15, 0.36, 6), lampGlass); head.position.y = 2.12;
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(0.3, 0.25, 4).rotateY(Math.PI / 4), lampPostMat); cap.position.y = 2.45;
+      const sc = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.12, 4).rotateY(Math.PI / 4), snow); sc.position.y = 2.55;
+      g.add(pole, top, cage, head, cap, sc); lpos = [0, 2.12, 0];
+    } else {
+      pole = new THREE.Mesh(lampPostGeo(), lampPostMat);
+      const frame = new THREE.Mesh(lanternGeo(), lampPostMat);
+      frame.position.set(0.38, 2.62, 0);
+      const head = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.12, 0.26, 6), lampGlass);
+      head.position.set(0.38, 2.82, 0);
+      g.add(pole, frame, head);
+    }
     g.position.set(lx * U, field.heightAt(lx, ly), ly * U);
     if (i < 4) {
       const L = new THREE.PointLight(0xffc070, 0, 14, 1.6);
-      L.position.set(0.38, 2.8, 0);
+      L.position.set(lpos[0], lpos[1], lpos[2]);
       g.add(L);
       W3.lampLights.push(L);
     }
@@ -2096,7 +2125,12 @@ function buildCityBuildings(field, root) {
     winB: std({ color: 0x1e1a16, roughness: 0.6 }),
     thatch: thatchT ? ST.thatch.map(c => std({ map: thatchT.map, normalMap: thatchT.normalMap, color: c, roughness: 1 })) : null,
     logwall: std({ map: planks.map, normalMap: planks.normalMap, color: 0x9a7656, roughness: 0.95 }),
-    bark: (() => { const b = texBark(); return std({ map: b.map, normalMap: b.normalMap, color: 0xb89a7a, roughness: 0.95 }); })()
+    bark: (() => { const b = texBark(); return std({ map: b.map, normalMap: b.normalMap, color: 0xb89a7a, roughness: 0.95 }); })(),
+    palm: (() => { const b = texBark(); return std({ map: b.map, normalMap: b.normalMap, color: 0xc8a888, roughness: 0.95 }); })(),
+    frond: (() => { const m = std({ color: 0x4a8a3a, roughness: 0.85, side: THREE.DoubleSide }); addSeason(m, "leaf"); return m; })(),
+    fir: std({ color: 0x2a4a34, roughness: 0.95 }),
+    birch: std({ color: 0xe8e4dc, roughness: 0.85 }),
+    leafLight: (() => { const m = std({ color: 0x7aaa48, roughness: 0.9 }); addSeason(m, "leaf"); return m; })()
   };
   const win = std({ map: texWindowPane(), color: 0xffffff, emissive: 0xffb050, emissiveIntensity: 0, roughness: 0.4 });
   const lampMat = std({ color: 0x3a2a14, emissive: 0xffc070, emissiveIntensity: 0 });
@@ -2662,8 +2696,12 @@ function buildCityBuildings(field, root) {
       bt.add(M.planks, box(2.2, 0.08, 0.45), B, 1.1, 0.55, 0, 0, 0, 0.42);
     } else if (o.t === "banner") {
       col(o.x, o.y, 5);
-      bt.add(M.iron, cyl(0.05, 0.07, 3.6, 6), B, 0, 1.8, 0);
-      bt.add(M.iron, box(1.0, 0.06, 0.06), B, 0.45, 3.45, 0);
+      const pm = KIT === "frontier" ? M.bark : HB ? M.trim : M.iron;
+      bt.add(pm, cyl(KIT === "frontier" ? 0.08 : 0.05, KIT === "frontier" ? 0.1 : 0.07, 3.6, 6), B, 0, 1.8, 0);
+      bt.add(pm, box(1.0, 0.06, 0.06), B, 0.45, 3.45, 0);
+      if (HB) { const tri = new THREE.ShapeGeometry(new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(0, 0.5), new THREE.Vector2(1.1, 0.25)])); bt.add(M.frame, tri, B, 0.05, 3.75, 0); bt.add(M.frame, tri, B, 0.05, 3.75, -0.005, Math.PI); bt.add(M.trim, cyl(0.03, 0.03, 0.6, 5), B, 0, 3.85, 0); }
+      if (MT) { bt.add(M.iron, new THREE.ConeGeometry(0.09, 0.4, 6), B, 0, 3.8, 0); bt.add(M.snow, box(1.0, 0.04, 0.1), B, 0.45, 3.5, 0); }
+      if (KIT === "frontier") { bt.add(M.bark, new THREE.ConeGeometry(0.08, 0.3, 6), B, 0, 3.75, 0); for (const sd of [-1, 1]) bt.add(M.beam, cyl(0.012, 0.012, 0.5, 4), B, 0.45 + sd * 0.38, 3.2, 0.02); }
       bt.add(M.gold, box(0.9, 0.06, 0.05), B, 0.45, 3.4, 0);
       if (crestOf(z)) { const bp = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 2.1), crestBannerMat(z, crestOf(z).field)); bp.applyMatrix4(new THREE.Matrix4().makeTranslation(0.45, 2.35, 0).premultiply(B)); bp.userData.banner = true; root.add(bp); }
       else { bt.add(r3() < 0.5 ? M.red : M.shutter[Math.floor(r3() * M.shutter.length)], box(0.85, 1.6, 0.03), B, 0.45, 2.6, 0); bt.add(M.gold, box(0.85, 0.08, 0.04), B, 0.45, 1.8, 0); }
@@ -2701,7 +2739,33 @@ function buildCityBuildings(field, root) {
   };
   for (const o of z.dressing || []) {
     const B = new THREE.Matrix4().makeRotationY(o.rot || 0).setPosition(o.x * U, footY(field, o.x, o.y, (DRESS_R[o.t] || 0.8) * (o.s || 1)), o.y * U), s = o.s || 1, r3 = seeded(hashStr("dr" + o.x + "," + o.y));
-    if (o.t === "tree") {
+    if (o.t === "tree" && (HB || MT || (KIT === "frontier" && r3() < 0.4))) {
+      col(o.x, o.y, 9 * s);
+      const V = (a, b, c) => new THREE.Vector3(a, b, c);
+      bt.add(M.stone, new THREE.TorusGeometry(0.9 * s, 0.12, 5, 16), B, 0, 0.1, 0, 0, Math.PI / 2);
+      bt.add(M.soil, cyl(0.85 * s, 0.85 * s, 0.06, 14), B, 0, 0.05, 0);
+      if (HB) {
+        const lean = (r3() - 0.5) * 0.8, H = (4.6 + r3() * 1.6) * s, segs = 9; let px = 0, py = 0.05;
+        for (let k = 0; k < segs; k++) { const t = (k + 1) / segs, nx = Math.sin(t * 1.2) * lean * H * 0.35, ny = t * H; bt.add(M.palm, logPiece(V(px, py, 0), V(nx, ny, 0), 0.2 * s * (1 - k * 0.04), 0.17 * s * (1 - k * 0.04), 7, k + o.x, 0), B, 0, 0, 0); bt.add(M.beam, new THREE.TorusGeometry(0.19 * s * (1 - k * 0.04), 0.03, 4, 9), B, nx, ny, 0, 0, Math.PI / 2); px = nx; py = ny; }
+        const nf = 8 + Math.floor(r3() * 3);
+        for (let k = 0; k < nf; k++) {
+          const a = k / nf * Math.PI * 2 + r3() * 0.4, droop = 0.25 + r3() * 0.45, len = (2.4 + r3() * 0.8) * s, fg = new THREE.PlaneGeometry(len, 0.75 * s, 8, 2), fp = fg.attributes.position;
+          for (let q = 0; q < fp.count; q++) { const u = fp.getX(q) / len + 0.5, w = fp.getY(q) / (0.75 * s); fp.setXYZ(q, u * len, -u * u * len * droop - Math.abs(w) * 0.15 * s, w * 0.75 * s * Math.sin(u * Math.PI) * 0.9); }
+          fg.computeVertexNormals();
+          bt.add(M.frond, fg, B, px, py + 0.05, 0, a, 0, 0.35);
+        }
+        for (let k = 0; k < 4; k++) bt.add(M.beam, new THREE.SphereGeometry(0.13 * s, 6, 5), B, px + Math.cos(k * 1.7) * 0.22, py - 0.25, Math.sin(k * 1.7) * 0.22);
+      } else if (MT) {
+        bt.add(M.beam, cyl(0.12 * s, 0.22 * s, 1.6 * s, 7), B, 0, 0.8 * s, 0);
+        const tiers = 4 + Math.floor(r3() * 2);
+        for (let k = 0; k < tiers; k++) { const t = k / tiers, r = (1.9 - t * 1.45) * s, h = (1.7 - t * 0.5) * s, y = (1.1 + t * 3.6) * s; const cg = roughen(new THREE.ConeGeometry(r, h, 9, 2), 0.12 * s, 2.5, k + o.x); bt.add(M.fir, cg, B, 0, y + h / 2, 0, r3() * 6); bt.add(M.snow, roughen(new THREE.ConeGeometry(r * 0.82, h * 0.42, 9, 1), 0.08 * s, 2.5, k + 7), B, 0, y + h * 0.82, 0, r3() * 6); }
+        bt.add(M.snow, cyl(0.95 * s, 1.05 * s, 0.08, 12), B, 0, 0.1, 0);
+      } else {
+        bt.add(M.birch, logPiece(V(0, 0, 0), V((r3() - 0.5) * 0.4, 4.2 * s, (r3() - 0.5) * 0.4), 0.15 * s, 0.07 * s, 7, o.x, 0.06), B, 0, 0, 0);
+        for (let k = 0; k < 7; k++) bt.add(M.beam, box(0.11 * s, 0.03, 0.03), B, 0, (0.4 + k * 0.5) * s, 0.12 * s, k);
+        for (let c = 0; c < 6; c++) { const a = r3() * 6.28, rr = (0.55 + r3() * 0.3) * s; bt.add(M.leafLight, lumpBlob(rr, 1, 1.3, 1, 0, 0, 0, c + o.x, 0.3), B, Math.cos(a) * 0.6 * s, (3.0 + r3() * 1.6) * s, Math.sin(a) * 0.6 * s); }
+      }
+    } else if (o.t === "tree") {
       col(o.x, o.y, 9 * s);
       bt.add(M.beam, cyl(0.15 * s, 0.24 * s, 2.4 * s, 8), B, 0, 1.2 * s, 0);
       for (let k = 0; k < 4; k++) { const a = k / 4 * Math.PI * 2 + r3(); bt.add(M.beam, cyl(0.03 * s, 0.11 * s, 0.6 * s, 5), B, Math.cos(a) * 0.2 * s, 0.12 * s, Math.sin(a) * 0.2 * s, -a, 0, 1.25, 1, 1, 1); }
