@@ -65,7 +65,7 @@ function daisLift(f, px, py) {
   for (const a of f.arms) { const c = Math.cos(a), s = Math.sin(a), al = dx * c + dy * s, la = Math.abs(-dx * s + dy * c); if (la < f.aw && al > 0 && al < f.r + f.ramp) k = Math.max(k, al <= f.r ? 1 : 1 - (al - f.r) / f.ramp); }
   return k;
 }
-function buildDais(z, field, root, bt, M, col) {
+function buildDais(z, field, root, bt, M, col, lampMatD, glowAtD) {
   const f = z._dais;
   if (!f) return;
   const box = (w, h, d) => new THREE.BoxGeometry(w, h, d), cyl = (a, b, h, n) => new THREE.CylinderGeometry(a, b, h, n || 8);
@@ -76,7 +76,7 @@ function buildDais(z, field, root, bt, M, col) {
   bt.add(M.stone, cyl(R, R + 0.15, hh, 40), B, 0, topY - hh / 2, 0);
   bt.add(M.trim, new THREE.TorusGeometry(R, 0.12, 6, 48), B, 0, topY, 0, 0, Math.PI / 2);
   bt.add(M.trim, cyl(R + 0.25, R + 0.3, 0.25, 40), B, 0, baseY + 0.05, 0);
-  bt.add(M.planks, cyl(R - 0.15, R - 0.15, 0.04, 40), B, 0, topY + 0.01, 0);
+  bt.add(z.cityStyle === "harbor" || z.cityStyle === "mountain" ? M.stone : M.planks, cyl(R - 0.15, R - 0.15, 0.04, 40), B, 0, topY + 0.01, 0);
   bt.add(M.trim, new THREE.RingGeometry(R * 0.32, R * 0.36, 32).rotateX(-Math.PI / 2), B, 0, topY + 0.035, 0);
   bt.add(M.gold, new THREE.RingGeometry(R * 0.62, R * 0.64, 40).rotateX(-Math.PI / 2), B, 0, topY + 0.035, 0);
   const n = 7, run = f.ramp / n * U, sw = f.aw * 2 * U;
@@ -107,20 +107,57 @@ function buildDais(z, field, root, bt, M, col) {
     bt.add(M.trim, box(0.16, 0.1, L + 0.04), B, (x + x2) / 2, topY + 0.85, (y + y2) / 2, Math.atan2(x2 - x, y2 - y));
     col(f.x + x / U, f.y + y / U, 5);
   }
-  const NC = 8, CR = R * 0.78, CH = 4.4;
-  for (let k = 0; k < NC; k++) {
-    const a = (f.arms[0] || 0) + Math.PI / NC + k / NC * Math.PI * 2, x = Math.cos(a) * CR, y = Math.sin(a) * CR;
-    bt.add(M.stone, box(0.7, 0.35, 0.7), B, x, topY + 0.17, y, a);
-    bt.add(M.white, cyl(0.2, 0.24, CH, 12), B, x, topY + 0.35 + CH / 2, y);
-    bt.add(M.trim, box(0.6, 0.25, 0.6), B, x, topY + 0.35 + CH + 0.12, y, a);
-    col(f.x + x / U, f.y + y / U, 7);
+  const NC = 8, CR = R * 0.78, CH = 4.4, KIT = (CITY_STYLES[z.cityStyle] || {}).kit, a0 = (f.arms[0] || 0) + Math.PI / NC;
+  const ring = (k) => { const a = a0 + k / NC * Math.PI * 2; return [a, Math.cos(a) * CR, Math.sin(a) * CR]; };
+  if (KIT === "frontier") {
+    const V = (x, y, zz) => new THREE.Vector3(x, y, zz), top = topY + 0.35 + CH;
+    for (let k = 0; k < NC; k++) { const [a, x, y] = ring(k); bt.add(M.stone, box(0.7, 0.35, 0.7), B, x, topY + 0.17, y, a); bt.add(M.bark, logPiece(V(x, topY + 0.3, y), V(x * 0.99, top, y * 0.99), 0.24, 0.2, 7, k, 0.03), B, 0, 0, 0); col(f.x + x / U, f.y + y / U, 7); }
+    for (let k = 0; k < NC; k++) { const [, x, y] = ring(k), [, x2, y2] = ring(k + 1), L = Math.hypot(x2 - x, y2 - y), ang = Math.atan2(x2 - x, y2 - y); bt.add(M.bark, cyl(0.16, 0.16, L + 0.3, 6).rotateX(Math.PI / 2), B, (x + x2) / 2, top + 0.1, (y + y2) / 2, ang); for (const t of [0.2, 0.8]) bt.add(M.beam, box(0.1, 1.0, 0.1).rotateX((t < 0.5 ? 1 : -1) * 0.75), B, x + (x2 - x) * t, top - 0.4, y + (y2 - y) * t, ang); }
+    for (let k = 0; k < NC; k++) { const [, x, y] = ring(k); bt.add(M.bark, logPiece(V(x * 1.12, top + 0.05, y * 1.12), V(0, top + 3.0, 0), 0.1, 0.08, 6, k + 9, 0), B, 0, 0, 0); }
+    bt.add(M.roof[0], roughen(new THREE.ConeGeometry(CR + 1.2, 3.2, NC, 2).rotateY(Math.PI / NC), 0.08, 2, 3), B, 0, top + 1.75, 0);
+    bt.add(M.bark, new THREE.ConeGeometry(0.2, 1.0, 6), B, 0, top + 3.7, 0);
+    const fl = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.7, 4, 1), std({ color: 0x8a2a1e, side: THREE.DoubleSide, roughness: 0.95 })); fl.position.set(0.62, top + 4.4, 0); fl.applyMatrix4(B); fl.userData.flag = true; root.add(fl); W3.spinners.push(fl);
+    bt.add(M.bark, cyl(0.04, 0.05, 1.6, 5), B, 0, top + 4.3, 0);
+  } else if (KIT === "harbor") {
+    const top = topY + 0.35 + CH, dome = std({ color: 0x2f6aa8, roughness: 0.45, metalness: 0.15 });
+    for (let k = 0; k < NC; k++) { const [a, x, y] = ring(k); bt.add(M.stone, box(0.8, 0.4, 0.8), B, x, topY + 0.2, y, a); bt.add(M.white, box(0.55, CH, 0.55), B, x, topY + 0.35 + CH / 2, y, a); col(f.x + x / U, f.y + y / U, 7); }
+    for (let k = 0; k < NC; k++) { const [, x, y] = ring(k), [, x2, y2] = ring(k + 1), L = Math.hypot(x2 - x, y2 - y), ang = Math.atan2(x2 - x, y2 - y) - Math.PI / 2; bt.add(M.white, new THREE.TorusGeometry(L / 2 - 0.25, 0.22, 6, 14, Math.PI), B, (x + x2) / 2, top - L / 2 + 0.3, (y + y2) / 2, ang); bt.add(M.white, box(L + 0.5, 0.9, 0.5), B, (x + x2) / 2, top + 0.45, (y + y2) / 2, ang); }
+    bt.add(M.trim, new THREE.TorusGeometry(CR, 0.28, 6, 40), B, 0, top + 0.95, 0, 0, Math.PI / 2);
+    bt.add(M.white, cyl(CR * 0.72, CR * 0.75, 1.0, 24), B, 0, top + 1.45, 0);
+    for (let k = 0; k < 12; k++) { const a = k / 12 * Math.PI * 2; bt.add(M.winB, box(0.3, 0.6, 0.1), B, Math.cos(a) * CR * 0.735, top + 1.45, Math.sin(a) * CR * 0.735, -a + Math.PI / 2); }
+    bt.add(dome, new THREE.SphereGeometry(CR * 0.74, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), B, 0, top + 1.95, 0);
+    bt.add(M.gold, cyl(0.06, 0.1, 1.2, 6), B, 0, top + 2.0 + CR * 0.74 + 0.5, 0);
+    bt.add(M.gold, new THREE.SphereGeometry(0.24, 10, 8), B, 0, top + 2.0 + CR * 0.74 + 1.15, 0);
+    for (let k = 0; k < NC; k++) { const [, x, y] = ring(k + 0.5); bt.add(M.red, cyl(0.28, 0.2, 0.5, 8), B, x * 0.62, topY + 0.25, y * 0.62); bt.add(M.leaf, lumpBlob(0.35, 1, 0.8, 1, 0, 0, 0, k, 0.3), B, x * 0.62, topY + 0.7, y * 0.62); }
+  } else if (KIT === "mountain") {
+    const top = topY + 0.35 + CH * 0.85, PW = 1.3;
+    for (let k = 0; k < NC; k += 2) { const [a, x, y] = ring(k); bt.add(M.stone, new THREE.CylinderGeometry(Math.SQRT1_2 * PW * 0.8, Math.SQRT1_2 * PW * 1.15, top - topY, 4).rotateY(Math.PI / 4), B, x, (top + topY) / 2, y, a); bt.add(M.stone, box(PW * 1.25, 0.4, PW * 1.25), B, x, top + 0.2, y, a); col(f.x + x / U, f.y + y / U, 14); }
+    for (let k = 0; k < NC; k += 2) { const [, x, y] = ring(k), [, x2, y2] = ring(k + 2), L = Math.hypot(x2 - x, y2 - y), ang = Math.atan2(x2 - x, y2 - y); bt.add(M.stone, box(1.1, 1.0, L + 1.2), B, (x + x2) / 2, top + 0.8, (y + y2) / 2, ang); }
+    const span = CR * Math.SQRT2 + 1.6, ry = (f.arms[0] || 0) + Math.PI / 4 * 0;
+    const hr = 4.2, cg = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4, 1).rotateY(Math.PI / 4).scale(span + 1.0, hr, span + 1.0);
+    const Bq = new THREE.Matrix4().makeRotationY(-a0 + Math.PI / 4).premultiply(B);
+    bt.add(M.roof[0], cg, Bq, 0, top + 1.3 + hr / 2, 0);
+    bt.add(M.snow, cg.clone().scale(0.62, 0.62, 0.62), Bq, 0, top + 1.3 + hr * 0.69 + 0.08, 0);
+    for (let k = 0; k < 4; k++) { const ex = [1, -1, -1, 1][k] * (span + 1.0) / 2, ez = [1, 1, -1, -1][k] * (span + 1.0) / 2; for (let q = 0; q < 10; q++) { const t = (q + 0.5) / 10, ln = 0.15 + ((q * 7 + k) % 5) * 0.12, nx = [-1, -1, 1, 1][k] * 0 + ex + ([-1, 0, 1, 0][k] * 0); const px = k % 2 ? ex : ex * (1 - 2 * t), pz = k % 2 ? ez * (1 - 2 * t) : ez; bt.add(M.ice, new THREE.ConeGeometry(0.05, ln, 5), Bq, px, top + 1.25 - ln / 2, pz, 0, Math.PI, 0); } }
+    bt.add(M.iron, cyl(0.03, 0.03, 2.4, 4), B, 0, top + 0.1, 0);
+    bt.add(M.iron, new THREE.TorusGeometry(1.0, 0.07, 6, 18), B, 0, top - 1.1, 0, 0, Math.PI / 2);
+    for (let k = 0; k < 6; k++) { const a = k / 6 * Math.PI * 2; bt.add(lampMatD, cyl(0.06, 0.06, 0.25, 6), B, Math.cos(a), top - 0.95, Math.sin(a)); }
+    for (let k = 0; k < 3; k++) glowAtD(B, Math.cos(k * 2.1), top - 0.85, Math.sin(k * 2.1), 1.4);
+  } else {
+    for (let k = 0; k < NC; k++) {
+      const [a, x, y] = ring(k);
+      bt.add(M.stone, box(0.7, 0.35, 0.7), B, x, topY + 0.17, y, a);
+      bt.add(M.white, cyl(0.2, 0.24, CH, 12), B, x, topY + 0.35 + CH / 2, y);
+      bt.add(M.trim, box(0.6, 0.25, 0.6), B, x, topY + 0.35 + CH + 0.12, y, a);
+      col(f.x + x / U, f.y + y / U, 7);
+    }
+    const ry0 = topY + 0.35 + CH + 0.25;
+    bt.add(M.trim, new THREE.TorusGeometry(CR, 0.22, 6, 40), B, 0, ry0 + 0.1, 0, 0, Math.PI / 2);
+    bt.add(M.roof[1], new THREE.ConeGeometry(CR + 1.0, 2.8, 16, 1, true), B, 0, ry0 + 1.5, 0);
+    bt.add(M.trim, cyl(CR + 1.05, CR + 1.05, 0.18, 16), B, 0, ry0 + 0.15, 0);
+    bt.add(M.gold, cyl(0.06, 0.1, 1.2, 6), B, 0, ry0 + 3.4, 0);
+    bt.add(M.gold, new THREE.SphereGeometry(0.22, 10, 8), B, 0, ry0 + 4.05, 0);
   }
-  const ry0 = topY + 0.35 + CH + 0.25;
-  bt.add(M.trim, new THREE.TorusGeometry(CR, 0.22, 6, 40), B, 0, ry0 + 0.1, 0, 0, Math.PI / 2);
-  bt.add(M.roof[1], new THREE.ConeGeometry(CR + 1.0, 2.8, 16, 1, true), B, 0, ry0 + 1.5, 0);
-  bt.add(M.trim, cyl(CR + 1.05, CR + 1.05, 0.18, 16), B, 0, ry0 + 0.15, 0);
-  bt.add(M.gold, cyl(0.06, 0.1, 1.2, 6), B, 0, ry0 + 3.4, 0);
-  bt.add(M.gold, new THREE.SphereGeometry(0.22, 10, 8), B, 0, ry0 + 4.05, 0);
   bt.add(M.stone, cyl(1.1, 1.3, 0.45, 12), B, 0, topY + 0.22, 0);
   bt.add(M.trim, cyl(0.95, 1.1, 0.25, 12), B, 0, topY + 0.55, 0);
 }
@@ -3018,7 +3055,7 @@ function buildCityBuildings(field, root) {
       ban2.position.set(gx * U - (vert ? (g.side === "e" ? -bo : bo) : 0), gy + 8.0, gyy * U - (vert ? 0 : g.side === "s" ? -bo : bo)); ban2.rotation.y = ban.rotation.y + Math.PI; root.add(ban2);
     }
   }
-  buildDais(z, field, root, bt, M, col);
+  buildDais(z, field, root, bt, M, col, lampMat, glowAt);
   bt.flush(root);
 }
 function gambrelGeo(w, d, h1, h2) {

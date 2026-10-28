@@ -348,11 +348,13 @@ const TERRAIN_THEMES = {
   jungle: { grassA: [52, 92, 36], grassB: [74, 118, 44], dirt: [92, 70, 46], rock: [92, 96, 84], sand: [130, 116, 84], cliff: [76, 84, 66], moss: [44, 86, 40] },
   desert: { grassA: [204, 176, 126], grassB: [222, 196, 146], dirt: [184, 140, 96], rock: [170, 124, 92], sand: [230, 206, 160], cliff: [160, 108, 78] },
   marsh: { grassA: [70, 84, 50], grassB: [96, 100, 60], dirt: [92, 80, 58], rock: [96, 98, 90], sand: [104, 96, 70], cliff: [84, 88, 80], moss: [58, 82, 48] },
+  city_frontier: { grassA: [84, 106, 46], grassB: [112, 120, 56], dirt: [118, 92, 62], rock: [118, 112, 104], sand: [170, 158, 120], cliff: [104, 100, 92] },
+  city_harbor: { grassA: [110, 124, 62], grassB: [146, 140, 82], dirt: [190, 170, 128], rock: [150, 140, 122], sand: [226, 210, 168], cliff: [140, 132, 118] },
   house: { grassA: [120, 92, 62], grassB: [128, 98, 66], dirt: [110, 84, 58], rock: [100, 90, 80], sand: [120, 100, 80], cliff: [80, 70, 60] }
 };
 
 function* bakeTerrainAlbedoSteps(field, size, keyOver) {
-  const z = field.zone, th = TERRAIN_THEMES[z.palette || z.theme] || TERRAIN_THEMES.field;
+  const z = field.zone, th = TERRAIN_THEMES["city_" + z.cityStyle] || TERRAIN_THEMES[z.palette || z.theme] || TERRAIN_THEMES.field, CS = z.cityStyle;
   const W = size, H = Math.max(64, Math.round(size * field.h / field.w));
   const sx = field.w / W, sy = field.h / H;
   const cob = z.theme === "town";
@@ -380,11 +382,27 @@ function* bakeTerrainAlbedoSteps(field, size, keyOver) {
     r = mix(r, th.dirt[0], patch); g = mix(g, th.dirt[1], patch); b = mix(b, th.dirt[2], patch);
     const pw = field.pathWeight(px, py);
     if (pw > 0) {
-      if (cob && (z.paved || field.plazaWeight(px, py) > 0.5)) {
+      const plz = field.plazaWeight(px, py);
+      if (cob && CS === "harbor" && (z.paved || plz > 0.5)) {
+        const row = Math.floor(py / 26), qx = px / 34 + NOISE.hash2(row & 255, 31) * 3, col = Math.floor(qx), fx = qx - col, fy = py / 26 - row, mort = Math.min(fx * 34, (1 - fx) * 34, fy * 26, (1 - fy) * 26), id = NOISE.hash2((col & 255), (row & 255));
+        const t2 = z.paved ? pw : pw * plz, tv = 0.86 + id * 0.24 + (n3 - 0.5) * 0.1, wear = sstep(0.4, 0.9, n2) * 0.12;
+        let cr = 214 * tv, cg = 196 * tv, cb2 = 158 * tv; if (mort < 1.6) { cr = 128; cg = 116; cb2 = 96; }
+        r = mix(r, cr * (1 + wear), t2); g = mix(g, cg * (1 + wear), t2); b = mix(b, cb2 * (1 + wear * 0.6), t2);
+      } else if (cob && CS === "mountain" && (z.paved || plz > 0.5)) {
+        const cx = ((px * 4) % 256 + 256) % 256 | 0, cy = ((py * 4) % 256 + 256) % 256 | 0, cb = field.cobbleHeight(cx, cy);
+        const t2 = z.paved ? pw : pw * plz, slush = sstep(0.45, 0.75, n2) * 0.5;
+        let v = 72 + cb * 58, cr = v * 0.96, cg = v * 0.98, cb2 = v * 1.05;
+        if (cb < 0.18) { cr = 224; cg = 230; cb2 = 236; }
+        cr = mix(cr, 150, slush); cg = mix(cg, 148, slush); cb2 = mix(cb2, 146, slush);
+        r = mix(r, cr, t2); g = mix(g, cg, t2); b = mix(b, cb2, t2);
+      } else if (cob && CS === "frontier" && z.paved && plz < 0.5) {
+        const t2 = pw * (0.88 + 0.12 * n2), grav = n3 > 0.82 ? 1.25 : n3 < 0.12 ? 0.75 : 1, rut = 1 - sstep(0.1, 0.35, Math.abs(NOISE.value(px * 0.012, py * 0.012, 0, 461) - 0.5)) * 0.18;
+        r = mix(r, th.dirt[0] * grav * rut, t2); g = mix(g, th.dirt[1] * grav * rut, t2); b = mix(b, th.dirt[2] * grav * rut, t2);
+      } else if (cob && (z.paved || plz > 0.5)) {
         const cx = ((px * 4) % 256 + 256) % 256 | 0, cy = ((py * 4) % 256 + 256) % 256 | 0;
         const cb = field.cobbleHeight(cx, cy);
         const v = cb < 0.15 ? 70 : 105 + cb * 60;
-        const t2 = z.paved ? pw : pw * field.plazaWeight(px, py);
+        const t2 = z.paved ? pw : pw * plz;
         r = mix(r, v, t2); g = mix(g, v * 0.97, t2); b = mix(b, v * 0.92, t2);
       } else {
         const t2 = pw * (0.85 + 0.15 * n2);
