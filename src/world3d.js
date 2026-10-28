@@ -215,6 +215,8 @@ function* buildFieldSteps(zone) {
     waterLevel = acc / waters.length - 0.35;
   }
   const seaFn = waterLevel != null && seaY(zone) != null ? x => seaShore(zone, x) : null;
+  let farSea = null;
+  if (!seaFn && zone.cityStyle === "harbor" && zone.town && zone.off) for (const k in ZONES) { const o = ZONES[k]; if (o === zone || o.town !== zone.town || !o.off || seaY(o) == null) continue; const ly = o.off[1] + seaY(o) - zone.off[1]; if (ly > zone.h && (farSea == null || ly < farSea)) farSea = ly; }
   const raw = (px, py) => {
     let hgt = low(px, py) + mid(px, py);
     const pw = pathW(px, py);
@@ -279,7 +281,7 @@ function* buildFieldSteps(zone) {
     pathWeight: pathW, plazaWeight: plazaW, cobbleHeight, rutWeight: rutW,
     roadGap: (px, py) => { let g = 1e9; for (const s of pathSegs) { if (px < s.x0 - 40 || px > s.x1 + 40 || py < s.y0 - 40 || py > s.y1 + 40) continue; g = Math.min(g, distToSeg(px, py, s.ax, s.ay, s.bx, s.by) - s.w / 2); } return g; },
     shoreWeight: (px, py) => { let s = 0; for (const wt of waters) { const d = pondDist(wt, px, py); s = Math.max(s, sstep(wt.r + 45, wt.r + 4, d)); } if (seaFn) s = Math.max(s, sstep(seaFn(px) - 150, seaFn(px) - 40, py)); return s; },
-    seaFn,
+    seaFn, farSea,
     outside: (px, py) => sstep(0, 120, outsideE(px, py)) * (1 - exitMask(px, py)),
     outsideE, exitMask
   };
@@ -3244,13 +3246,28 @@ function buildFarms(field, root) {
   bt.flush(root);
 }
 
+function buildFarSea(field, root) {
+  const z = field.zone;
+  W3.farSea = null;
+  if (field.farSea == null) return;
+  let lvl = 1e9; for (let x = 0; x <= z.w; x += 60) lvl = Math.min(lvl, field.heightAt(x, z.h - 20));
+  const nm = texWaterNormals().clone(); nm.needsUpdate = true; nm.repeat.set(60, 60);
+  const g = new THREE.PlaneGeometry(1400 * U * 20, 14000 * U, 1, 1).rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ color: 0x2a6070, roughness: 0.12, metalness: 0.3, normalMap: nm, normalScale: new THREE.Vector2(0.35, 0.35) }));
+  m.position.set(z.w / 2 * U, lvl - 3.5, (field.farSea + 7000) * U); m.renderOrder = 1; root.add(m);
+  W3.farSea = m;
+}
 function buildSkyline(field, root) {
   const z = field.zone, G = z.ghost;
   if (!G || (!G.houses.length && !(G.marks || []).length)) return;
-  const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default;
-  const wallM = (ST.skyWall || ST.plaster).map(c => std({ color: c, roughness: 0.95 })), roofM = (ST.skyRoof || ST.roof).map(c => std({ color: c, roughness: 0.85 })), stoneM = std({ color: 0xbcb4a6, roughness: 0.95 }), winM = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 });
+  const ST = CITY_STYLES[z.cityStyle] || CITY_STYLES.default, KIT = ST.kit || "";
+  const tx = (t, c, extra) => std(Object.assign({ map: t.map, normalMap: t.normalMap, color: c, roughness: 0.95 }, extra || {}));
+  const wallT = KIT === "harbor" ? texWhitewash() : texPlaster(), ash = texAshlar(), roofT = KIT === "frontier" ? texShakes() : KIT === "harbor" ? texTiles() : KIT === "mountain" ? texSlate() : texShingle();
+  const wallM = KIT === "mountain" ? [0xb8b6b0, 0xa8a6a2, 0xc0bcb4, 0x9c9a98].map(c => tx(ash, c)) : ST.plaster.map(c => tx(wallT, c));
+  const roofM = (KIT ? ST.roof : (ST.skyRoof || ST.roof)).map(c => tx(roofT, c, { roughness: 0.88 })), stoneM = tx(ash, KIT === "harbor" ? 0xf0e2c4 : 0xbcb8b0);
+  const winM = std({ color: 0x241a10, emissive: 0xffb050, emissiveIntensity: 0 }), frameM = std({ color: KIT === "harbor" ? 0x2e5c8a : 0x4a3220, roughness: 0.85 }), beamM = std({ color: 0x3e2a1a, roughness: 0.9 }), snowM = std({ color: 0xf2f6fa, roughness: 0.9 }), trimM = std({ color: KIT === "harbor" ? 0xf2eee6 : 0xb8b0a0, roughness: 0.85 });
   W3.windowMats.push(winM);
-  const thM = ST.thatch ? std({ color: 0xb89a66, roughness: 1 }) : null;
+  const thM = ST.thatch ? (() => { const t = texThatch(); return tx(t, 0xe8dcc0, { roughness: 1 }); })() : null;
   const bt = cityBatch(), box = (a, b, c) => new THREE.BoxGeometry(a, b, c);
   for (const h of G.houses) {
     if (h.x > -60 && h.y > -60 && h.x < z.w + 60 && h.y < z.h + 60) continue;
@@ -3259,10 +3276,24 @@ function buildSkyline(field, root) {
     const B = new THREE.Matrix4().makeRotationY(houseAng(h)).setPosition(h.x * U, gy, h.y * U);
     const stone = ["hall", "barracks", "guard", "cityhall", "keep", "forge", "smelter", "auction"].includes(h.type);
     bt.add(stone ? stoneM : wallM[(h.tint != null ? h.tint : Math.floor(r() * 4)) % 4], box(bw, hh, bd), B, 0, hh / 2, 0);
-    for (let f = 0; f < n; f++) for (const sx of [-0.3, 0.3]) for (const fz of [1, -1]) bt.add(winM, box(0.8, 0.9, 0.06), B, sx * bw, 0.6 + f * 3 + 1.7, fz * (bd / 2 + 0.03));
+    bt.add(stoneM, box(bw + 0.3, 0.8, bd + 0.3), B, 0, 0.2, 0);
+    const nw = Math.max(1, Math.floor((bw - 0.8) / 2.3));
+    for (let f = 0; f < n; f++) {
+      const y0 = 0.6 + f * 3;
+      if (f > 0) bt.add(KIT === "frontier" && !stone ? beamM : trimM, box(bw + 0.12, 0.18, bd + 0.12), B, 0, y0, 0);
+      for (let i = 0; i < nw; i++) { const wx = (i + 0.5) / nw * bw - bw / 2; if (f === 0 && Math.abs(wx) < 1) continue; for (const fz of [1, -1]) { bt.add(frameM, box(1.0, 1.1, 0.08), B, wx, y0 + 1.65, fz * (bd / 2 + 0.03)); bt.add(winM, box(0.8, 0.9, 0.08), B, wx, y0 + 1.65, fz * (bd / 2 + 0.05)); if (KIT === "frontier" && !stone) for (const sx of [-1, 1]) bt.add(beamM, box(0.12, 2.8, 0.06), B, wx + sx * 0.62, y0 + 1.5, fz * (bd / 2 + 0.04)); if (KIT === "harbor") bt.add(trimM, new THREE.TorusGeometry(0.52, 0.07, 4, 8, Math.PI), B, wx, y0 + 2.2, fz * (bd / 2 + 0.06), fz > 0 ? 0 : Math.PI); if (KIT === "mountain") bt.add(stoneM, box(1.4, 0.28, 0.24), B, wx, y0 + 2.32, fz * (bd / 2 + 0.1)); } }
+    }
+    if (KIT === "frontier" && !stone) for (const sx of [-1, 1]) for (const sz of [-1, 1]) bt.add(beamM, box(0.18, hh, 0.18), B, sx * (bw / 2 + 0.02), hh / 2, sz * (bd / 2 + 0.02));
+    bt.add(frameM, box(1.3, 2.2, 0.1), B, 0, 1.7, bd / 2 + 0.05);
     if (h.type === "markethall") continue;
     if (h.type === "keep") { bt.add(stoneM, box(bw + 0.5, 0.4, bd + 0.5), B, 0, hh + 0.2, 0); continue; }
-    bt.add(thM && !stone && r() < 0.7 ? thM : roofM[Math.floor(r() * 4)], roofGeo(bw, bd, Math.min(ST.pitch > 0.4 ? 4.6 : 3.4, bw * ST.pitch)), B, 0, hh, 0);
+    const rh = Math.min(ST.pitch > 0.4 ? 4.6 : 3.4, bw * ST.pitch);
+    if (KIT === "harbor" && !stone && r() < (ST.flat || 0)) { bt.add(trimM, box(bw + 0.3, 0.25, bd + 0.3), B, 0, hh + 0.1, 0); for (const sz of [-1, 1]) bt.add(wallM[0], box(bw + 0.3, 0.8, 0.2), B, 0, hh + 0.6, sz * (bd / 2 + 0.05)); for (const sx of [-1, 1]) bt.add(wallM[0], box(0.2, 0.8, bd + 0.3), B, sx * (bw / 2 + 0.05), hh + 0.6, 0); continue; }
+    const th = thM && !stone && r() < 0.7;
+    if (th) { bt.add(thM, roofGeo(bw + 0.5, bd + 0.5, rh + 0.25), B, 0, hh - 0.14, 0); bt.add(thM, new THREE.CylinderGeometry(0.32, 0.32, bd + 1.2, 6).rotateX(Math.PI / 2), B, 0, hh + rh + 0.06, 0); }
+    else bt.add(roofM[Math.floor(r() * 4)], roofGeo(bw, bd, rh), B, 0, hh, 0);
+    if (KIT === "mountain") bt.add(snowM, roofGeo(bw * 0.6 + 0.25, bd + 0.1, rh * 0.6 + 0.12), B, 0, hh + rh * 0.4 - 0.02, 0);
+    bt.add(stoneM, box(0.7, 2.2, 0.7), B, bw * 0.26 * (r() < 0.5 ? -1 : 1), hh + 1.2, -bd * 0.18);
   }
   const fireM = new THREE.MeshBasicMaterial({ color: 0xffa040 }), redM = std({ color: 0xb03a30, roughness: 0.8 }), woodM = std({ color: 0x4a3420, roughness: 0.9 });
   for (const m of G.marks || []) {
@@ -4419,7 +4450,7 @@ function* buildZone3DSteps() {
   buildProps(field, root);
   yield { p: 0.88, t: "Raising buildings…" };
   W3.bees = []; W3.rainShrooms = []; W3.caveGlows = [];
-  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildFarms(field, root); buildSkyline(field, root); }
+  if (themeOf(z) === "town") { buildTown(field, root); buildCityWalls(field, root); buildCityBuildings(field, root); buildFarms(field, root); buildSkyline(field, root); buildFarSea(field, root); }
   if (themeOf(z) === "cave" || themeOf(z) === "crypt") buildCave(field, root);
   if (themeOf(z) === "crypt") buildCrypt(field, root);
   buildDungeon(field, root);
@@ -4592,7 +4623,7 @@ function buildBackdrop(field, root) {
       for (const gp of gaps) { const da = Math.atan2(Math.sin(a - gp.a), Math.cos(a - gp.a)), wid = Math.atan2(70, Math.max(1, R - gp.d * 0.5)) * (1 + 0.25 * L); const k = Math.exp(-(da * da) / (2 * wid * wid)); if (k > gw) { gw = k; gf = gp.floor; } }
       if (gw > 0.01) h = h * (1 - gw) + (gf - lowY + hill * (0.35 + 0.25 * L) + 2 + L * 4) * gw;
       if (B.sea && Math.sin(a + seed) > 0.55) h *= 0.18;
-      if (field.seaFn) { const k = sstep(0.0, 0.55, Math.sin(a)); h = h * (1 - k) - k * 80; }
+      if (field.seaFn || field.farSea) { const k = sstep(0.0, 0.55, Math.sin(a)); h = h * (1 - k) - k * 80; }
       const x = cx + Math.cos(a) * R, z = cz + Math.sin(a) * R, foot = Math.min(lowY + h * 0.35, lowY + (gf - lowY) * gw + 4);
       pos.push(x, lowY - 400, z, x, foot, z, x, lowY + h, z);
       const tk = B.snow && h > B.h[L] * 0.62 ? 1 : 0.95;
@@ -4983,6 +5014,7 @@ function updateSky(force) {
   } else if (W3.water && W3.water.userData.lowNormal) {
     W3.water.userData.lowNormal.offset.set(S.time * 0.01, S.time * 0.007);
   }
+  if (W3.farSea && W3.farSea.parent) W3.farSea.material.normalMap.offset.set(S.time * 0.004, S.time * 0.003);
   for (const m of W3.grassMats) if (m.userData.shader) m.userData.shader.uniforms.uTime.value = S.time;
   updateSeason();
   updateAtmosFx(dir, dayAmt, gloom, cave, indoor, golden, fogC);
